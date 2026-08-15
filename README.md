@@ -189,4 +189,4 @@ Proyek ini dikembangkan secara eksklusif untuk PT Bintang Gandari. Hak penggunaa
 
 ## Kontak Developer
 
-Untuk pertanyaan teknis atau permintaan fitur, silakan hubungi developer melalui Issues di repository ini.
+Untuk pertanyaan teknis atau permintaan fitur, silakan hubungi developer melalui Issues di repository inii.
