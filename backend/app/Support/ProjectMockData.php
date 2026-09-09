@@ -90,7 +90,7 @@ class ProjectMockData
                 ['date' => '2025-06-01', 'user' => 'System', 'action' => 'Project Created', 'old' => '—', 'new' => 'PRJ-005 initialized'],
             ],
             'PRJ-006' => [
-                ['date' => '2026-08-03', 'user' => 'Andi Pratama', 'action' => 'Contract Value Updated', 'old' => 'Rp 10.5B', 'new' => 'Rp 11.0B'],
+                ['date' => '2026-08-03', 'user' => 'Andi Pratama', 'action' => 'Contract Value Updated', 'old' => 'Rp 10,5 Miliar', 'new' => 'Rp 11 Miliar'],
                 ['date' => '2026-02-20', 'user' => 'System', 'action' => 'Project Created', 'old' => '—', 'new' => 'PRJ-006 initialized'],
             ],
         ];
@@ -99,5 +99,66 @@ class ProjectMockData
     public static function historyFor(string $projectId): array
     {
         return self::history()[$projectId] ?? [];
+    }
+
+    public static function addendums(): array
+    {
+        return [
+            [
+                'addendum_id' => 'ADD-001-01',
+                'project_id' => 'PRJ-001',
+                'project_name' => 'Grand Horizon Tower',
+                'title' => 'Spun Pile Volume Adjustment',
+                'value' => 1500000000,
+                'date' => '2026-07-20',
+                'status' => 'APPROVED',
+                'description' => 'Adjustment of foundation volume due to soil condition findings.'
+            ],
+            [
+                'addendum_id' => 'ADD-001-02',
+                'project_id' => 'PRJ-001',
+                'project_name' => 'Grand Horizon Tower',
+                'title' => 'Facade Glass Upgrade',
+                'value' => 800000000,
+                'date' => '2026-08-10',
+                'status' => 'PENDING',
+                'description' => 'Upgraded facade panels to meet higher energy efficiency ratings.'
+            ],
+            [
+                'addendum_id' => 'ADD-002-01',
+                'project_id' => 'PRJ-002',
+                'project_name' => 'Industrial Park Phase II',
+                'title' => 'Road Base Material Change',
+                'value' => -500000000,
+                'date' => '2026-05-12',
+                'status' => 'APPROVED',
+                'description' => 'Cost savings realized by switching to local supplier for subbase materials.'
+            ],
+            [
+                'addendum_id' => 'ADD-004-01',
+                'project_id' => 'PRJ-004',
+                'project_name' => 'Metro Line Extension',
+                'title' => 'Excavation Support Wall Expansion',
+                'value' => 3200000000,
+                'date' => '2026-07-15',
+                'status' => 'PENDING',
+                'description' => 'Expansion of retention wall to prevent soil displacement in Segment C.'
+            ],
+            [
+                'addendum_id' => 'ADD-006-01',
+                'project_id' => 'PRJ-006',
+                'project_name' => 'Surabaya Smart City Flyover',
+                'title' => 'Steel Girder Span Increase',
+                'value' => 500000000,
+                'date' => '2026-08-03',
+                'status' => 'APPROVED',
+                'description' => 'Lengthened girder spans to optimize support pier locations.'
+            ],
+        ];
+    }
+
+    public static function addendumsFor(string $projectId): array
+    {
+        return array_values(array_filter(self::addendums(), fn($a) => $a['project_id'] === $projectId));
     }
 }

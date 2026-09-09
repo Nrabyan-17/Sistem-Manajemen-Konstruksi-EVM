@@ -27,6 +27,7 @@ class ProjectDetail extends Component
     public array $sCurveAcwp;
 
     public array $milestones;
+    public array $addendums = [];
 
     public function mount(string $projectId)
     {
@@ -36,6 +37,7 @@ class ProjectDetail extends Component
 
         $this->project = $project;
         $this->history = ProjectMockData::historyFor($projectId);
+        $this->addendums = ProjectMockData::addendumsFor($projectId);
 
         // ===== EVM formulas =====
         // BCWP (Earned Value) = Contract Value (BAC) x Progress%

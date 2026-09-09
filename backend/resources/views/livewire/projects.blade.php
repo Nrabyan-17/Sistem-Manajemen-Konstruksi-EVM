@@ -112,8 +112,8 @@
                 </div>
             </div>
             <p class="text-xs text-slate-500 mt-3 font-semibold">Total Contract Value</p>
-            <p class="text-xl font-extrabold text-slate-900 mt-0.5">
-                Rp {{ number_format($kpiTotalContract / 1e9, 1) }}B
+            <p class="text-xl font-extrabold text-slate-900 mt-0.5" title="{{ \App\Support\CurrencyHelper::formatFull($kpiTotalContract) }}">
+                {{ \App\Support\CurrencyHelper::format($kpiTotalContract) }}
             </p>
         </div>
     </div>
@@ -211,7 +211,9 @@
                                 </div>
                                 <div>
                                     <p class="text-[10px] text-slate-400 font-medium">Contract Value</p>
-                                    <p class="font-extrabold text-slate-900">Rp {{ number_format($p['contract_value'] / 1e9, 2) }}B</p>
+                                    <p class="font-extrabold text-slate-900" title="{{ \App\Support\CurrencyHelper::formatFull($p['contract_value']) }}">
+                                        {{ \App\Support\CurrencyHelper::format($p['contract_value']) }}
+                                    </p>
                                 </div>
                             </div>
 
@@ -259,7 +261,9 @@
                                         class="text-xs font-semibold text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition border border-slate-100">
                                     View History
                                 </button>
-                                <span class="text-[10px] font-bold text-slate-400">Est. Cost: Rp {{ number_format($p['eac'] / 1e9, 2) }}B</span>
+                                <span class="text-[10px] font-bold text-slate-400" title="{{ \App\Support\CurrencyHelper::formatFull($p['eac']) }}">
+                                    Est. Cost: {{ \App\Support\CurrencyHelper::format($p['eac']) }}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -294,7 +298,9 @@
                                     <td class="p-4 text-slate-500 font-semibold">{{ $p['spk_number'] }}</td>
                                     <td class="p-4 text-slate-700 font-medium">{{ $p['project_manager'] }}</td>
                                     <td class="p-4 text-slate-500">{{ $p['client'] }}</td>
-                                    <td class="p-4 font-extrabold text-slate-900">Rp {{ number_format($p['contract_value'] / 1e9, 2) }}B</td>
+                                    <td class="p-4 font-extrabold text-slate-900" title="{{ \App\Support\CurrencyHelper::formatFull($p['contract_value']) }}">
+                                        {{ \App\Support\CurrencyHelper::format($p['contract_value']) }}
+                                    </td>
                                     <td class="p-4 text-slate-500">{{ date('d/m/Y', strtotime($p['start_date'])) }}</td>
                                     <td class="p-4 text-slate-500">{{ date('d/m/Y', strtotime($p['bast_date'])) }}</td>
                                     <td class="p-4 font-bold text-slate-700">{{ $p['progress'] }}%</td>
@@ -445,8 +451,13 @@
                     </div>
                     <div>
                         <label class="block font-bold text-slate-800 mb-1.5">Contract Value (Rupiah)</label>
-                        <input type="number" wire:model="newValue" placeholder="e.g. 15000000000" required
+                        <input type="number" wire:model.live.debounce.300ms="newValue" placeholder="e.g. 15000000000" required
                                class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+                        @if($newValue && is_numeric($newValue))
+                            <p class="text-[10px] text-blue-600 font-semibold mt-1">
+                                {{ \App\Support\CurrencyHelper::format($newValue) }} &bull; {{ \App\Support\CurrencyHelper::formatFull($newValue) }}
+                            </p>
+                        @endif
                     </div>
                 </div>
 
@@ -463,7 +474,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60 mt-4 text-center">
+                <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60 mt-4 text-center">
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase">Auto-calculated Duration</p>
                         <p class="text-sm font-extrabold text-slate-800 mt-1" x-text="calculatedDuration"></p>
@@ -471,14 +482,6 @@
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase">Time Remaining</p>
                         <p class="text-sm font-extrabold text-slate-800 mt-1" x-text="calculatedRemaining"></p>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Status</label>
-                        <select wire:model="newStatus" class="px-2 py-1 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                            <option value="ON TRACK">On Track</option>
-                            <option value="AT RISK">At Risk</option>
-                            <option value="CRITICAL">Critical</option>
-                        </select>
                     </div>
                 </div>
 

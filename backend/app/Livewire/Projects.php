@@ -111,7 +111,7 @@ class Projects extends Component
             'cpi' => 1.00,
             'spi' => 1.00,
             'eac' => floatval($this->newValue),
-            'status' => $this->newStatus
+            'status' => 'ON TRACK',
         ];
 
         $this->projects[] = $newProjectObj;

@@ -34,43 +34,12 @@
         </div>
     </div>
 
-    {{-- KPI STRIP --}}
-    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mt-6">
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <p class="text-xs text-slate-500 font-semibold">Progress</p>
-            <p class="text-xl font-extrabold text-slate-900 mt-1">{{ $project['progress'] }}%</p>
-            <div class="w-full h-1.5 rounded-full bg-slate-100 mt-2">
-                <div class="h-1.5 rounded-full bg-blue-600" style="width: {{ $project['progress'] }}%"></div>
-            </div>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <p class="text-xs text-slate-500 font-semibold">CPI</p>
-            <p class="text-xl font-extrabold mt-1 {{ $project['cpi'] >= 1 ? 'text-emerald-600' : 'text-rose-600' }}">{{ number_format($project['cpi'], 2) }}</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <p class="text-xs text-slate-500 font-semibold">SPI</p>
-            <p class="text-xl font-extrabold mt-1 {{ $project['spi'] >= 1 ? 'text-emerald-600' : 'text-rose-600' }}">{{ number_format($project['spi'], 2) }}</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <p class="text-xs text-slate-500 font-semibold">EAC</p>
-            <p class="text-xl font-extrabold text-slate-900 mt-1">Rp {{ number_format($project['eac'] / 1e9, 2) }}B</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <p class="text-xs text-slate-500 font-semibold">Remaining</p>
-            <p class="text-xl font-extrabold text-slate-900 mt-1">{{ $project['status'] === 'COMPLETED' ? 'Completed' : $project['remaining_days'] . ' Days' }}</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <p class="text-xs text-slate-500 font-semibold">BAST Date</p>
-            <p class="text-xl font-extrabold text-slate-900 mt-1">{{ date('d M Y', strtotime($project['bast_date'])) }}</p>
-        </div>
-    </div>
-
     {{-- TABS --}}
     <div class="flex items-center gap-1 bg-slate-100 rounded-xl p-1 w-fit flex-wrap mt-6">
         <button @click="tab = 'overview'" :class="tab === 'overview' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Overview</button>
         <button @click="tab = 'evm'" :class="tab === 'evm' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">EVM &amp; S-Curve</button>
         <button @click="tab = 'financial'" :class="tab === 'financial' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Financial</button>
-        <button @click="tab = 'milestones'" :class="tab === 'milestones' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Milestones</button>
+        <button @click="tab = 'addendum'" :class="tab === 'addendum' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Addendum</button>
         <button @click="tab = 'activity'" :class="tab === 'activity' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Activity</button>
     </div>
 
@@ -83,7 +52,7 @@
             <div><p class="text-xs text-slate-400">Client</p><p class="font-semibold text-slate-800 mt-1">{{ $project['client'] }}</p></div>
             <div><p class="text-xs text-slate-400">Project Manager</p><p class="font-semibold text-slate-800 mt-1">{{ $project['project_manager'] }}</p></div>
             <div><p class="text-xs text-slate-400">Location</p><p class="font-semibold text-slate-800 mt-1">{{ $project['location'] }}</p></div>
-            <div><p class="text-xs text-slate-400">Contract Value</p><p class="font-semibold text-slate-800 mt-1">Rp {{ number_format($project['contract_value'] / 1e9, 2) }}B</p></div>
+            <div><p class="text-xs text-slate-400">Contract Value</p><p class="font-semibold text-slate-800 mt-1" title="{{ \App\Support\CurrencyHelper::formatFull($project['contract_value']) }}">{{ \App\Support\CurrencyHelper::format($project['contract_value']) }}</p></div>
             <div><p class="text-xs text-slate-400">Start Date</p><p class="font-semibold text-slate-800 mt-1">{{ date('d M Y', strtotime($project['start_date'])) }}</p></div>
             <div><p class="text-xs text-slate-400">BAST Date</p><p class="font-semibold text-slate-800 mt-1">{{ date('d M Y', strtotime($project['bast_date'])) }}</p></div>
             <div><p class="text-xs text-slate-400">Status</p><p class="font-semibold text-slate-800 mt-1">{{ $project['status'] }}</p></div>
@@ -99,15 +68,15 @@
             <div class="grid grid-cols-3 gap-3 mt-4">
                 <div class="rounded-xl bg-blue-50 p-3">
                     <p class="text-[11px] font-semibold text-blue-700">BCWS (Planned)</p>
-                    <p class="text-lg font-extrabold text-blue-800 mt-0.5">Rp {{ number_format($bcws / 1e9, 2) }}B</p>
+                    <p class="text-lg font-extrabold text-blue-800 mt-0.5" title="{{ \App\Support\CurrencyHelper::formatFull($bcws) }}">{{ \App\Support\CurrencyHelper::format($bcws) }}</p>
                 </div>
                 <div class="rounded-xl bg-emerald-50 p-3">
                     <p class="text-[11px] font-semibold text-emerald-700">BCWP (Earned)</p>
-                    <p class="text-lg font-extrabold text-emerald-800 mt-0.5">Rp {{ number_format($bcwp / 1e9, 2) }}B</p>
+                    <p class="text-lg font-extrabold text-emerald-800 mt-0.5" title="{{ \App\Support\CurrencyHelper::formatFull($bcwp) }}">{{ \App\Support\CurrencyHelper::format($bcwp) }}</p>
                 </div>
                 <div class="rounded-xl bg-orange-50 p-3">
                     <p class="text-[11px] font-semibold text-orange-700">ACWP (Actual)</p>
-                    <p class="text-lg font-extrabold text-orange-800 mt-0.5">Rp {{ number_format($acwp / 1e9, 2) }}B</p>
+                    <p class="text-lg font-extrabold text-orange-800 mt-0.5" title="{{ \App\Support\CurrencyHelper::formatFull($acwp) }}">{{ \App\Support\CurrencyHelper::format($acwp) }}</p>
                 </div>
             </div>
 
@@ -119,15 +88,15 @@
         <div class="grid sm:grid-cols-3 gap-4">
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
                 <p class="text-xs text-slate-500">CV (Cost Variance)</p>
-                <p class="text-lg font-extrabold mt-1 {{ $cv >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">{{ $cv >= 0 ? '+' : '' }}Rp {{ number_format($cv / 1e9, 2) }}B</p>
+                <p class="text-lg font-extrabold mt-1 {{ $cv >= 0 ? 'text-emerald-600' : 'text-rose-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($cv, true) }}">{{ \App\Support\CurrencyHelper::formatDiff($cv) }}</p>
             </div>
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
                 <p class="text-xs text-slate-500">SV (Schedule Variance)</p>
-                <p class="text-lg font-extrabold mt-1 {{ $sv >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">{{ $sv >= 0 ? '+' : '' }}Rp {{ number_format($sv / 1e9, 2) }}B</p>
+                <p class="text-lg font-extrabold mt-1 {{ $sv >= 0 ? 'text-emerald-600' : 'text-rose-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($sv, true) }}">{{ \App\Support\CurrencyHelper::formatDiff($sv) }}</p>
             </div>
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
                 <p class="text-xs text-slate-500">VAC (Variance at Completion)</p>
-                <p class="text-lg font-extrabold mt-1 {{ $vac >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">{{ $vac >= 0 ? '+' : '' }}Rp {{ number_format($vac / 1e9, 2) }}B</p>
+                <p class="text-lg font-extrabold mt-1 {{ $vac >= 0 ? 'text-emerald-600' : 'text-rose-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($vac, true) }}">{{ \App\Support\CurrencyHelper::formatDiff($vac) }}</p>
             </div>
         </div>
     </div>
@@ -147,36 +116,68 @@
         <div class="grid sm:grid-cols-3 gap-3">
             <div class="rounded-xl bg-slate-50 p-3">
                 <p class="text-[11px] text-slate-500">Contract Value</p>
-                <p class="text-base font-extrabold text-slate-900 mt-0.5">Rp {{ number_format($bac / 1e9, 2) }}B</p>
+                <p class="text-base font-extrabold text-slate-900 mt-0.5" title="{{ \App\Support\CurrencyHelper::formatFull($bac) }}">{{ \App\Support\CurrencyHelper::format($bac) }}</p>
             </div>
             <div class="rounded-xl bg-slate-50 p-3">
                 <p class="text-[11px] text-slate-500">Actual Cost (ACWP)</p>
-                <p class="text-base font-extrabold text-slate-900 mt-0.5">Rp {{ number_format($acwp / 1e9, 2) }}B</p>
+                <p class="text-base font-extrabold text-slate-900 mt-0.5" title="{{ \App\Support\CurrencyHelper::formatFull($acwp) }}">{{ \App\Support\CurrencyHelper::format($acwp) }}</p>
             </div>
             <div class="rounded-xl bg-slate-50 p-3">
                 <p class="text-[11px] text-slate-500">Modal Berjalan</p>
                 @php $modal = $bcwp - $acwp; @endphp
-                <p class="text-base font-extrabold mt-0.5 {{ $modal >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">{{ $modal >= 0 ? '+' : '' }}Rp {{ number_format($modal / 1e9, 2) }}B</p>
+                <p class="text-base font-extrabold mt-0.5 {{ $modal >= 0 ? 'text-emerald-600' : 'text-rose-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($modal, true) }}">{{ \App\Support\CurrencyHelper::formatDiff($modal) }}</p>
             </div>
         </div>
     </div>
 
-    {{-- TAB: MILESTONES --}}
-    <div x-show="tab === 'milestones'" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 mt-4">
-        <h2 class="text-base font-bold text-slate-900 mb-4">Project Milestones</h2>
-        <ol class="relative border-l-2 border-slate-100 space-y-6 pl-6">
-            @foreach($milestones as $m)
-                <li class="relative">
-                    <span class="absolute -left-[27px] top-1 w-3 h-3 rounded-full ring-4 ring-white
-                        {{ $m['status'] === 'Completed' ? 'bg-emerald-500' : ($m['status'] === 'In Progress' ? 'bg-blue-600' : 'bg-slate-300') }}"></span>
-                    <div class="flex items-center justify-between gap-3">
-                        <p class="text-sm font-semibold text-slate-900">{{ $m['name'] }}</p>
-                        <span class="text-xs font-semibold {{ $m['status'] === 'Completed' ? 'text-emerald-600' : ($m['status'] === 'In Progress' ? 'text-blue-600' : 'text-slate-400') }}">{{ $m['status'] }}</span>
-                    </div>
-                    <p class="text-xs text-slate-400 mt-0.5">Target: {{ $m['at'] }}% cumulative progress</p>
-                </li>
-            @endforeach
-        </ol>
+    {{-- TAB: ADDENDUM --}}
+    <div x-show="tab === 'addendum'" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mt-4">
+        <div class="px-5 py-4 border-b border-slate-100">
+            <h2 class="text-base font-bold text-slate-900">Contract Addendums</h2>
+            <p class="text-xs text-slate-500 mt-0.5">List of contract addendums recorded for this project</p>
+        </div>
+        @if(count($addendums) === 0)
+            <div class="py-10 text-center">
+                <p class="text-xs text-slate-400">Belum ada data addendum untuk project ini.</p>
+            </div>
+        @else
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-400 uppercase font-bold border-b border-slate-100">
+                            <th class="p-4">Addendum ID</th>
+                            <th class="p-4">Title</th>
+                            <th class="p-4">Value Variance</th>
+                            <th class="p-4">Submission Date</th>
+                            <th class="p-4">Description</th>
+                            <th class="p-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach($addendums as $a)
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="p-4 font-bold text-slate-900">{{ $a['addendum_id'] }}</td>
+                                <td class="p-4 text-slate-700 font-semibold">{{ $a['title'] }}</td>
+                                <td class="p-4 font-extrabold {{ $a['value'] >= 0 ? 'text-slate-900' : 'text-emerald-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($a['value'], true) }}">
+                                    {{ \App\Support\CurrencyHelper::formatDiff($a['value']) }}
+                                </td>
+                                <td class="p-4 text-slate-500">{{ date('d M Y', strtotime($a['date'])) }}</td>
+                                <td class="p-4 text-slate-500 max-w-xs">{{ $a['description'] }}</td>
+                                <td class="p-4">
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full
+                                        {{ $a['status'] === 'APPROVED' ? 'bg-emerald-50 text-emerald-700' : '' }}
+                                        {{ $a['status'] === 'PENDING' ? 'bg-amber-50 text-amber-700' : '' }}
+                                        {{ $a['status'] === 'REJECTED' ? 'bg-rose-50 text-rose-700' : '' }}
+                                    ">
+                                        {{ $a['status'] }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
     </div>
 
     {{-- TAB: ACTIVITY --}}
@@ -232,11 +233,17 @@ function initSCurveChart() {
             interaction: { mode: 'index', intersect: false },
             plugins: {
                 legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
-                tooltip: { backgroundColor: '#0f172a', padding: 10 }
+                tooltip: { 
+                    backgroundColor: '#0f172a', 
+                    padding: 10,
+                    callbacks: {
+                        label: (ctx) => ctx.dataset.label + ': Rp ' + ctx.parsed.y.toLocaleString('id-ID') + ' Miliar'
+                    }
+                }
             },
             scales: {
                 x: { grid: { display: false } },
-                y: { grid: { color: '#f1f5f9' }, ticks: { callback: (v) => 'Rp ' + v + 'B' } }
+                y: { grid: { color: '#f1f5f9' }, ticks: { callback: (v) => 'Rp ' + v.toLocaleString('id-ID') + ' Miliar' } }
             }
         }
     });

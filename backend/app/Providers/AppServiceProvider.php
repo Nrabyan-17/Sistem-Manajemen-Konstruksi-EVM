@@ -19,6 +19,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Support\Facades\Blade::directive('rupiah', function ($expression) {
+            return "<?php echo \\App\\Support\\CurrencyHelper::format({$expression}); ?>";
+        });
+
+        \Illuminate\Support\Facades\Blade::directive('rupiahFull', function ($expression) {
+            return "<?php echo \\App\\Support\\CurrencyHelper::formatFull({$expression}); ?>";
+        });
+
+        \Illuminate\Support\Facades\Blade::directive('rupiahDiff', function ($expression) {
+            return "<?php echo \\App\\Support\\CurrencyHelper::formatDiff({$expression}); ?>";
+        });
     }
 }
