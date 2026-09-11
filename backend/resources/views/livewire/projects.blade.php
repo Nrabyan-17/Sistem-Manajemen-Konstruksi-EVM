@@ -206,8 +206,12 @@
                                     <p class="font-semibold text-slate-700 truncate">{{ $p['project_manager'] }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-[10px] text-slate-400 font-medium">Location</p>
-                                    <p class="font-semibold text-slate-700">{{ $p['location'] }}</p>
+                                    <p class="text-[10px] text-slate-400 font-medium">Tgl SPK</p>
+                                    <p class="font-semibold text-slate-700">{{ date('d/m/Y', strtotime($p['start_date'])) }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-400 font-medium">Tgl BAST</p>
+                                    <p class="font-semibold text-slate-700">{{ date('d/m/Y', strtotime($p['bast_date'])) }}</p>
                                 </div>
                                 <div>
                                     <p class="text-[10px] text-slate-400 font-medium">Contract Value</p>
@@ -215,12 +219,18 @@
                                         {{ \App\Support\CurrencyHelper::format($p['contract_value']) }}
                                     </p>
                                 </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-400 font-medium">Actual Cost</p>
+                                    <p class="font-extrabold text-slate-900" title="{{ \App\Support\CurrencyHelper::formatFull($p['acwp'] ?? 0) }}">
+                                        {{ \App\Support\CurrencyHelper::format($p['acwp'] ?? 0) }}
+                                    </p>
+                                </div>
                             </div>
 
                             <div class="mt-4">
                                 <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
-                                    <span class="font-medium">Progress</span>
-                                    <span class="font-bold text-slate-800">{{ $p['progress'] }}%</span>
+                                    <span class="font-medium">Realisasi (BCWP)</span>
+                                    <span class="font-bold text-slate-800">{{ number_format($p['bcwp_pct'] ?? $p['progress'], 2) }}%</span>
                                 </div>
                                 <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                                     <div class="h-2 rounded-full transition-all duration-500
@@ -229,6 +239,10 @@
                                         {{ $p['status'] === 'CRITICAL' ? 'bg-rose-500' : '' }}
                                         {{ $p['status'] === 'COMPLETED' ? 'bg-blue-500' : '' }}
                                     " style="width: {{ $p['progress'] }}%"></div>
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1">
+                                    <span>Rencana (BCWS): {{ number_format($p['bcws_pct'] ?? 0, 2) }}%</span>
+                                    <span class="font-bold {{ ($p['deviasi'] ?? 0) > 0 ? 'text-rose-600' : 'text-emerald-600' }}">Deviasi: {{ ($p['deviasi'] ?? 0) > 0 ? '+' : '' }}{{ number_format($p['deviasi'] ?? 0, 2) }}%</span>
                                 </div>
                             </div>
 
@@ -246,6 +260,9 @@
                                     <p class="font-bold text-slate-700">{{ $p['remaining_days'] }}d</p>
                                 </div>
                             </div>
+                            @if(isset($p['last_updated']))
+                                <p class="text-[10px] text-slate-400 mt-2">Last Update: {{ date('d/m/Y', strtotime($p['last_updated'])) }}</p>
+                            @endif
                         </div>
 
                         <div class="mt-5 pt-3 border-t border-slate-100 space-y-2">
@@ -278,35 +295,39 @@
                             <tr class="bg-slate-50 text-slate-400 uppercase font-bold border-b border-slate-100">
                                 <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('project_name')">Project Name</th>
                                 <th class="p-4">SPK</th>
-                                <th class="p-4">PM</th>
-                                <th class="p-4">Client</th>
                                 <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('contract_value')">Contract Value</th>
-                                <th class="p-4">Start Date</th>
-                                <th class="p-4">BAST Date</th>
-                                <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('progress')">Progress</th>
+                                <th class="p-4">Tgl SPK</th>
+                                <th class="p-4">Tgl BAST</th>
+                                <th class="p-4">BCWS %</th>
+                                <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('progress')">BCWP %</th>
+                                <th class="p-4">ACWP</th>
+                                <th class="p-4">Deviasi</th>
                                 <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('cpi')">CPI</th>
                                 <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('spi')">SPI</th>
-                                <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('remaining_days')">Remaining</th>
                                 <th class="p-4">Status</th>
+                                <th class="p-4">Last Update</th>
                                 <th class="p-4 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @foreach($paginatedProjects as $p)
                                 <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="p-4 font-bold text-slate-900">{{ $p['project_name'] }}</td>
+                                    <td class="p-4">
+                                        <p class="font-bold text-slate-900">{{ $p['project_name'] }}</p>
+                                        <p class="text-[10px] text-slate-400 mt-0.5">{{ $p['project_manager'] }} · {{ $p['client'] }}</p>
+                                    </td>
                                     <td class="p-4 text-slate-500 font-semibold">{{ $p['spk_number'] }}</td>
-                                    <td class="p-4 text-slate-700 font-medium">{{ $p['project_manager'] }}</td>
-                                    <td class="p-4 text-slate-500">{{ $p['client'] }}</td>
                                     <td class="p-4 font-extrabold text-slate-900" title="{{ \App\Support\CurrencyHelper::formatFull($p['contract_value']) }}">
                                         {{ \App\Support\CurrencyHelper::format($p['contract_value']) }}
                                     </td>
                                     <td class="p-4 text-slate-500">{{ date('d/m/Y', strtotime($p['start_date'])) }}</td>
                                     <td class="p-4 text-slate-500">{{ date('d/m/Y', strtotime($p['bast_date'])) }}</td>
-                                    <td class="p-4 font-bold text-slate-700">{{ $p['progress'] }}%</td>
+                                    <td class="p-4 font-bold text-blue-600">{{ number_format($p['bcws_pct'] ?? 0, 2) }}%</td>
+                                    <td class="p-4 font-bold text-emerald-600">{{ number_format($p['bcwp_pct'] ?? $p['progress'], 2) }}%</td>
+                                    <td class="p-4 font-semibold text-slate-700" title="{{ \App\Support\CurrencyHelper::formatFull($p['acwp'] ?? 0) }}">{{ \App\Support\CurrencyHelper::format($p['acwp'] ?? 0) }}</td>
+                                    <td class="p-4 font-bold {{ ($p['deviasi'] ?? 0) > 0 ? 'text-rose-600' : 'text-emerald-600' }}">{{ ($p['deviasi'] ?? 0) > 0 ? '+' : '' }}{{ number_format($p['deviasi'] ?? 0, 2) }}%</td>
                                     <td class="p-4 font-bold {{ $p['cpi'] >= 1.0 ? 'text-emerald-600' : 'text-rose-600' }}">{{ number_format($p['cpi'], 2) }}</td>
                                     <td class="p-4 font-bold {{ $p['spi'] >= 1.0 ? 'text-emerald-600' : 'text-rose-600' }}">{{ number_format($p['spi'], 2) }}</td>
-                                    <td class="p-4 font-bold text-slate-700">{{ $p['remaining_days'] }}d</td>
                                     <td class="p-4">
                                         <span class="text-[10px] font-bold px-2 py-0.5 rounded-full
                                             {{ $p['status'] === 'ON TRACK' ? 'bg-emerald-50 text-emerald-700' : '' }}
@@ -317,6 +338,7 @@
                                             {{ $p['status'] }}
                                         </span>
                                     </td>
+                                    <td class="p-4 text-slate-500 text-[10px]">{{ isset($p['last_updated']) ? date('d/m/Y', strtotime($p['last_updated'])) : '—' }}</td>
                                     <td class="p-4 text-center">
     <div class="flex items-center justify-center gap-3">
         <a href="{{ route('projects.show', $p['project_id']) }}" wire:navigate
@@ -451,13 +473,30 @@
                     </div>
                     <div>
                         <label class="block font-bold text-slate-800 mb-1.5">Contract Value (Rupiah)</label>
-                        <input type="number" wire:model.live.debounce.300ms="newValue" placeholder="e.g. 15000000000" required
-                               class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
-                        @if($newValue && is_numeric($newValue))
-                            <p class="text-[10px] text-blue-600 font-semibold mt-1">
-                                {{ \App\Support\CurrencyHelper::format($newValue) }} &bull; {{ \App\Support\CurrencyHelper::formatFull($newValue) }}
-                            </p>
-                        @endif
+                        <div x-data="{
+                            rawValue: @entangle('newValue'),
+                            displayValue: '',
+                            init() {
+                                if (this.rawValue) this.displayValue = this.formatCurrency(this.rawValue);
+                            },
+                            formatCurrency(val) {
+                                if (!val) return '';
+                                return 'Rp ' + String(val).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                            },
+                            onInput(e) {
+                                let digits = e.target.value.replace(/[^0-9]/g, '');
+                                this.rawValue = digits;
+                                this.displayValue = digits ? this.formatCurrency(digits) : '';
+                            }
+                        }">
+                            <input type="text" x-model="displayValue" @input="onInput($event)" placeholder="Rp 0" required
+                                   class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+                            @if($newValue && is_numeric($newValue))
+                                <p class="text-[10px] text-blue-600 font-semibold mt-1">
+                                    {{ \App\Support\CurrencyHelper::format($newValue) }} &bull; {{ \App\Support\CurrencyHelper::formatFull($newValue) }}
+                                </p>
+                            @endif
+                        </div>
                     </div>
                 </div>
 
@@ -485,7 +524,28 @@
                     </div>
                 </div>
 
-                <div class="pt-5 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0">
+                {{-- Excel Import Section (Poin 10 Revisi) --}}
+                <div class="mt-4 pt-4 border-t border-slate-100">
+                    <p class="text-xs font-bold text-slate-800 mb-3">Import Data (Opsional)</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mx-auto text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2a4 4 0 014-4h4M9 17H7a2 2 0 01-2-2V5a2 2 0 012-2h6l4 4v3M9 17v3a1 1 0 001 1h9a1 1 0 001-1v-6a1 1 0 00-1-1h-3" />
+                            </svg>
+                            <p class="text-[10px] font-bold text-slate-600 mt-2">Import Excel RAB</p>
+                            <p class="text-[9px] text-slate-400 mt-0.5">No, Item, Sat, Vol, Hrg Sat, Subtotal</p>
+                        </div>
+                        <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mx-auto text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M7 8h10v10" />
+                            </svg>
+                            <p class="text-[10px] font-bold text-slate-600 mt-2">Import Kurva S</p>
+                            <p class="text-[9px] text-slate-400 mt-0.5">Mg ke, Tgl Awal, Tgl Akhir, Rencana, Kumulatif</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-5 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0 mt-4">
                     <button type="button" @click="isNewModalOpen = false" 
                             class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
                         Cancel

@@ -19,4 +19,5 @@ Route::get('/projects', Projects::class)->name('projects');
 Route::get('/projects/{projectId}', ProjectDetail::class)->name('projects.show');
 Route::get('/reports', ReportingCenter::class)->name('reports');
 Route::get('/reports/evm-performance', Reports::class)->name('reports.evm');
+Route::get('/evm', Reports::class)->name('evm');
 Route::get('/addendum', Addendum::class)->name('addendum');

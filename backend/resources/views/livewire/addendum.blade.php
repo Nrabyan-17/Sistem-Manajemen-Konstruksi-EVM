@@ -91,8 +91,8 @@
                 </div>
             </div>
             <p class="text-xs text-slate-500 mt-3 font-semibold">Approved Addendum Value</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-0.5">
-                Rp {{ number_format($kpiTotalValue / 1e9, 2) }}B
+            <p class="text-2xl font-extrabold text-slate-900 mt-0.5" title="{{ \App\Support\CurrencyHelper::formatFull($kpiTotalValue) }}">
+                {{ \App\Support\CurrencyHelper::format($kpiTotalValue) }}
             </p>
         </div>
     </div>
@@ -154,8 +154,8 @@
                             <td class="p-4 font-bold text-slate-900">{{ $a['addendum_id'] }}</td>
                             <td class="p-4 text-slate-500 font-semibold">{{ $a['project_name'] }}</td>
                             <td class="p-4 text-slate-700 font-semibold">{{ $a['title'] }}</td>
-                            <td class="p-4 font-extrabold {{ $a['value'] >= 0 ? 'text-slate-900' : 'text-emerald-600' }}">
-                                Rp {{ number_format($a['value'] / 1e6, 1) }}M
+                            <td class="p-4 font-extrabold {{ $a['value'] >= 0 ? 'text-slate-900' : 'text-emerald-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($a['value'], true) }}">
+                                {{ \App\Support\CurrencyHelper::formatDiff($a['value']) }}
                             </td>
                             <td class="p-4 text-slate-500">{{ date('d/m/Y', strtotime($a['date'])) }}</td>
                             <td class="p-4 text-slate-500 max-w-xs truncate" title="{{ $a['description'] }}">{{ $a['description'] }}</td>

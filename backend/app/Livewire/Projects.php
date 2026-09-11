@@ -112,6 +112,8 @@ class Projects extends Component
             'spi' => 1.00,
             'eac' => floatval($this->newValue),
             'status' => 'ON TRACK',
+            'termin_diterima' => 0,
+            'last_updated' => date('Y-m-d'),
         ];
 
         $this->projects[] = $newProjectObj;
@@ -198,6 +200,35 @@ class Projects extends Component
         }
 
         $paginated = array_slice($filtered, ($this->currentPage - 1) * $this->pageSize, $this->pageSize);
+
+        // Calculate EVM derived fields for each filtered project (Poin 4 Revisi)
+        $allAddendums = \App\Support\ProjectMockData::addendums();
+        $enriched = array_map(function ($p) use ($allAddendums) {
+            $bac = (float) $p['contract_value'];
+            $bcwp = $bac * ($p['progress'] / 100);
+            $acwp = $p['cpi'] > 0 ? $bcwp / $p['cpi'] : 0;
+            $bcws = $p['spi'] > 0 ? $bcwp / $p['spi'] : 0;
+
+            $bcwsPct = $bac > 0 ? round(($bcws / $bac) * 100, 2) : 0;
+            $bcwpPct = (float) $p['progress'];
+            $deviasi = round($bcwsPct - $bcwpPct, 2);
+
+            // Addendum risk percentage
+            $projAddendums = array_filter($allAddendums, fn($a) => $a['project_id'] === $p['project_id']);
+            $totalAddendumValue = array_reduce($projAddendums, fn($carry, $a) => $carry + abs($a['value']), 0);
+            $addendumPct = $bac > 0 ? round(($totalAddendumValue / $bac) * 100, 2) : 0;
+
+            $p['bcws_pct'] = $bcwsPct;
+            $p['bcwp_pct'] = $bcwpPct;
+            $p['acwp'] = $acwp;
+            $p['deviasi'] = $deviasi;
+            $p['addendum_pct'] = $addendumPct;
+
+            return $p;
+        }, $filtered);
+
+        // Re-index
+        $filtered = array_values($enriched);
 
         // Calculate KPIs dynamically
         $kpiTotal = count($this->projects);
