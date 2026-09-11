@@ -119,7 +119,9 @@
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
             <p class="text-[10px] font-bold text-slate-400 uppercase">Total Contract (BAC)</p>
-            <p class="text-xl font-extrabold text-slate-950 mt-1.5">Rp {{ number_format($totalBac / 1e9, 2) }}B</p>
+            <p class="text-xl font-extrabold text-slate-950 mt-1.5" title="{{ \App\Support\CurrencyHelper::formatFull($totalBac) }}">
+                {{ \App\Support\CurrencyHelper::format($totalBac) }}
+            </p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
@@ -148,8 +150,8 @@
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm col-span-2 lg:col-span-1">
             <p class="text-[10px] font-bold text-slate-400 uppercase">EAC vs Contract Variance</p>
-            <p class="text-xl font-extrabold mt-1.5 {{ $aggVac >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                {{ $aggVac >= 0 ? '+' : '' }}Rp {{ number_format($aggVac / 1e9, 2) }}B
+            <p class="text-xl font-extrabold mt-1.5 {{ $aggVac >= 0 ? 'text-emerald-600' : 'text-rose-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($aggVac, true) }}">
+                {{ \App\Support\CurrencyHelper::formatDiff($aggVac) }}
             </p>
         </div>
     </div>
@@ -208,10 +210,10 @@
                             <td class="p-4 text-slate-600 font-semibold">{{ $p['project_manager'] }}</td>
 
                             @if($reportType === 'evm')
-                                <td class="p-4 text-right font-extrabold text-slate-900">Rp {{ number_format($p['bac'] / 1e9, 2) }}B</td>
-                                <td class="p-4 text-right text-blue-600">Rp {{ number_format($p['bcws'] / 1e9, 2) }}B</td>
-                                <td class="p-4 text-right text-emerald-600">Rp {{ number_format($p['bcwp'] / 1e9, 2) }}B</td>
-                                <td class="p-4 text-right text-orange-600">Rp {{ number_format($p['acwp'] / 1e9, 2) }}B</td>
+                                <td class="p-4 text-right font-extrabold text-slate-900" title="{{ \App\Support\CurrencyHelper::formatFull($p['bac']) }}">{{ \App\Support\CurrencyHelper::format($p['bac']) }}</td>
+                                <td class="p-4 text-right text-blue-600 font-semibold" title="{{ \App\Support\CurrencyHelper::formatFull($p['bcws']) }}">{{ \App\Support\CurrencyHelper::format($p['bcws']) }}</td>
+                                <td class="p-4 text-right text-emerald-600 font-semibold" title="{{ \App\Support\CurrencyHelper::formatFull($p['bcwp']) }}">{{ \App\Support\CurrencyHelper::format($p['bcwp']) }}</td>
+                                <td class="p-4 text-right text-orange-600 font-semibold" title="{{ \App\Support\CurrencyHelper::formatFull($p['acwp']) }}">{{ \App\Support\CurrencyHelper::format($p['acwp']) }}</td>
                                 <td class="p-4 text-center">
                                     <span class="font-extrabold {{ $p['cpi'] >= 1.0 ? 'text-emerald-600' : 'text-rose-600' }}">
                                         {{ number_format($p['cpi'], 2) }}
@@ -223,11 +225,11 @@
                                     </span>
                                 </td>
                             @elseif($reportType === 'financial')
-                                <td class="p-4 text-right font-extrabold text-slate-900">Rp {{ number_format($p['bac'] / 1e9, 2) }}B</td>
-                                <td class="p-4 text-right text-slate-600">Rp {{ number_format($p['acwp'] / 1e9, 2) }}B</td>
-                                <td class="p-4 text-right text-slate-900">Rp {{ number_format($p['eac'] / 1e9, 2) }}B</td>
-                                <td class="p-4 text-right font-extrabold {{ $p['vac'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                                    {{ $p['vac'] >= 0 ? '+' : '' }}Rp {{ number_format($p['vac'] / 1e9, 2) }}B
+                                <td class="p-4 text-right font-extrabold text-slate-900" title="{{ \App\Support\CurrencyHelper::formatFull($p['bac']) }}">{{ \App\Support\CurrencyHelper::format($p['bac']) }}</td>
+                                <td class="p-4 text-right text-slate-600 font-semibold" title="{{ \App\Support\CurrencyHelper::formatFull($p['acwp']) }}">{{ \App\Support\CurrencyHelper::format($p['acwp']) }}</td>
+                                <td class="p-4 text-right text-slate-900 font-semibold" title="{{ \App\Support\CurrencyHelper::formatFull($p['eac']) }}">{{ \App\Support\CurrencyHelper::format($p['eac']) }}</td>
+                                <td class="p-4 text-right font-extrabold {{ $p['vac'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($p['vac'], true) }}">
+                                    {{ \App\Support\CurrencyHelper::formatDiff($p['vac']) }}
                                 </td>
                                 <td class="p-4 text-center">
                                     <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $p['vac'] >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' }}">
@@ -235,11 +237,11 @@
                                     </span>
                                 </td>
                             @elseif($reportType === 'variance')
-                                <td class="p-4 text-right font-extrabold {{ $p['cv'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                                    {{ $p['cv'] >= 0 ? '+' : '' }}Rp {{ number_format($p['cv'] / 1e9, 2) }}B
+                                <td class="p-4 text-right font-extrabold {{ $p['cv'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($p['cv'], true) }}">
+                                    {{ \App\Support\CurrencyHelper::formatDiff($p['cv']) }}
                                 </td>
-                                <td class="p-4 text-right font-extrabold {{ $p['sv'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                                    {{ $p['sv'] >= 0 ? '+' : '' }}Rp {{ number_format($p['sv'] / 1e9, 2) }}B
+                                <td class="p-4 text-right font-extrabold {{ $p['sv'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($p['sv'], true) }}">
+                                    {{ \App\Support\CurrencyHelper::formatDiff($p['sv']) }}
                                 </td>
                                 <td class="p-4 text-center">
                                     <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $p['cv'] >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' }}">
@@ -282,7 +284,9 @@
                 <div class="flex items-center gap-6">
                     <div>
                         <span class="text-[10px] text-slate-400 font-bold block uppercase text-right">Total BAC</span>
-                        <span class="text-sm font-extrabold text-right block">Rp {{ number_format($totalBac / 1e9, 2) }}B</span>
+                        <span class="text-sm font-extrabold text-right block" title="{{ \App\Support\CurrencyHelper::formatFull($totalBac) }}">
+                            {{ \App\Support\CurrencyHelper::format($totalBac) }}
+                        </span>
                     </div>
                     @if($reportType === 'evm')
                         <div>
@@ -294,25 +298,27 @@
                     @elseif($reportType === 'financial')
                         <div>
                             <span class="text-[10px] text-slate-400 font-bold block uppercase text-right">Total EAC</span>
-                            <span class="text-sm font-extrabold text-right block">Rp {{ number_format($totalEac / 1e9, 2) }}B</span>
+                            <span class="text-sm font-extrabold text-right block" title="{{ \App\Support\CurrencyHelper::formatFull($totalEac) }}">
+                                {{ \App\Support\CurrencyHelper::format($totalEac) }}
+                            </span>
                         </div>
                         <div>
                             <span class="text-[10px] text-slate-400 font-bold block uppercase text-right">Total VAC</span>
-                            <span class="text-sm font-extrabold text-right block {{ $aggVac >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                                Rp {{ number_format($aggVac / 1e9, 2) }}B
+                            <span class="text-sm font-extrabold text-right block {{ $aggVac >= 0 ? 'text-emerald-600' : 'text-rose-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($aggVac, true) }}">
+                                {{ \App\Support\CurrencyHelper::formatDiff($aggVac) }}
                             </span>
                         </div>
                     @elseif($reportType === 'variance')
                         <div>
                             <span class="text-[10px] text-slate-400 font-bold block uppercase text-right">Total CV</span>
-                            <span class="text-sm font-extrabold text-right block {{ $aggCv >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                                Rp {{ number_format($aggCv / 1e9, 2) }}B
+                            <span class="text-sm font-extrabold text-right block {{ $aggCv >= 0 ? 'text-emerald-600' : 'text-rose-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($aggCv, true) }}">
+                                {{ \App\Support\CurrencyHelper::formatDiff($aggCv) }}
                             </span>
                         </div>
                         <div>
                             <span class="text-[10px] text-slate-400 font-bold block uppercase text-right">Total SV</span>
-                            <span class="text-sm font-extrabold text-right block {{ $aggSv >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                                Rp {{ number_format($aggSv / 1e9, 2) }}B
+                            <span class="text-sm font-extrabold text-right block {{ $aggSv >= 0 ? 'text-emerald-600' : 'text-rose-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($aggSv, true) }}">
+                                {{ \App\Support\CurrencyHelper::formatDiff($aggSv) }}
                             </span>
                         </div>
                     @endif

@@ -64,7 +64,7 @@ class ReportingCenter extends Component
                 'name' => 'Monthly EVM Performance',
                 'project' => 'Grand Horizon Tower',
                 'date' => 'June 01, 2026',
-                'by' => 'Alex Thompson',
+                'by' => 'Admin',
                 'icon_color' => 'rose',
             ],
             [
@@ -124,7 +124,7 @@ class ReportingCenter extends Component
                 ? 'All Projects'
                 : $this->modalProject,
             'date' => now()->format('F d, Y'),
-            'by' => 'Alex Thompson', // TODO(backend): use authenticated user
+            'by' => 'Admin', // TODO(backend): use authenticated user
             'icon_color' => 'blue',
         ]);
 
