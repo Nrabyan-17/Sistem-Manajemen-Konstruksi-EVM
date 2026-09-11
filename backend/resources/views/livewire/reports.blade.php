@@ -24,14 +24,14 @@
         <div class="flex items-center gap-2">
             <button onclick="window.print()" 
                     class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-semibold transition hover:bg-slate-50 shadow-sm shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                 </svg>
                 Print Report
             </button>
             <button wire:click="triggerExport('csv')" 
                     class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition shadow-md shadow-blue-500/25 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V3m0 9l3-3m-3 3L9 9" />
                 </svg>
                 Export CSV
@@ -39,62 +39,7 @@
         </div>
     </div>
 
-    <!-- Filtering Section -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 mt-6 print:hidden">
-        <div class="flex flex-col lg:flex-row gap-3">
-            <div class="flex-1">
-                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Select Project</label>
-                <select wire:model.live="selectedProject" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                    <option value="all">All Projects</option>
-                    @foreach($projectList as $p)
-                        <option value="{{ $p['project_id'] }}">{{ $p['project_id'] }} - {{ $p['project_name'] }}</option>
-                    @endforeach
-                </select>
-            </div>
 
-            <div>
-                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Status</label>
-                <select wire:model.live="statusFilter" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                    <option value="all">All Status</option>
-                    <option value="ON TRACK">On Track</option>
-                    <option value="AT RISK">At Risk</option>
-                    <option value="CRITICAL">Critical</option>
-                    <option value="COMPLETED">Completed</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Project Manager</label>
-                <select wire:model.live="pmFilter" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                    <option value="all">All Managers</option>
-                    <option value="Andi Pratama">Andi Pratama</option>
-                    <option value="Budi Santoso">Budi Santoso</option>
-                    <option value="Dimas Wijaya">Dimas Wijaya</option>
-                    <option value="Rizky Ramadhan">Rizky Ramadhan</option>
-                    <option value="Fajar Nugroho">Fajar Nugroho</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Report Type</label>
-                <select wire:model.live="reportType" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                    <option value="evm">EVM Analysis</option>
-                    <option value="financial">Financial Performance</option>
-                    <option value="variance">Schedule &amp; Cost Variance</option>
-                </select>
-            </div>
-
-            <div class="flex items-end">
-                <button wire:click="handleClearFilters"
-                        class="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition w-full lg:w-auto">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Clear Filters
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Print Header (Hidden on screen) -->
     <div class="hidden print:block text-slate-900 border-b-2 border-slate-900 pb-5 mb-6">
@@ -153,6 +98,57 @@
             <p class="text-xl font-extrabold mt-1.5 {{ $aggVac >= 0 ? 'text-emerald-600' : 'text-rose-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($aggVac, true) }}">
                 {{ \App\Support\CurrencyHelper::formatDiff($aggVac) }}
             </p>
+        </div>
+    </div>
+
+    <!-- Filters Bar (below KPI) -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 mt-4 print:hidden">
+        <div class="flex flex-wrap items-end gap-3">
+            <div class="flex-1 min-w-[180px]">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Select Project</label>
+                <select wire:model.live="selectedProject" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <option value="all">All Projects</option>
+                    @foreach($projectList as $p)
+                        <option value="{{ $p['project_id'] }}">{{ $p['project_id'] }} - {{ $p['project_name'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Status</label>
+                <select wire:model.live="statusFilter" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <option value="all">All Status</option>
+                    <option value="ON TRACK">On Track</option>
+                    <option value="AT RISK">At Risk</option>
+                    <option value="CRITICAL">Critical</option>
+                    <option value="COMPLETED">Completed</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Project Manager</label>
+                <select wire:model.live="pmFilter" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <option value="all">All Managers</option>
+                    <option value="Andi Pratama">Andi Pratama</option>
+                    <option value="Budi Santoso">Budi Santoso</option>
+                    <option value="Dimas Wijaya">Dimas Wijaya</option>
+                    <option value="Rizky Ramadhan">Rizky Ramadhan</option>
+                    <option value="Fajar Nugroho">Fajar Nugroho</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Report Type</label>
+                <select wire:model.live="reportType" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <option value="evm">EVM Analysis</option>
+                    <option value="financial">Financial Performance</option>
+                    <option value="variance">Schedule &amp; Cost Variance</option>
+                </select>
+            </div>
+            <button wire:click="handleClearFilters"
+                    class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:bg-slate-50 transition shadow-sm shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Clear Filters
+            </button>
         </div>
     </div>
 
