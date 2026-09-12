@@ -266,7 +266,7 @@
                         </div>
 
                         <div class="mt-5 pt-3 border-t border-slate-100 space-y-2">
-                            <a href="{{ route('projects.show', $p['project_id']) }}" wire:navigate
+                            <a href="{{ route('projects.show', $p['project_id']) }}" wire:navigate.hover
                                class="flex items-center justify-center gap-1.5 w-full text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg transition">
                                 View Project Details
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -341,7 +341,7 @@
                                     <td class="p-4 text-slate-500 text-[10px]">{{ isset($p['last_updated']) ? date('d/m/Y', strtotime($p['last_updated'])) : '—' }}</td>
                                     <td class="p-4 text-center">
     <div class="flex items-center justify-center gap-3">
-        <a href="{{ route('projects.show', $p['project_id']) }}" wire:navigate
+        <a href="{{ route('projects.show', $p['project_id']) }}" wire:navigate.hover
            class="text-xs font-bold text-blue-600 hover:text-blue-700 transition">
             View
         </a>
