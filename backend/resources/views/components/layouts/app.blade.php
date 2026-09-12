@@ -104,7 +104,7 @@
             
             <!-- Top Header -->
             <header class="h-16 shrink-0 flex items-center justify-between gap-4 px-4 sm:px-6 bg-white border-b border-slate-200">
-                <div class="flex items-center gap-3 flex-1 max-w-lg">
+                <div class="flex items-center gap-3">
                     <button @click="isSidebarOpen = !isSidebarOpen" 
                             class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition shrink-0"
                             title="Toggle Sidebar"
@@ -113,14 +113,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
-
-                    <!-- Search -->
-                    <div class="relative w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5A6.5 6.5 0 114 10.5a6.5 6.5 0 0113 0z" />
-                        </svg>
-                        <input type="text" placeholder="Search projects, EVM reports, milestones..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
-                    </div>
                 </div>
 
                 <!-- Right Header Actions -->
