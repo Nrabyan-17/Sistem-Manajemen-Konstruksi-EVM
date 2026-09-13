@@ -106,12 +106,26 @@
                                 </div>
                             </td>
                             <td class="p-4 text-right">
-                                <button wire:click="downloadReport('{{ $report['id'] }}')"
-                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:bg-blue-50 transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V3m0 9l3-3m-3 3L9 9" />
-                                    </svg>
-                                </button>
+                                <div class="flex items-center justify-end gap-1.5">
+                                    {{-- Tombol Download PDF --}}
+                                    <button wire:click="downloadReportPdf('{{ $report['id'] }}')"
+                                            title="Download PDF"
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-100 text-[10px] font-bold transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V3m0 9l3-3m-3 3L9 9" />
+                                        </svg>
+                                        PDF
+                                    </button>
+                                    {{-- Tombol Download Excel --}}
+                                    <button wire:click="downloadReportExcel('{{ $report['id'] }}')"
+                                            title="Download Excel"
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-100 text-[10px] font-bold transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V3m0 9l3-3m-3 3L9 9" />
+                                        </svg>
+                                        Excel
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty

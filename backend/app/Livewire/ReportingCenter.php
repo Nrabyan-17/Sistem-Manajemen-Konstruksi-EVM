@@ -150,6 +150,18 @@ class ReportingCenter extends Component
         $this->flashToast("Download for {$id} — pending backend integration.");
     }
 
+    public function downloadReportPdf(string $id): void
+    {
+        // TODO(backend): stream/redirect to the generated PDF file for $id.
+        $this->flashToast("⬇ Downloading PDF for {$id} — pending backend integration.");
+    }
+
+    public function downloadReportExcel(string $id): void
+    {
+        // TODO(backend): stream/redirect to the generated Excel file for $id.
+        $this->flashToast("⬇ Downloading Excel for {$id} — pending backend integration.");
+    }
+
     private function flashToast(string $message): void
     {
         $this->toastMessage = $message;

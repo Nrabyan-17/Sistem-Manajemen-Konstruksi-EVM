@@ -82,12 +82,15 @@
                     <span x-show="isSidebarOpen" x-transition>Reports</span>
                 </a>
                 
-                <a href="#" :class="{ 'justify-center px-2': !isSidebarOpen }" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 text-sm font-medium transition">
+                <a href="/approvals" wire:navigate.hover
+                   :class="{ 'justify-center px-2': !isSidebarOpen }"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition {{ request()->is('approvals*') ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/30' : 'text-slate-600 hover:bg-slate-100' }}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                     <span x-show="isSidebarOpen" x-transition>Approvals</span>
                 </a>
+
 
                 <a href="/users" wire:navigate.hover
                    :class="{ 'justify-center px-2': !isSidebarOpen }"

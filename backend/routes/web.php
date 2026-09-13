@@ -9,6 +9,7 @@ use App\Livewire\Reports;
 use App\Livewire\Addendum;
 use App\Livewire\ReportingCenter;
 use App\Livewire\Users;
+use App\Livewire\ApprovalCenter;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -22,4 +23,6 @@ Route::get('/reports', ReportingCenter::class)->name('reports');
 Route::get('/reports/evm-performance', Reports::class)->name('reports.evm');
 Route::get('/evm', Reports::class)->name('evm');
 Route::get('/addendum', Addendum::class)->name('addendum');
+Route::get('/approvals', ApprovalCenter::class)->name('approvals');
 Route::get('/users', Users::class)->name('users');
+
