@@ -305,26 +305,43 @@
     Alpine.data('sCurveChart', () => ({
         chart: null,
         init() {
-            this.renderChart(this.$wire.projectKey);
+            this.$nextTick(() => {
+                this.renderChart(this.$wire.projectKey);
+            });
             this.$wire.on('project-changed', (event) => {
                 this.renderChart(event.projectKey);
             });
         },
-        renderChart(key) {
-            const ctx = this.$refs.sCurveCanvas.getContext('2d');
+        destroy() {
             if (this.chart) {
                 this.chart.destroy();
+                this.chart = null;
             }
+            if (this.$refs.sCurveCanvas) {
+                const existing = Chart.getChart(this.$refs.sCurveCanvas);
+                if (existing) existing.destroy();
+            }
+        },
+        renderChart(key) {
+            if (!this.$refs.sCurveCanvas) return;
             
+            const existing = Chart.getChart(this.$refs.sCurveCanvas);
+            if (existing) existing.destroy();
+            if (this.chart) {
+                this.chart.destroy();
+                this.chart = null;
+            }
+
+            const ctx = this.$refs.sCurveCanvas.getContext('2d');
             const data = this.$wire.projectData[key];
             const weeks = this.$wire.weeks;
             
             const blueGradient = ctx.createLinearGradient(0, 0, 0, 320);
-            blueGradient.addColorStop(0, 'rgba(37, 99, 235, 0.18)');
+            blueGradient.addColorStop(0, 'rgba(37, 99, 235, 0.25)');
             blueGradient.addColorStop(1, 'rgba(37, 99, 235, 0.00)');
 
             const greenGradient = ctx.createLinearGradient(0, 0, 0, 320);
-            greenGradient.addColorStop(0, 'rgba(16, 185, 129, 0.22)');
+            greenGradient.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
             greenGradient.addColorStop(1, 'rgba(16, 185, 129, 0.00)');
 
             this.chart = new Chart(ctx, {
@@ -380,14 +397,16 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
                     interaction: {
                         mode: 'index',
                         intersect: false,
                     },
                     plugins: {
-                        legend: {
-                            display: false,
-                        },
+                        legend: { display: false },
                         tooltip: {
                             backgroundColor: '#0f172a',
                             titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' },
@@ -407,19 +426,14 @@
                     },
                     scales: {
                         x: {
-                            grid: {
-                                display: true,
-                                color: '#f1f5f9',
-                            },
+                            grid: { display: true, color: '#f1f5f9' },
                             ticks: {
                                 color: '#64748b',
                                 font: { family: 'Plus Jakarta Sans', size: 11, weight: '500' },
                             },
                         },
                         y: {
-                            grid: {
-                                color: '#f1f5f9',
-                            },
+                            grid: { color: '#f1f5f9' },
                             ticks: {
                                 color: '#64748b',
                                 font: { family: 'Plus Jakarta Sans', size: 11 },
@@ -435,6 +449,30 @@
     Alpine.data('financeChart', () => ({
         chart: null,
         init() {
+            this.$nextTick(() => {
+                this.renderFinanceChart();
+            });
+        },
+        destroy() {
+            if (this.chart) {
+                this.chart.destroy();
+                this.chart = null;
+            }
+            if (this.$refs.financeCanvas) {
+                const existing = Chart.getChart(this.$refs.financeCanvas);
+                if (existing) existing.destroy();
+            }
+        },
+        renderFinanceChart() {
+            if (!this.$refs.financeCanvas) return;
+
+            const existing = Chart.getChart(this.$refs.financeCanvas);
+            if (existing) existing.destroy();
+            if (this.chart) {
+                this.chart.destroy();
+                this.chart = null;
+            }
+
             const ctx = this.$refs.financeCanvas.getContext('2d');
             this.chart = new Chart(ctx, {
                 type: 'bar',
@@ -459,6 +497,10 @@
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
                     plugins: {
                         legend: { display: false },
                         tooltip: {

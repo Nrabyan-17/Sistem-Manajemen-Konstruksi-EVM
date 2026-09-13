@@ -327,18 +327,6 @@ class ProjectDetail extends Component
             'days_added' => 0,
         ];
 
-        // Also add row to BOQ with indicator is_addendum
-        $newNo = count($this->boqItems) + 1;
-        $this->boqItems[] = [
-            'no' => $newNo,
-            'item' => '[ADDENDUM] ' . $this->addendumTitle,
-            'satuan' => 'Ls',
-            'volume' => 1,
-            'harga_satuan' => $val,
-            'subtotal' => $val,
-            'is_addendum' => true,
-        ];
-
         // Recalculate addendum risk percentage
         $totalAddendumValue = array_reduce($this->addendums, fn($carry, $a) => $carry + abs($a['value'] ?? 0), 0);
         $this->addendumPercentage = $this->bac > 0 ? round(($totalAddendumValue / $this->bac) * 100, 2) : 0;
@@ -351,7 +339,7 @@ class ProjectDetail extends Component
         }
 
         $this->closeAddendumCostModal();
-        $this->dispatch('addendum-cost-saved', message: 'Addendum Biaya berhasil dicatat & ditambahkan ke BOQ!');
+        $this->dispatch('addendum-cost-saved', message: 'Addendum Biaya berhasil dicatat ke Riwayat Addendum & Kartu Keuangan!');
     }
 
     // ===== Action Methods: Input Add Waktu =====

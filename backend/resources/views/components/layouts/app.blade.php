@@ -19,7 +19,7 @@
     <link rel="prefetch" href="{{ route('reports') }}">
     <link rel="prefetch" href="{{ route('users') }}">
 </head>
-<body class="h-full overflow-hidden text-slate-800 antialiased font-sans" 
+<body class="h-full overflow-hidden text-slate-800 antialiased font-sans no-scrollbar" 
       x-data="{ isSidebarOpen: true }">
 
     <div class="flex h-screen overflow-hidden bg-slate-50">
@@ -40,14 +40,14 @@
                         </svg>
                     </div>
                     <div class="leading-tight truncate" x-show="isSidebarOpen" x-transition>
-                        <p class="text-sm font-bold text-slate-900 truncate">PT Bintang Gandari</p>
-                        <p class="text-[10px] font-bold tracking-widest text-blue-600">EVM DASHBOARD</p>
+                        <p class="text-xs font-bold text-slate-900 truncate">Sistem Manajemen Konstruksi</p>
+                        <p class="text-[10px] font-bold tracking-wider text-blue-600 uppercase">PT Bintang Gandari</p>
                     </div>
                 </div>
             </div>
 
             <!-- Navigation Links -->
-                 <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
+            <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto no-scrollbar">
                 <a href="/dashboard" wire:navigate.hover
                      :class="{ 'justify-center px-2': !isSidebarOpen }"
                      class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition {{ request()->is('dashboard*') ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/30' : 'text-slate-600 hover:bg-slate-100' }}">
@@ -139,7 +139,7 @@
             </header>
 
             <!-- Scrollable Content -->
-            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 no-scrollbar">
                 {{ $slot }}
             </main>
 

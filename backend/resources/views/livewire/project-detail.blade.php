@@ -345,9 +345,13 @@
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
             <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
                 <div>
-                    <h3 class="text-base font-bold text-slate-900">Rencana Anggaran Biaya & Rincian Item BOQ</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Daftar item pekerjaan baseline dan item addendum yang telah disetujui</p>
+                    <h3 class="text-base font-bold text-slate-900">Rencana Anggaran Biaya &amp; Rincian Item BOQ</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Daftar rincian item pekerjaan dan anggaran biaya awal proyek (RAB Baseline)</p>
                 </div>
+                <button @click="showRabModal = true" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1.5 shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    + Input Item RAB
+                </button>
             </div>
             @if(count($boqItems) === 0)
                 <div class="py-10 text-center">
@@ -361,7 +365,7 @@
                                 <th class="p-4 w-12">No</th>
                                 <th class="p-4">Item Pekerjaan</th>
                                 <th class="p-4 w-20">Satuan</th>
-                                <th class="p-4 w-24 text-right">Volume</th>
+                                <th class="p-4 w-28 text-right">Volume</th>
                                 <th class="p-4 text-right">Harga Satuan</th>
                                 <th class="p-4 text-right">Subtotal</th>
                             </tr>
@@ -369,31 +373,21 @@
                         <tbody class="divide-y divide-slate-100">
                             @php $totalRab = 0; @endphp
                             @foreach($boqItems as $item)
-                                @php 
-                                    $totalRab += $item['subtotal']; 
-                                    $isAdd = !empty($item['is_addendum']) || str_starts_with($item['item'], '[ADDENDUM]');
-                                @endphp
-                                <tr class="hover:bg-slate-50/50 transition {{ $isAdd ? 'bg-amber-50/40' : '' }}">
+                                @php $totalRab += $item['subtotal']; @endphp
+                                <tr class="hover:bg-slate-50/70 transition">
                                     <td class="p-4 font-bold text-slate-500">{{ $item['no'] }}</td>
-                                    <td class="p-4 font-semibold text-slate-900">
-                                        @if($isAdd)
-                                            <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 mr-1.5">ADDENDUM</span>
-                                            {{ str_replace('[ADDENDUM] ', '', $item['item']) }}
-                                        @else
-                                            {{ $item['item'] }}
-                                        @endif
-                                    </td>
-                                    <td class="p-4 text-slate-500">{{ $item['satuan'] }}</td>
+                                    <td class="p-4 font-semibold text-slate-900">{{ $item['item'] }}</td>
+                                    <td class="p-4 text-slate-500 font-medium">{{ $item['satuan'] }}</td>
                                     <td class="p-4 text-right font-semibold text-slate-700">{{ number_format($item['volume'], 0, ',', '.') }}</td>
                                     <td class="p-4 text-right text-slate-600" title="{{ \App\Support\CurrencyHelper::formatFull($item['harga_satuan']) }}">{{ \App\Support\CurrencyHelper::format($item['harga_satuan']) }}</td>
-                                    <td class="p-4 text-right font-extrabold {{ $isAdd ? 'text-amber-700' : 'text-slate-900' }}" title="{{ \App\Support\CurrencyHelper::formatFull($item['subtotal']) }}">{{ \App\Support\CurrencyHelper::format($item['subtotal']) }}</td>
+                                    <td class="p-4 text-right font-extrabold text-slate-900" title="{{ \App\Support\CurrencyHelper::formatFull($item['subtotal']) }}">{{ \App\Support\CurrencyHelper::format($item['subtotal']) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                         <tfoot>
-                            <tr class="bg-blue-50 border-t-2 border-blue-200">
-                                <td colspan="5" class="p-4 text-right font-extrabold text-blue-800 uppercase text-xs">Total Anggaran (RAB + Addendum)</td>
-                                <td class="p-4 text-right font-extrabold text-blue-900 text-sm" title="{{ \App\Support\CurrencyHelper::formatFull($totalRab) }}">{{ \App\Support\CurrencyHelper::format($totalRab) }}</td>
+                            <tr class="bg-blue-50/80 border-t-2 border-blue-200">
+                                <td colspan="5" class="p-4 text-right font-extrabold text-blue-900 uppercase text-xs">Total Rencana Anggaran Biaya (RAB Baseline)</td>
+                                <td class="p-4 text-right font-extrabold text-blue-950 text-sm" title="{{ \App\Support\CurrencyHelper::formatFull($totalRab) }}">{{ \App\Support\CurrencyHelper::format($totalRab) }}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -463,9 +457,21 @@
 
     {{-- TAB: ADDENDUM --}}
     <div x-show="tab === 'addendum'" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mt-4">
-        <div class="px-5 py-4 border-b border-slate-100">
-            <h2 class="text-base font-bold text-slate-900">Contract Addendums</h2>
-            <p class="text-xs text-slate-500 mt-0.5">List of contract addendums recorded for this project</p>
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <h2 class="text-base font-bold text-slate-900">Dokumen Addendum Kontrak (Biaya &amp; Waktu)</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Daftar seluruh amandemen kontrak resmi yang tercatat untuk proyek ini</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button @click="showAddendumCostModal = true" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    + Addendum Biaya
+                </button>
+                <button @click="showAddendumTimeModal = true" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    + Addendum Waktu
+                </button>
+            </div>
         </div>
         @if(count($addendums) === 0)
             <div class="py-10 text-center">
@@ -476,29 +482,42 @@
                 <table class="w-full text-left text-xs border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 uppercase font-bold border-b border-slate-100">
-                            <th class="p-4">Addendum ID</th>
-                            <th class="p-4">Title</th>
-                            <th class="p-4">Value Variance</th>
-                            <th class="p-4">Submission Date</th>
-                            <th class="p-4">Description</th>
-                            <th class="p-4">Status</th>
+                            <th class="p-4">ID Addendum</th>
+                            <th class="p-4">Jenis Addendum</th>
+                            <th class="p-4">Judul Addendum</th>
+                            <th class="p-4 text-right">Nilai / Perpanjangan</th>
+                            <th class="p-4">Tanggal Pengajuan</th>
+                            <th class="p-4">Alasan &amp; Deskripsi</th>
+                            <th class="p-4 text-center">Status Approval</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @foreach($addendums as $a)
+                            @php $isTime = ($a['type'] ?? '') === 'TIME' || (!empty($a['days_added']) && empty($a['value'])); @endphp
                             <tr class="hover:bg-slate-50/50 transition">
                                 <td class="p-4 font-bold text-slate-900">{{ $a['addendum_id'] }}</td>
-                                <td class="p-4 text-slate-700 font-semibold">{{ $a['title'] }}</td>
-                                <td class="p-4 font-extrabold {{ $a['value'] >= 0 ? 'text-slate-900' : 'text-emerald-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($a['value'], true) }}">
-                                    {{ \App\Support\CurrencyHelper::formatDiff($a['value']) }}
-                                </td>
-                                <td class="p-4 text-slate-500">{{ date('d M Y', strtotime($a['date'])) }}</td>
-                                <td class="p-4 text-slate-500 max-w-xs">{{ $a['description'] }}</td>
                                 <td class="p-4">
-                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full
-                                        {{ $a['status'] === 'APPROVED' ? 'bg-emerald-50 text-emerald-700' : '' }}
-                                        {{ $a['status'] === 'PENDING' ? 'bg-amber-50 text-amber-700' : '' }}
-                                        {{ $a['status'] === 'REJECTED' ? 'bg-rose-50 text-rose-700' : '' }}
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-extrabold {{ $isTime ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-amber-50 text-amber-800 border border-amber-200' }}">
+                                        {{ $isTime ? 'WAKTU (EOT)' : 'BIAYA (COST)' }}
+                                    </span>
+                                </td>
+                                <td class="p-4 text-slate-800 font-bold">{{ $a['title'] }}</td>
+                                <td class="p-4 text-right font-extrabold">
+                                    @if($isTime)
+                                        <span class="text-indigo-700">+{{ $a['days_added'] ?? 0 }} Hari</span>
+                                    @else
+                                        <span class="{{ $a['value'] >= 0 ? 'text-rose-600' : 'text-emerald-600' }}" title="{{ \App\Support\CurrencyHelper::formatFull($a['value'], true) }}">
+                                            {{ \App\Support\CurrencyHelper::formatDiff($a['value']) }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="p-4 text-slate-500 font-medium">{{ date('d M Y', strtotime($a['date'])) }}</td>
+                                <td class="p-4 text-slate-600 max-w-xs leading-relaxed">{{ $a['description'] }}</td>
+                                <td class="p-4 text-center">
+                                    <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full inline-block
+                                        {{ $a['status'] === 'APPROVED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : '' }}
+                                        {{ $a['status'] === 'PENDING' ? 'bg-amber-50 text-amber-700 border border-amber-200' : '' }}
+                                        {{ $a['status'] === 'REJECTED' ? 'bg-rose-50 text-rose-700 border border-rose-200' : '' }}
                                     ">
                                         {{ $a['status'] }}
                                     </span>

@@ -232,7 +232,7 @@ class Projects extends Component
 
         // Calculate KPIs dynamically
         $kpiTotal = count($this->projects);
-        $kpiActive = count(array_filter($this->projects, fn($p) => $p['status'] !== 'COMPLETED'));
+        $kpiCompleted = count(array_filter($this->projects, fn($p) => $p['status'] === 'COMPLETED'));
         $kpiOnTrack = count(array_filter($this->projects, fn($p) => $p['status'] === 'ON TRACK'));
         $kpiAtRisk = count(array_filter($this->projects, fn($p) => $p['status'] === 'AT RISK'));
         $kpiCritical = count(array_filter($this->projects, fn($p) => $p['status'] === 'CRITICAL'));
@@ -243,7 +243,7 @@ class Projects extends Component
             'paginatedProjects' => $paginated,
             'totalPages' => $totalPages,
             'kpiTotal' => $kpiTotal,
-            'kpiActive' => $kpiActive,
+            'kpiCompleted' => $kpiCompleted,
             'kpiOnTrack' => $kpiOnTrack,
             'kpiAtRisk' => $kpiAtRisk,
             'kpiCritical' => $kpiCritical,
