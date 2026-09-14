@@ -29,13 +29,14 @@
     <!-- Title & Action Bar -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-900">Projects</h1>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Projects</h1>
             <p class="text-slate-500 text-sm mt-1">Manage and monitor all construction projects</p>
         </div>
         <button @click="isNewModalOpen = true"
                 class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition shadow-sm shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M12 8.2V15.8M8.2 12H15.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             New Project
         </button>
@@ -44,75 +45,33 @@
     <!-- KPI Dashboard Grid -->
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mt-6">
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <div class="flex items-start justify-between">
-                <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2M5 21H3m16 0h-5v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4H5m5-17h4m-4 4h4m-4 4h4" />
-                    </svg>
-                </div>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 font-semibold">Total Projects</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-0.5">{{ $kpiTotal }}</p>
+            <p class="text-xs text-slate-500 font-semibold">Total Projects</p>
+            <p class="text-2xl font-extrabold text-slate-900 mt-1">{{ $kpiTotal }}</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <div class="flex items-start justify-between">
-                <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 font-semibold">Completed</p>
-            <p class="text-2xl font-extrabold text-blue-600 mt-0.5">{{ $kpiCompleted }}</p>
+            <p class="text-xs text-slate-500 font-semibold">Completed</p>
+            <p class="text-2xl font-extrabold text-blue-600 mt-1">{{ $kpiCompleted }}</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <div class="flex items-start justify-between">
-                <div class="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                </div>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 font-semibold">On Track</p>
-            <p class="text-2xl font-extrabold text-emerald-600 mt-0.5">{{ $kpiOnTrack }}</p>
+            <p class="text-xs text-slate-500 font-semibold">On Track</p>
+            <p class="text-2xl font-extrabold text-emerald-600 mt-1">{{ $kpiOnTrack }}</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <div class="flex items-start justify-between">
-                <div class="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                    </svg>
-                </div>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 font-semibold">At Risk</p>
-            <p class="text-2xl font-extrabold text-orange-600 mt-0.5">{{ $kpiAtRisk }}</p>
+            <p class="text-xs text-slate-500 font-semibold">At Risk</p>
+            <p class="text-2xl font-extrabold text-orange-600 mt-1">{{ $kpiAtRisk }}</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <div class="flex items-start justify-between">
-                <div class="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 font-semibold">Critical</p>
-            <p class="text-2xl font-extrabold text-red-600 mt-0.5">{{ $kpiCritical }}</p>
+            <p class="text-xs text-slate-500 font-semibold">Critical</p>
+            <p class="text-2xl font-extrabold text-red-600 mt-1">{{ $kpiCritical }}</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <div class="flex items-start justify-between">
-                <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 8h6m-5 0a3 3 0 000 6h4a3 3 0 010 6H9m3-16v2m0 12v2" />
-                    </svg>
-                </div>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 font-semibold">Total Contract Value</p>
-            <p class="text-xl font-extrabold text-slate-900 mt-0.5" title="{{ \App\Support\CurrencyHelper::formatFull($kpiTotalContract) }}">
+            <p class="text-xs text-slate-500 font-semibold">Total Contract Value</p>
+            <p class="text-xl font-extrabold text-slate-900 mt-1" title="{{ \App\Support\CurrencyHelper::formatFull($kpiTotalContract) }}">
                 {{ \App\Support\CurrencyHelper::format($kpiTotalContract) }}
             </p>
         </div>
@@ -122,8 +81,9 @@
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 mt-6">
         <div class="flex flex-col lg:flex-row gap-3">
             <div class="relative flex-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5A6.5 6.5 0 114 10.5a6.5 6.5 0 0113 0z" />
+                <svg viewBox="0 0 24 24" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <circle cx="10.5" cy="10.5" r="5.5" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M15.3 15.3L19 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search project, location, or project manager..." 
                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
@@ -155,8 +115,9 @@
 
             <button wire:click="handleClearFilters"
                     class="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M9.1 14.9L14.9 9.1M14.9 14.9L9.1 9.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 Clear Filters
             </button>
@@ -266,7 +227,7 @@
                         </div>
 
                         <div class="mt-5 pt-3 border-t border-slate-100 space-y-2">
-                            <a href="{{ route('projects.show', $p['project_id']) }}" wire:navigate.hover
+                            <a href="{{ route('projects.show', $p['project_id']) }}"
                                class="flex items-center justify-center gap-1.5 w-full text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg transition">
                                 View Project Details
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -341,7 +302,7 @@
                                     <td class="p-4 text-slate-500 text-[10px]">{{ isset($p['last_updated']) ? date('d/m/Y', strtotime($p['last_updated'])) : '—' }}</td>
                                     <td class="p-4 text-center">
     <div class="flex items-center justify-center gap-3">
-        <a href="{{ route('projects.show', $p['project_id']) }}" wire:navigate.hover
+        <a href="{{ route('projects.show', $p['project_id']) }}"
            class="text-xs font-bold text-blue-600 hover:text-blue-700 transition">
             View
         </a>
@@ -529,15 +490,20 @@
                     <p class="text-xs font-bold text-slate-800 mb-3">Import Data (Opsional)</p>
                     <div class="grid grid-cols-2 gap-3">
                         <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mx-auto text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2a4 4 0 014-4h4M9 17H7a2 2 0 01-2-2V5a2 2 0 012-2h6l4 4v3M9 17v3a1 1 0 001 1h9a1 1 0 001-1v-6a1 1 0 00-1-1h-3" />
+                            <svg viewBox="0 0 24 24" class="w-6 h-6 mx-auto text-slate-400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M8 3.8V8.5C8 9.05 8.45 9.5 9 9.5H14.5L18 13V18.2C18 18.75 17.55 19.2 17 19.2H7C6.45 19.2 6 18.75 6 18.2V4.8C6 4.25 6.45 3.8 7 3.8H8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                <path d="M14.5 9.5V3.8L18 7.3H14.5V9.5Z" fill="currentColor" opacity="0.2"/>
+                                <path d="M8.5 13.5H15.5M8.5 16.2H13.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                                <path d="M9.5 9.5V11.5M12 9.5V11.5M14.5 9.5V11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
                             </svg>
                             <p class="text-[10px] font-bold text-slate-600 mt-2">Import Excel RAB</p>
                             <p class="text-[9px] text-slate-400 mt-0.5">No, Item, Sat, Vol, Hrg Sat, Subtotal</p>
                         </div>
                         <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mx-auto text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M7 8h10v10" />
+                            <svg viewBox="0 0 24 24" class="w-6 h-6 mx-auto text-slate-400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M5 15.5L9.5 11L12.5 14L18.5 8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M15.8 8.5H18.5V11.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/>
                             </svg>
                             <p class="text-[10px] font-bold text-slate-600 mt-2">Import Kurva S</p>
                             <p class="text-[9px] text-slate-400 mt-0.5">Mg ke, Tgl Awal, Tgl Akhir, Rencana, Kumulatif</p>

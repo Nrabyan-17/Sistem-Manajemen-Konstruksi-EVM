@@ -41,7 +41,7 @@
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
             <p class="text-[11px] font-bold tracking-wider text-blue-600 uppercase">Validasi Data</p>
-            <h1 class="text-2xl font-bold text-slate-900 mt-0.5">Approval Center</h1>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Approval Center</h1>
             <p class="text-slate-500 text-xs mt-0.5">Review and validate submitted data before it affects EVM calculations</p>
         </div>
         <div class="flex items-center gap-2.5 flex-wrap">
@@ -103,18 +103,11 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         {{-- Progress Approval --}}
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center justify-between">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-blue-50/80 flex items-center justify-center shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-xs font-semibold text-slate-500">Progress Approval</p>
-                    <div class="flex items-baseline gap-1.5 mt-0.5">
-                        <span class="text-2xl font-bold text-slate-900">{{ $kpiProgress }}</span>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PENDING</span>
-                    </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-500">Progress Approval</p>
+                <div class="flex items-baseline gap-1.5 mt-0.5">
+                    <span class="text-2xl font-bold text-slate-900">{{ $kpiProgress }}</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PENDING</span>
                 </div>
             </div>
             <div class="w-1 h-7 bg-blue-100/60 rounded-full shrink-0"></div>
@@ -122,18 +115,11 @@
 
         {{-- Financial Approval --}}
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center justify-between">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50/80 flex items-center justify-center shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-xs font-semibold text-slate-500">Financial Approval</p>
-                    <div class="flex items-baseline gap-1.5 mt-0.5">
-                        <span class="text-2xl font-bold text-slate-900">{{ $kpiFinancial }}</span>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PENDING</span>
-                    </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-500">Financial Approval</p>
+                <div class="flex items-baseline gap-1.5 mt-0.5">
+                    <span class="text-2xl font-bold text-slate-900">{{ $kpiFinancial }}</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PENDING</span>
                 </div>
             </div>
             <div class="w-1 h-7 bg-emerald-100/60 rounded-full shrink-0"></div>
@@ -141,18 +127,11 @@
 
         {{-- Addendum Approval --}}
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center justify-between">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-orange-50/80 flex items-center justify-center shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-xs font-semibold text-slate-500">Addendum Approval</p>
-                    <div class="flex items-baseline gap-1.5 mt-0.5">
-                        <span class="text-2xl font-bold text-slate-900">{{ $kpiAddendum }}</span>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PENDING</span>
-                    </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-500">Addendum Approval</p>
+                <div class="flex items-baseline gap-1.5 mt-0.5">
+                    <span class="text-2xl font-bold text-slate-900">{{ $kpiAddendum }}</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PENDING</span>
                 </div>
             </div>
             <div class="w-1 h-7 bg-orange-100/60 rounded-full shrink-0"></div>

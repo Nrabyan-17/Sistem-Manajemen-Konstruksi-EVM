@@ -14,93 +14,39 @@
                 </svg>
                 Import Data
             </button>
-            <a href="/projects" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition shadow-md shadow-blue-500/25">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                New Project
-            </a>
         </div>
     </div>
 
     <!-- Key Metrics Row (6 cards) -->
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mt-6">
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:shadow-md transition">
-            <div class="flex items-start justify-between">
-                <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2M5 21H3m16 0h-5v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4H5m5-17h4m-4 4h4m-4 4h4" />
-                    </svg>
-                </div>
-                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">+12%</span>
-            </div>
-            <p class="text-xs font-medium text-slate-500 mt-3">Active Projects</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-0.5">42</p>
+            <p class="text-xs font-semibold text-slate-500">Active Projects</p>
+            <p class="text-2xl font-extrabold text-slate-900 mt-1">42</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:shadow-md transition">
-            <div class="flex items-start justify-between">
-                <div class="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                </div>
-                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">+8%</span>
-            </div>
-            <p class="text-xs font-medium text-slate-500 mt-3">On Track</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-0.5">31</p>
+            <p class="text-xs font-semibold text-slate-500">On Track</p>
+            <p class="text-2xl font-extrabold text-slate-900 mt-1">31</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:shadow-md transition">
-            <div class="flex items-start justify-between">
-                <div class="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <span class="text-xs font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md">-2%</span>
-            </div>
-            <p class="text-xs font-medium text-slate-500 mt-3">Delayed</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-0.5">7</p>
+            <p class="text-xs font-semibold text-slate-500">Delayed</p>
+            <p class="text-2xl font-extrabold text-slate-900 mt-1">7</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:shadow-md transition">
-            <div class="flex items-start justify-between">
-                <div class="w-9 h-9 rounded-xl bg-rose-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                    </svg>
-                </div>
-                <span class="text-xs font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md">-1%</span>
-            </div>
-            <p class="text-xs font-medium text-slate-500 mt-3">Critical</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-0.5">4</p>
+            <p class="text-xs font-semibold text-slate-500">Critical</p>
+            <p class="text-2xl font-extrabold text-slate-900 mt-1">4</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:shadow-md transition">
-            <div class="flex items-start justify-between">
-                <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 8h6m-5 0a3 3 0 000 6h4a3 3 0 010 6H9m3-16v2m0 12v2" />
-                    </svg>
-                </div>
-                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">+15%</span>
-            </div>
-            <p class="text-xs font-medium text-slate-500 mt-3">Contract Value</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-0.5">Rp 2.4 T</p>
+            <p class="text-xs font-semibold text-slate-500">Contract Value</p>
+            <p class="text-2xl font-extrabold text-slate-900 mt-1">Rp 2.4 T</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:shadow-md transition">
-            <div class="flex items-start justify-between">
-                <div class="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M7 8h10v10" />
-                    </svg>
-                </div>
-                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">+4%</span>
-            </div>
-            <p class="text-xs font-medium text-slate-500 mt-3">Total P&amp;L</p>
-            <p class="text-2xl font-extrabold text-emerald-600 mt-0.5">+Rp 142 M</p>
+            <p class="text-xs font-semibold text-slate-500">Total P&amp;L</p>
+            <p class="text-2xl font-extrabold text-emerald-600 mt-1">+Rp 142 M</p>
         </div>
     </div>
 
@@ -131,7 +77,9 @@
             </div>
 
             <!-- Alpine Chart Wrapper -->
-            <div x-data="sCurveChart" class="relative h-[320px]">
+            <div x-data="sCurveChart"
+                 x-on:dashboard-activated.window="setTimeout(() => renderChart($wire.projectKey), 150)"
+                 class="relative h-[320px]">
                 <canvas x-ref="sCurveCanvas"></canvas>
             </div>
 
@@ -169,7 +117,9 @@
             </div>
 
             <!-- Finance Bar Chart -->
-            <div x-data="financeChart" class="relative h-[240px] mt-6">
+            <div x-data="financeChart"
+                 x-on:dashboard-activated.window="setTimeout(() => renderFinanceChart(), 150)"
+                 class="relative h-[240px] mt-6">
                 <canvas x-ref="financeCanvas"></canvas>
             </div>
 
@@ -305,11 +255,10 @@
     Alpine.data('sCurveChart', () => ({
         chart: null,
         init() {
-            this.$nextTick(() => {
-                this.renderChart(this.$wire.projectKey);
-            });
+            // Use setTimeout to ensure canvas has proper dimensions on initial load
+            setTimeout(() => this.renderChart(this.$wire.projectKey), 50);
             this.$wire.on('project-changed', (event) => {
-                this.renderChart(event.projectKey);
+                setTimeout(() => this.renderChart(event.projectKey), 50);
             });
         },
         destroy() {
@@ -398,7 +347,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     animation: {
-                        duration: 1000,
+                        duration: 1200,
                         easing: 'easeInOutQuart'
                     },
                     interaction: {
@@ -449,9 +398,7 @@
     Alpine.data('financeChart', () => ({
         chart: null,
         init() {
-            this.$nextTick(() => {
-                this.renderFinanceChart();
-            });
+            setTimeout(() => this.renderFinanceChart(), 50);
         },
         destroy() {
             if (this.chart) {
@@ -498,7 +445,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     animation: {
-                        duration: 1000,
+                        duration: 1200,
                         easing: 'easeInOutQuart'
                     },
                     plugins: {

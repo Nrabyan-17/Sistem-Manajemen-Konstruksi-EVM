@@ -18,7 +18,7 @@
     <!-- Title & Action Bar -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-900">EVM Performance Reports</h1>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">EVM Performance Reports</h1>
             <p class="text-slate-500 text-sm mt-1">Generate and export portfolio performance reports based on Earned Value Management parameters</p>
         </div>
         <div class="flex items-center gap-2">
