@@ -106,12 +106,8 @@
         <div class="flex flex-wrap items-end gap-3">
             <div class="flex-1 min-w-[180px]">
                 <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Select Project</label>
-                <select wire:model.live="selectedProject" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                    <option value="all">All Projects</option>
-                    @foreach($projectList as $p)
-                        <option value="{{ $p['project_id'] }}">{{ $p['project_id'] }} - {{ $p['project_name'] }}</option>
-                    @endforeach
-                </select>
+                <input type="text" wire:model.live="selectedProject" placeholder="Search projects..."
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Status</label>

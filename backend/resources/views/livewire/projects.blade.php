@@ -418,14 +418,8 @@
                 <div class="grid grid-cols-3 gap-4">
                     <div>
                         <label class="block font-bold text-slate-800 mb-1.5">Project Manager</label>
-                        <select wire:model="newPm" required class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                            <option value="">Select PM</option>
-                            <option value="Andi Pratama">Andi Pratama</option>
-                            <option value="Budi Santoso">Budi Santoso</option>
-                            <option value="Dimas Wijaya">Dimas Wijaya</option>
-                            <option value="Rizky Ramadhan">Rizky Ramadhan</option>
-                            <option value="Fajar Nugroho">Fajar Nugroho</option>
-                        </select>
+                        <input type="text" wire:model="newPm" placeholder="e.g. Andi Pratama" required
+                               class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
                     </div>
                     <div>
                         <label class="block font-bold text-slate-800 mb-1.5">Location</label>

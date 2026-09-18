@@ -61,4 +61,57 @@ class BoqAndAddendumTest extends TestCase
         $this->assertEquals(45, $component->get('totalDaysAdded'));
         $this->assertNotEmpty($component->get('effectiveBastDate'));
     }
+
+    public function test_delete_rab_confirmation_can_be_cancelled(): void
+    {
+        Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
+            ->call('confirmDeleteRab', 0)
+            ->assertSet('showDeleteRabModal', true)
+            ->call('closeDeleteRabModal')
+            ->assertSet('showDeleteRabModal', false)
+            ->assertSet('selectedRabIndex', null);
+    }
+
+    public function test_void_addendum_confirmation_can_be_cancelled(): void
+    {
+        Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
+            ->call('confirmVoidAddendum', 0)
+            ->assertSet('showVoidAddendumModal', true)
+            ->call('closeVoidAddendumModal')
+            ->assertSet('showVoidAddendumModal', false)
+            ->assertSet('selectedAddendumIndex', null);
+    }
+
+    public function test_rab_item_can_be_edited_and_subtotal_is_recalculated(): void
+    {
+        Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
+            ->call('openEditRabModal', 0)
+            ->set('editRabItem', 'Item RAB Diperbarui')
+            ->set('editRabVolume', 2)
+            ->set('editRabHargaSatuan', 100000)
+            ->call('updateRabItem')
+            ->assertSet('showEditRabModal', false)
+            ->assertSet('boqItems.0.item', 'Item RAB Diperbarui')
+            ->assertSet('boqItems.0.subtotal', 200000);
+    }
+
+    public function test_only_pending_addendum_can_be_edited(): void
+    {
+        $component = Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-002'])
+            ->call('openEditAddendumModal', 0);
+
+        $component->assertSet('showEditAddendumModal', false);
+
+        $component->set('addendumTitle', 'Pending Addendum')
+            ->set('addendumValue', 100000)
+            ->set('addendumDesc', 'Pending')
+            ->call('submitAddendumCost');
+
+        $component->call('openEditAddendumModal', count($component->get('addendums')) - 1)
+            ->assertSet('showEditAddendumModal', true)
+            ->set('editAddendumTitle', 'Pending Addendum Diperbarui')
+            ->call('updateAddendum')
+            ->assertSet('showEditAddendumModal', false)
+            ->assertSet('addendums.' . (count($component->get('addendums')) - 1) . '.title', 'Pending Addendum Diperbarui');
+    }
 }

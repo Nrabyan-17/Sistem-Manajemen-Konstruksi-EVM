@@ -28,8 +28,18 @@
       x-data="{ 
           isSidebarOpen: true, 
           showLogoutModal: false,
+          isProjectDetail: @json($isProjectDetail),
           activeTab: '{{ $initialTab }}',
           switchTab(tabName, targetUrl) {
+              if (this.isProjectDetail) {
+                  if (window.Livewire && typeof window.Livewire.navigate === 'function') {
+                      window.Livewire.navigate(targetUrl);
+                  } else {
+                      window.location.href = targetUrl;
+                  }
+                  return;
+              }
+
               this.activeTab = tabName;
               if (targetUrl) {
                   window.history.pushState({ tab: tabName }, '', targetUrl);
@@ -106,7 +116,7 @@
                    @click.prevent="switchTab('dashboard', '/dashboard')"
                    :class="activeTab === 'dashboard' ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/30' : 'text-slate-600 hover:bg-slate-100'"
                    :class="{ 'justify-center px-2': !isSidebarOpen }"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition cursor-pointer">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer">
                     <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M4 10.5L12 4L20 10.5V18.5C20 19.05 19.55 19.5 19 19.5H5C4.45 19.5 4 19.05 4 18.5V10.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
                         <path d="M9.2 19.5V12.5H14.8V19.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
@@ -116,9 +126,9 @@
                 
                 <a href="/projects"
                    @click.prevent="switchTab('projects', '/projects')"
-                   :class="activeTab === 'projects' ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/30' : 'text-slate-600 hover:bg-slate-100'"
+                         :class="['projects', 'project-detail'].includes(activeTab) ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/30' : 'text-slate-600 hover:bg-slate-100'"
                    :class="{ 'justify-center px-2': !isSidebarOpen }"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition cursor-pointer">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer">
                     <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M4.5 18.5V6.5C4.5 5.4 5.4 4.5 6.5 4.5H17.5C18.6 4.5 19.5 5.4 19.5 6.5V18.5H4.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
                         <path d="M8.5 8.5H15.5M8.5 12H15.5M8.5 15.5H13.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -130,7 +140,7 @@
                    @click.prevent="switchTab('evm', '/evm')"
                    :class="activeTab === 'evm' ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/30' : 'text-slate-600 hover:bg-slate-100'"
                    :class="{ 'justify-center px-2': !isSidebarOpen }"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition cursor-pointer">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer">
                     <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M5 18.5V9.5M12 18.5V5.5M19 18.5V12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                         <path d="M3.5 18.5H20.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -144,7 +154,7 @@
                    @click.prevent="switchTab('reports', '/reports')"
                    :class="activeTab === 'reports' ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/30' : 'text-slate-600 hover:bg-slate-100'"
                    :class="{ 'justify-center px-2': !isSidebarOpen }"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition cursor-pointer">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer">
                     <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M7 4.5H13.5L18.5 9.5V18.5C18.5 19.05 18.05 19.5 17.5 19.5H7C6.45 19.5 6 19.05 6 18.5V5.5C6 4.95 6.45 4.5 7 4.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
                         <path d="M13.5 4.5V9.5H18.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
@@ -157,7 +167,7 @@
                    @click.prevent="switchTab('approvals', '/approvals')"
                    :class="activeTab === 'approvals' ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/30' : 'text-slate-600 hover:bg-slate-100'"
                    :class="{ 'justify-center px-2': !isSidebarOpen }"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition cursor-pointer">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer">
                     <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M12 4.2C7.5 4.2 3.8 7.5 3 11.8C3.8 16.1 7.5 19.4 12 19.4C16.5 19.4 20.2 16.1 21 11.8C20.2 7.5 16.5 4.2 12 4.2Z" stroke="currentColor" stroke-width="1.8"/>
                         <circle cx="12" cy="11.8" r="3.1" stroke="currentColor" stroke-width="1.8"/>
@@ -169,7 +179,7 @@
                    @click.prevent="switchTab('users', '/users')"
                    :class="activeTab === 'users' ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/30' : 'text-slate-600 hover:bg-slate-100'"
                    :class="{ 'justify-center px-2': !isSidebarOpen }"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition cursor-pointer">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer">
                     <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <circle cx="9" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/>
                         <path d="M4.5 18.2C5.3 15.5 7.3 14.2 9.5 14.2C11.7 14.2 13.7 15.5 14.5 18.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -310,7 +320,7 @@
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 scale-100"
              x-transition:leave-end="opacity-0 scale-95"
-             class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-sm w-full p-6 text-center space-y-4">
+             class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-6 text-center space-y-4">
             
             <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto shrink-0 border border-rose-100">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

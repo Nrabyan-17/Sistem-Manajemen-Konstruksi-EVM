@@ -50,12 +50,24 @@ class ProjectDetail extends Component
     public string $newRabSatuan = 'm³';
     public string $newRabVolume = '';
     public string $newRabHargaSatuan = '';
+    public bool $showEditRabModal = false;
+    public ?int $editRabIndex = null;
+    public string $editRabItem = '';
+    public string $editRabSatuan = 'm³';
+    public string $editRabVolume = '';
+    public string $editRabHargaSatuan = '';
 
     // Modal & Form States: Input Addendum Biaya
     public bool $showAddendumCostModal = false;
     public string $addendumTitle = '';
     public string $addendumValue = '';
     public string $addendumDesc = '';
+    public bool $showEditAddendumModal = false;
+    public ?int $editAddendumIndex = null;
+    public string $editAddendumTitle = '';
+    public string $editAddendumValue = '';
+    public string $editAddendumDesc = '';
+    public string $editAddendumDays = '';
 
     // Modal & Form States: Input Add Waktu
     public bool $showAddendumTimeModal = false;
@@ -63,6 +75,22 @@ class ProjectDetail extends Component
     public int $addDays = 30;
     public string $timeReason = '';
     public string $previewBastDate = '';
+    public bool $showDeleteRabModal = false;
+    public bool $showVoidAddendumModal = false;
+    public ?int $selectedRabIndex = null;
+    public ?int $selectedAddendumIndex = null;
+    public string $voidReason = '';
+
+    // Modal & Form State: Edit Project Master Data
+    public bool $showEditProjectModal = false;
+    public string $editProjectName = '';
+    public string $editSpkNumber = '';
+    public string $editClient = '';
+    public string $editProjectManager = '';
+    public string $editLocation = '';
+    public string $editContractValue = '';
+    public string $editStartDate = '';
+    public string $editBastDate = '';
 
     // Time extension trackers
     public int $totalDaysAdded = 0;
@@ -185,6 +213,229 @@ class ProjectDetail extends Component
         $this->previewBastDate = $base->format('d M Y');
     }
 
+    public function openEditProjectModal(): void
+    {
+        $this->editProjectName = $this->project['project_name'];
+        $this->editSpkNumber = $this->project['spk_number'];
+        $this->editClient = $this->project['client'];
+        $this->editProjectManager = $this->project['project_manager'];
+        $this->editLocation = $this->project['location'];
+        $this->editContractValue = (string) $this->project['contract_value'];
+        $this->editStartDate = $this->project['start_date'];
+        $this->editBastDate = $this->project['bast_date'];
+        $this->showEditProjectModal = true;
+    }
+
+    public function closeEditProjectModal(): void
+    {
+        $this->showEditProjectModal = false;
+        $this->resetValidation();
+    }
+
+    public function confirmDeleteRab(int $index): void
+    {
+        if (isset($this->boqItems[$index])) {
+            $this->selectedRabIndex = $index;
+            $this->showDeleteRabModal = true;
+        }
+    }
+
+    public function closeDeleteRabModal(): void
+    {
+        $this->showDeleteRabModal = false;
+        $this->selectedRabIndex = null;
+    }
+
+    public function deleteRabItem(): void
+    {
+        if ($this->selectedRabIndex === null || !isset($this->boqItems[$this->selectedRabIndex])) {
+            return;
+        }
+
+        unset($this->boqItems[$this->selectedRabIndex]);
+        $this->boqItems = array_values($this->boqItems);
+        foreach ($this->boqItems as $index => &$item) {
+            $item['no'] = $index + 1;
+        }
+        unset($item);
+        ProjectMockData::updateBoqItems($this->project['project_id'], $this->boqItems);
+        $this->showDeleteRabModal = false;
+        $this->selectedRabIndex = null;
+        $this->dispatch('rab-item-deleted', message: 'Item RAB berhasil dihapus.');
+    }
+
+    public function openEditRabModal(int $index): void
+    {
+        if (!isset($this->boqItems[$index])) {
+            return;
+        }
+
+        $item = $this->boqItems[$index];
+        $this->editRabIndex = $index;
+        $this->editRabItem = $item['item'];
+        $this->editRabSatuan = $item['satuan'];
+        $this->editRabVolume = (string) $item['volume'];
+        $this->editRabHargaSatuan = (string) $item['harga_satuan'];
+        $this->showEditRabModal = true;
+    }
+
+    public function closeEditRabModal(): void
+    {
+        $this->showEditRabModal = false;
+        $this->editRabIndex = null;
+        $this->resetValidation();
+    }
+
+    public function updateRabItem(): void
+    {
+        $this->validate([
+            'editRabItem' => 'required|string|min:3|max:255',
+            'editRabSatuan' => 'required|string|max:50',
+            'editRabVolume' => 'required|numeric|min:0.01',
+            'editRabHargaSatuan' => 'required|numeric|min:1',
+        ]);
+
+        if ($this->editRabIndex === null || !isset($this->boqItems[$this->editRabIndex])) {
+            return;
+        }
+
+        $volume = (float) $this->editRabVolume;
+        $hargaSatuan = (float) $this->editRabHargaSatuan;
+        $this->boqItems[$this->editRabIndex] = array_merge($this->boqItems[$this->editRabIndex], [
+            'item' => trim($this->editRabItem),
+            'satuan' => $this->editRabSatuan,
+            'volume' => $volume,
+            'harga_satuan' => $hargaSatuan,
+            'subtotal' => $volume * $hargaSatuan,
+        ]);
+        ProjectMockData::updateBoqItems($this->project['project_id'], $this->boqItems);
+        $this->closeEditRabModal();
+        $this->dispatch('rab-item-updated', message: 'Item RAB berhasil diperbarui.');
+    }
+
+    public function confirmVoidAddendum(int $index): void
+    {
+        if (isset($this->addendums[$index]) && ($this->addendums[$index]['status'] ?? '') !== 'VOID') {
+            $this->selectedAddendumIndex = $index;
+            $this->voidReason = '';
+            $this->showVoidAddendumModal = true;
+        }
+    }
+
+    public function closeVoidAddendumModal(): void
+    {
+        $this->showVoidAddendumModal = false;
+        $this->selectedAddendumIndex = null;
+        $this->voidReason = '';
+        $this->resetValidation();
+    }
+
+    public function voidAddendum(): void
+    {
+        $this->validate(['voidReason' => 'required|string|min:3|max:500']);
+
+        if ($this->selectedAddendumIndex === null || !isset($this->addendums[$this->selectedAddendumIndex])) {
+            return;
+        }
+
+        $this->addendums[$this->selectedAddendumIndex]['status'] = 'VOID';
+        $this->addendums[$this->selectedAddendumIndex]['void_reason'] = trim($this->voidReason);
+        $this->addendums[$this->selectedAddendumIndex]['voided_at'] = date('Y-m-d');
+        ProjectMockData::updateAddendums($this->project['project_id'], $this->addendums);
+        $this->showVoidAddendumModal = false;
+        $this->selectedAddendumIndex = null;
+        $this->voidReason = '';
+        $this->recalculateAddendumRisk();
+        $this->dispatch('addendum-voided', message: 'Addendum dibatalkan dan tetap tersimpan di histori.');
+    }
+
+    public function openEditAddendumModal(int $index): void
+    {
+        if (!isset($this->addendums[$index]) || ($this->addendums[$index]['status'] ?? '') !== 'PENDING') {
+            return;
+        }
+
+        $addendum = $this->addendums[$index];
+        $this->editAddendumIndex = $index;
+        $this->editAddendumTitle = $addendum['title'];
+        $this->editAddendumValue = (string) ($addendum['value'] ?? 0);
+        $this->editAddendumDesc = $addendum['description'] ?? '';
+        $this->editAddendumDays = (string) ($addendum['days_added'] ?? 0);
+        $this->showEditAddendumModal = true;
+    }
+
+    public function closeEditAddendumModal(): void
+    {
+        $this->showEditAddendumModal = false;
+        $this->editAddendumIndex = null;
+        $this->resetValidation();
+    }
+
+    public function updateAddendum(): void
+    {
+        $this->validate([
+            'editAddendumTitle' => 'required|string|min:3|max:255',
+            'editAddendumValue' => 'required|numeric',
+            'editAddendumDesc' => 'nullable|string|max:500',
+            'editAddendumDays' => 'required|integer|min:0',
+        ]);
+
+        if ($this->editAddendumIndex === null || !isset($this->addendums[$this->editAddendumIndex])
+            || ($this->addendums[$this->editAddendumIndex]['status'] ?? '') !== 'PENDING') {
+            return;
+        }
+
+        $this->addendums[$this->editAddendumIndex]['title'] = trim($this->editAddendumTitle);
+        $this->addendums[$this->editAddendumIndex]['value'] = (float) $this->editAddendumValue;
+        $this->addendums[$this->editAddendumIndex]['description'] = trim($this->editAddendumDesc);
+        $this->addendums[$this->editAddendumIndex]['days_added'] = (int) $this->editAddendumDays;
+        ProjectMockData::updateAddendums($this->project['project_id'], $this->addendums);
+        $this->closeEditAddendumModal();
+        $this->recalculateAddendumRisk();
+        $this->dispatch('addendum-updated', message: 'Addendum berhasil diperbarui.');
+    }
+
+    private function recalculateAddendumRisk(): void
+    {
+        $totalAddendumValue = array_reduce(
+            array_filter($this->addendums, fn ($a) => ($a['status'] ?? '') !== 'VOID'),
+            fn ($carry, $a) => $carry + abs($a['value'] ?? 0),
+            0
+        );
+        $this->addendumPercentage = $this->bac > 0 ? round(($totalAddendumValue / $this->bac) * 100, 2) : 0;
+        $this->riskLevel = $this->addendumPercentage < 20 ? 'ON TRACK' : ($this->addendumPercentage <= 30 ? 'AT RISK' : 'CRITICAL');
+    }
+
+    public function updateProject(): void
+    {
+        $this->validate([
+            'editProjectName' => 'required|string|min:3|max:255',
+            'editSpkNumber' => 'required|string|max:100',
+            'editClient' => 'required|string|max:255',
+            'editProjectManager' => 'required|string|max:255',
+            'editLocation' => 'required|string|max:255',
+            'editContractValue' => 'required|numeric|min:1',
+            'editStartDate' => 'required|date',
+            'editBastDate' => 'required|date|after_or_equal:editStartDate',
+        ]);
+
+        ProjectMockData::update($this->project['project_id'], [
+            'project_name' => trim($this->editProjectName),
+            'spk_number' => trim($this->editSpkNumber),
+            'client' => trim($this->editClient),
+            'project_manager' => trim($this->editProjectManager),
+            'location' => trim($this->editLocation),
+            'contract_value' => (float) $this->editContractValue,
+            'start_date' => $this->editStartDate,
+            'bast_date' => $this->editBastDate,
+        ]);
+
+        $projectId = $this->project['project_id'];
+        $this->showEditProjectModal = false;
+        $this->mount($projectId);
+        $this->dispatch('project-updated', message: 'Data project berhasil diperbarui!');
+    }
+
     public function setTab(string $tab)
     {
         $this->activeTab = $tab;
@@ -283,6 +534,8 @@ class ProjectDetail extends Component
             'is_addendum' => false,
         ];
 
+        ProjectMockData::updateBoqItems($this->project['project_id'], $this->boqItems);
+
         $this->resetRabForm();
         $this->showRabModal = false;
         $this->dispatch('rab-item-saved', message: 'Item RAB baru berhasil ditambahkan ke BOQ!');
@@ -321,14 +574,16 @@ class ProjectDetail extends Component
             'title' => $this->addendumTitle,
             'value' => $val,
             'date' => date('Y-m-d'),
-            'status' => 'APPROVED',
+            'status' => 'PENDING',
             'description' => $this->addendumDesc ?: 'Addendum biaya pekerjaan tambah/kurang.',
             'type' => 'COST',
             'days_added' => 0,
         ];
 
+        ProjectMockData::updateAddendums($this->project['project_id'], $this->addendums);
+
         // Recalculate addendum risk percentage
-        $totalAddendumValue = array_reduce($this->addendums, fn($carry, $a) => $carry + abs($a['value'] ?? 0), 0);
+        $totalAddendumValue = array_reduce($this->addendums, fn($carry, $a) => $carry + (($a['status'] ?? '') === 'VOID' ? 0 : abs($a['value'] ?? 0)), 0);
         $this->addendumPercentage = $this->bac > 0 ? round(($totalAddendumValue / $this->bac) * 100, 2) : 0;
         if ($this->addendumPercentage < 20) {
             $this->riskLevel = 'ON TRACK';
@@ -390,11 +645,13 @@ class ProjectDetail extends Component
             'title' => $this->timeTitle ?: "Perpanjangan Waktu (+{$days} Hari)",
             'value' => 0,
             'date' => date('Y-m-d'),
-            'status' => 'APPROVED',
+            'status' => 'PENDING',
             'description' => $this->timeReason,
             'type' => 'TIME',
             'days_added' => $days,
         ];
+
+        ProjectMockData::updateAddendums($this->project['project_id'], $this->addendums);
 
         $this->closeAddendumTimeModal();
         $this->dispatch('addendum-time-saved', message: "Addendum Waktu berhasil ditambahkan (+{$days} Hari)! BAST: " . date('d M Y', strtotime($this->effectiveBastDate)));

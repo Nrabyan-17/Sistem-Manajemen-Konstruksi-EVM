@@ -6,7 +6,7 @@ class ProjectMockData
 {
     public static function all(): array
     {
-        return [
+        $projects = [
             [
                 'project_id' => 'PRJ-001', 'project_name' => 'Grand Horizon Tower', 'spk_number' => 'SPK-2026-001',
                 'client' => 'PT ABC', 'project_manager' => 'Andi Pratama', 'location' => 'Jakarta',
@@ -56,6 +56,17 @@ class ProjectMockData
                 'termin_diterima' => 4800000000, 'last_updated' => '2026-08-03',
             ],
         ];
+
+        foreach (session()->get('project_overrides', []) as $projectId => $override) {
+            foreach ($projects as $index => $project) {
+                if ($project['project_id'] === $projectId) {
+                    $projects[$index] = array_merge($project, $override);
+                    break;
+                }
+            }
+        }
+
+        return $projects;
     }
 
     public static function find(string $projectId): ?array
@@ -66,6 +77,13 @@ class ProjectMockData
             }
         }
         return null;
+    }
+
+    public static function update(string $projectId, array $changes): void
+    {
+        $overrides = session()->get('project_overrides', []);
+        $overrides[$projectId] = array_merge($overrides[$projectId] ?? [], $changes);
+        session()->put('project_overrides', $overrides);
     }
 
     public static function history(): array
@@ -165,7 +183,15 @@ class ProjectMockData
 
     public static function addendumsFor(string $projectId): array
     {
-        return array_values(array_filter(self::addendums(), fn($a) => $a['project_id'] === $projectId));
+        $addendums = array_values(array_filter(self::addendums(), fn($a) => $a['project_id'] === $projectId));
+        return session()->get('project_addendum_overrides', [])[$projectId] ?? $addendums;
+    }
+
+    public static function updateAddendums(string $projectId, array $addendums): void
+    {
+        $overrides = session()->get('project_addendum_overrides', []);
+        $overrides[$projectId] = array_values($addendums);
+        session()->put('project_addendum_overrides', $overrides);
     }
 
     /**
@@ -219,7 +245,15 @@ class ProjectMockData
 
     public static function boqItemsFor(string $projectId): array
     {
-        return self::boqItems()[$projectId] ?? [];
+        return session()->get('project_boq_overrides', [])[$projectId]
+            ?? (self::boqItems()[$projectId] ?? []);
+    }
+
+    public static function updateBoqItems(string $projectId, array $items): void
+    {
+        $overrides = session()->get('project_boq_overrides', []);
+        $overrides[$projectId] = array_values($items);
+        session()->put('project_boq_overrides', $overrides);
     }
 
     /**

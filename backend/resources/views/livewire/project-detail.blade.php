@@ -30,6 +30,26 @@
     toastMessage = $event.detail.message;
     showToast = true;
     setTimeout(() => showToast = false, 3000);
+"
+@rab-item-deleted.window="
+    toastMessage = $event.detail.message;
+    showToast = true;
+    setTimeout(() => showToast = false, 3000);
+"
+@rab-item-updated.window="
+    toastMessage = $event.detail.message;
+    showToast = true;
+    setTimeout(() => showToast = false, 3000);
+"
+@addendum-voided.window="
+    toastMessage = $event.detail.message;
+    showToast = true;
+    setTimeout(() => showToast = false, 3000);
+"
+@addendum-updated.window="
+    toastMessage = $event.detail.message;
+    showToast = true;
+    setTimeout(() => showToast = false, 3000);
 ">
 
     {{-- TOAST NOTIFICATION --}}
@@ -88,6 +108,13 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
+                <button wire:click="openEditProjectModal"
+                        class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M4 20h4l10.768-10.768a2.5 2.5 0 00-3.536-3.536L4.464 16.464A2 2 0 004 17.878V20z" />
+                    </svg>
+                    Edit Project
+                </button>
                 <button @click="showWeeklyModal = true"
                         class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -256,9 +283,6 @@
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-semibold text-slate-500">RAB Awal (Baseline BAC)</p>
-                    <span class="p-1.5 rounded-lg bg-blue-50 text-blue-600">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    </span>
                 </div>
                 <p class="text-lg font-extrabold text-slate-900 mt-1" title="{{ \App\Support\CurrencyHelper::formatFull($bac) }}">{{ \App\Support\CurrencyHelper::format($bac) }}</p>
                 <p class="text-[11px] text-slate-400 mt-0.5">Nilai kontrak awal proyek</p>
@@ -269,9 +293,6 @@
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-semibold text-slate-500">Addendum Biaya (Item Baru)</p>
-                    <span class="p-1.5 rounded-lg bg-amber-50 text-amber-600">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </span>
                 </div>
                 <div class="flex items-baseline gap-2 mt-1">
                     <p class="text-lg font-extrabold text-slate-900" title="{{ \App\Support\CurrencyHelper::formatFull($totAddVal) }}">{{ \App\Support\CurrencyHelper::format($totAddVal) }}</p>
@@ -289,9 +310,6 @@
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-semibold text-slate-500">Addendum Waktu (EOT)</p>
-                    <span class="p-1.5 rounded-lg bg-indigo-50 text-indigo-600">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    </span>
                 </div>
                 <div class="flex items-baseline gap-2 mt-1">
                     <p class="text-lg font-extrabold text-indigo-700">+{{ $totalDaysAdded }} Hari</p>
@@ -332,6 +350,7 @@
                                 <th class="p-4 w-28 text-right">Volume</th>
                                 <th class="p-4 text-right">Harga Satuan</th>
                                 <th class="p-4 text-right">Subtotal</th>
+                                <th class="p-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -345,12 +364,18 @@
                                     <td class="p-4 text-right font-semibold text-slate-700">{{ number_format($item['volume'], 0, ',', '.') }}</td>
                                     <td class="p-4 text-right text-slate-600" title="{{ \App\Support\CurrencyHelper::formatFull($item['harga_satuan']) }}">{{ \App\Support\CurrencyHelper::format($item['harga_satuan']) }}</td>
                                     <td class="p-4 text-right font-extrabold text-slate-900" title="{{ \App\Support\CurrencyHelper::formatFull($item['subtotal']) }}">{{ \App\Support\CurrencyHelper::format($item['subtotal']) }}</td>
+                                    <td class="p-4 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <button type="button" wire:click="openEditRabModal({{ $loop->index }})" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Edit</button>
+                                            <button type="button" wire:click="confirmDeleteRab({{ $loop->index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Hapus</button>
+                                        </div>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
                         <tfoot>
                             <tr class="bg-blue-50/80 border-t-2 border-blue-200">
-                                <td colspan="5" class="p-4 text-left font-extrabold text-blue-900 uppercase text-xs">Total Rencana Anggaran Biaya (RAB Baseline)</td>
+                                <td colspan="6" class="p-4 text-left font-extrabold text-blue-900 uppercase text-xs">Total Rencana Anggaran Biaya (RAB Baseline)</td>
                                 <td class="p-4 text-right font-extrabold text-blue-950 text-sm" title="{{ \App\Support\CurrencyHelper::formatFull($totalRab) }}">{{ \App\Support\CurrencyHelper::format($totalRab) }}</td>
                             </tr>
                         </tfoot>
@@ -394,6 +419,7 @@
                             <th class="p-4">Tanggal Pengajuan</th>
                             <th class="p-4">Alasan &amp; Deskripsi</th>
                             <th class="p-4 text-center">Status Approval</th>
+                            <th class="p-4 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -423,9 +449,22 @@
                                         {{ $a['status'] === 'APPROVED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : '' }}
                                         {{ $a['status'] === 'PENDING' ? 'bg-amber-50 text-amber-700 border border-amber-200' : '' }}
                                         {{ $a['status'] === 'REJECTED' ? 'bg-rose-50 text-rose-700 border border-rose-200' : '' }}
+                                        {{ $a['status'] === 'VOID' ? 'bg-slate-100 text-slate-600 border border-slate-200' : '' }}
                                     ">
                                         {{ $a['status'] }}
                                     </span>
+                                </td>
+                                <td class="p-4 text-center">
+                                    @if(($a['status'] ?? '') === 'PENDING')
+                                        <div class="flex items-center justify-center gap-2">
+                                            <button type="button" wire:click="openEditAddendumModal({{ $loop->index }})" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Edit</button>
+                                            <button type="button" wire:click="confirmVoidAddendum({{ $loop->index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Void</button>
+                                        </div>
+                                    @elseif(($a['status'] ?? '') === 'APPROVED')
+                                        <button type="button" wire:click="confirmVoidAddendum({{ $loop->index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Void</button>
+                                    @else
+                                        <span class="text-xs text-slate-400">Tidak aktif</span>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -473,6 +512,184 @@
             </ol>
         @endif
     </div>
+
+    {{-- MODAL: EDIT PROJECT MASTER DATA --}}
+    @if($showEditProjectModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+            <div wire:click.outside="closeEditProjectModal" class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-slate-200">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900">Edit Project</h3>
+                        <p class="text-xs text-slate-500 mt-1">Update project master data without changing project history.</p>
+                    </div>
+                    <button type="button" wire:click="closeEditProjectModal" class="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form wire:submit.prevent="updateProject" class="p-6 space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Project Name</label>
+                            <input type="text" wire:model="editProjectName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            @error('editProjectName') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">SPK Number</label>
+                            <input type="text" wire:model="editSpkNumber" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            @error('editSpkNumber') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Client</label>
+                            <input type="text" wire:model="editClient" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            @error('editClient') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Project Manager</label>
+                            <input type="text" wire:model="editProjectManager" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            @error('editProjectManager') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Location</label>
+                            <input type="text" wire:model="editLocation" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            @error('editLocation') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Contract Value (Rp)</label>
+                            <input type="number" wire:model="editContractValue" min="1" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            @error('editContractValue') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Start Date</label>
+                            <input type="date" wire:model="editStartDate" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            @error('editStartDate') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">BAST Date</label>
+                            <input type="date" wire:model="editBastDate" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            @error('editBastDate') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                        <button type="button" wire:click="closeEditProjectModal" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
+                        <button type="submit" class="px-4 py-2.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition shadow-sm shadow-blue-500/25">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    {{-- MODAL: DELETE RAB CONFIRMATION --}}
+    @if($showDeleteRabModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div wire:click.outside="closeDeleteRabModal" class="w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
+                <h3 class="text-lg font-extrabold text-slate-900">Hapus Item RAB?</h3>
+                <p class="mt-2 text-sm text-slate-500">Item ini akan dihapus dari daftar RAB aktif. Histori proyek tetap dipertahankan.</p>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" wire:click="closeDeleteRabModal" class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
+                    <button type="button" wire:click="deleteRabItem" class="px-4 py-2.5 rounded-xl bg-rose-600 text-white text-sm font-semibold hover:bg-rose-700">Hapus Item</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- MODAL: VOID ADDENDUM CONFIRMATION --}}
+    @if($showVoidAddendumModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div wire:click.outside="closeVoidAddendumModal" class="w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
+                <h3 class="text-lg font-extrabold text-slate-900">Void Addendum?</h3>
+                <p class="mt-2 text-sm text-slate-500">Addendum tidak dihapus, tetapi ditandai VOID dan tetap tersimpan sebagai histori.</p>
+                <form wire:submit.prevent="voidAddendum" class="mt-5 space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Alasan Void</label>
+                        <textarea wire:model="voidReason" rows="3" required class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea>
+                        @error('voidReason') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="flex justify-end gap-3">
+                        <button type="button" wire:click="closeVoidAddendumModal" class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
+                        <button type="submit" class="px-4 py-2.5 rounded-xl bg-rose-600 text-white text-sm font-semibold hover:bg-rose-700">Void Addendum</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    {{-- MODAL: EDIT RAB ITEM --}}
+    @if($showEditRabModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div wire:click.outside="closeEditRabModal" class="w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
+                <h3 class="text-lg font-extrabold text-slate-900">Edit Item RAB</h3>
+                <form wire:submit.prevent="updateRabItem" class="mt-5 space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Item Pekerjaan</label>
+                        <input type="text" wire:model="editRabItem" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        @error('editRabItem') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Satuan</label>
+                            <select wire:model="editRabSatuan" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm">
+                                <option value="m³">m³</option><option value="m²">m²</option><option value="m'">m'</option><option value="kg">kg</option><option value="ton">ton</option><option value="Ls">Ls</option><option value="titik">titik</option><option value="unit">unit</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Volume</label>
+                            <input type="number" step="any" min="0.01" wire:model="editRabVolume" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
+                            @error('editRabVolume') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Harga Satuan (Rp)</label>
+                        <input type="number" min="1" wire:model="editRabHargaSatuan" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
+                        @error('editRabHargaSatuan') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                        <button type="button" wire:click="closeEditRabModal" class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600">Batal</button>
+                        <button type="submit" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    {{-- MODAL: EDIT PENDING ADDENDUM --}}
+    @if($showEditAddendumModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div wire:click.outside="closeEditAddendumModal" class="w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
+                <h3 class="text-lg font-extrabold text-slate-900">Edit Addendum Pending</h3>
+                <p class="mt-1 text-xs text-slate-500">Addendum approved atau void tidak dapat diedit.</p>
+                <form wire:submit.prevent="updateAddendum" class="mt-5 space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Judul Addendum</label>
+                        <input type="text" wire:model="editAddendumTitle" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
+                        @error('editAddendumTitle') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Nilai Addendum (Rp)</label>
+                        <input type="number" wire:model="editAddendumValue" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
+                        @error('editAddendumValue') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Jumlah Hari Tambahan</label>
+                        <input type="number" min="0" wire:model="editAddendumDays" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
+                        @error('editAddendumDays') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Alasan / Deskripsi</label>
+                        <textarea wire:model="editAddendumDesc" rows="3" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm"></textarea>
+                        @error('editAddendumDesc') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                        <button type="button" wire:click="closeEditAddendumModal" class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600">Batal</button>
+                        <button type="submit" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 
     {{-- MODAL: INPUT LAPORAN MINGGUAN (Poin 9 Revisi) --}}
     <div x-show="showWeeklyModal" 

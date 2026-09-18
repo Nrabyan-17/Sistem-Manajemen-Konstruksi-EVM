@@ -48,7 +48,10 @@ class Reports extends Component
 
         // Apply filters
         $filtered = array_filter($allProjects, function ($p) {
-            $matchesProject = $this->selectedProject === 'all' || $p['project_id'] === $this->selectedProject;
+            $projectSearch = strtolower(trim((string) $this->selectedProject));
+            $matchesProject = $projectSearch === '' || $projectSearch === 'all'
+                || str_contains(strtolower($p['project_id']), $projectSearch)
+                || str_contains(strtolower($p['project_name']), $projectSearch);
             $matchesStatus = $this->statusFilter === 'all' || $p['status'] === $this->statusFilter;
             $matchesPM = $this->pmFilter === 'all' || $p['project_manager'] === $this->pmFilter;
 

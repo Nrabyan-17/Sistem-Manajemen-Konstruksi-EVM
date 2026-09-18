@@ -78,7 +78,6 @@
 
             <!-- Alpine Chart Wrapper -->
             <div x-data="sCurveChart"
-                 x-on:dashboard-activated.window="setTimeout(() => renderChart($wire.projectKey), 150)"
                  class="relative h-[320px]">
                 <canvas x-ref="sCurveCanvas"></canvas>
             </div>
@@ -118,7 +117,6 @@
 
             <!-- Finance Bar Chart -->
             <div x-data="financeChart"
-                 x-on:dashboard-activated.window="setTimeout(() => renderFinanceChart(), 150)"
                  class="relative h-[240px] mt-6">
                 <canvas x-ref="financeCanvas"></canvas>
             </div>
@@ -254,14 +252,24 @@
 <script>
     Alpine.data('sCurveChart', () => ({
         chart: null,
+        dashboardActivatedHandler: null,
         init() {
-            // Use setTimeout to ensure canvas has proper dimensions on initial load
-            setTimeout(() => this.renderChart(this.$wire.projectKey), 50);
+            this.dashboardActivatedHandler = () => {
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    if (this.$el.offsetParent !== null) {
+                        this.renderChart(this.$wire.projectKey);
+                    }
+                }));
+            };
+            window.addEventListener('dashboard-activated', this.dashboardActivatedHandler);
             this.$wire.on('project-changed', (event) => {
                 setTimeout(() => this.renderChart(event.projectKey), 50);
             });
         },
         destroy() {
+            if (this.dashboardActivatedHandler) {
+                window.removeEventListener('dashboard-activated', this.dashboardActivatedHandler);
+            }
             if (this.chart) {
                 this.chart.destroy();
                 this.chart = null;
@@ -397,10 +405,21 @@
 
     Alpine.data('financeChart', () => ({
         chart: null,
+        dashboardActivatedHandler: null,
         init() {
-            setTimeout(() => this.renderFinanceChart(), 50);
+            this.dashboardActivatedHandler = () => {
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    if (this.$el.offsetParent !== null) {
+                        this.renderFinanceChart();
+                    }
+                }));
+            };
+            window.addEventListener('dashboard-activated', this.dashboardActivatedHandler);
         },
         destroy() {
+            if (this.dashboardActivatedHandler) {
+                window.removeEventListener('dashboard-activated', this.dashboardActivatedHandler);
+            }
             if (this.chart) {
                 this.chart.destroy();
                 this.chart = null;
