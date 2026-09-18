@@ -31,16 +31,6 @@
     showToast = true;
     setTimeout(() => showToast = false, 3000);
 "
-@rab-item-deleted.window="
-    toastMessage = $event.detail.message;
-    showToast = true;
-    setTimeout(() => showToast = false, 3000);
-"
-@rab-item-updated.window="
-    toastMessage = $event.detail.message;
-    showToast = true;
-    setTimeout(() => showToast = false, 3000);
-"
 @addendum-voided.window="
     toastMessage = $event.detail.message;
     showToast = true;
@@ -196,7 +186,7 @@
             <h2 class="text-base font-bold text-slate-900">EVM S-Curve Analysis</h2>
             <p class="text-xs text-slate-500 mt-0.5">Budgeted Cost vs Earned Value vs Actual Cost</p>
 
-            <div class="grid grid-cols-3 gap-3 mt-4">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
                 <div class="rounded-xl bg-blue-50 p-3">
                     <p class="text-[11px] font-semibold text-blue-700">BCWS (Planned)</p>
                     <p class="text-lg font-extrabold text-blue-800 mt-0.5" title="{{ \App\Support\CurrencyHelper::formatFull($bcws) }}">{{ \App\Support\CurrencyHelper::format($bcws) }}</p>
@@ -208,6 +198,10 @@
                 <div class="rounded-xl bg-orange-50 p-3">
                     <p class="text-[11px] font-semibold text-orange-700">ACWP (Actual)</p>
                     <p class="text-lg font-extrabold text-orange-800 mt-0.5" title="{{ \App\Support\CurrencyHelper::formatFull($acwp) }}">{{ \App\Support\CurrencyHelper::format($acwp) }}</p>
+                </div>
+                <div class="rounded-xl {{ $deviasi <= 0 ? 'bg-emerald-50' : 'bg-rose-50' }} p-3">
+                    <p class="text-[11px] font-semibold {{ $deviasi <= 0 ? 'text-emerald-700' : 'text-rose-700' }}">Deviasi (BCWS - BCWP)</p>
+                    <p class="text-lg font-extrabold mt-0.5 {{ $deviasi <= 0 ? 'text-emerald-800' : 'text-rose-800' }}" title="Deviasi: {{ $deviasi > 0 ? '+' : '' }}{{ number_format($deviasi, 2) }}%">{{ $deviasi > 0 ? '+' : '' }}{{ number_format($deviasi, 2) }}%</p>
                 </div>
             </div>
 
@@ -344,13 +338,12 @@
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
                             <tr class="bg-slate-50 text-slate-400 uppercase font-bold border-b border-slate-100">
-                                <th class="p-4 w-12">No</th>
+                                <th class="p-4 w-12 text-center">No</th>
                                 <th class="p-4">Item Pekerjaan</th>
-                                <th class="p-4 w-20">Satuan</th>
+                                <th class="p-4 w-24">Satuan</th>
                                 <th class="p-4 w-28 text-right">Volume</th>
                                 <th class="p-4 text-right">Harga Satuan</th>
                                 <th class="p-4 text-right">Subtotal</th>
-                                <th class="p-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -358,24 +351,18 @@
                             @foreach($boqItems as $item)
                                 @php $totalRab += $item['subtotal']; @endphp
                                 <tr class="hover:bg-slate-50/70 transition">
-                                    <td class="p-4 font-bold text-slate-500">{{ $item['no'] }}</td>
+                                    <td class="p-4 text-center font-bold text-slate-500">{{ $item['no'] }}</td>
                                     <td class="p-4 font-semibold text-slate-900">{{ $item['item'] }}</td>
                                     <td class="p-4 text-slate-500 font-medium">{{ $item['satuan'] }}</td>
                                     <td class="p-4 text-right font-semibold text-slate-700">{{ number_format($item['volume'], 0, ',', '.') }}</td>
                                     <td class="p-4 text-right text-slate-600" title="{{ \App\Support\CurrencyHelper::formatFull($item['harga_satuan']) }}">{{ \App\Support\CurrencyHelper::format($item['harga_satuan']) }}</td>
                                     <td class="p-4 text-right font-extrabold text-slate-900" title="{{ \App\Support\CurrencyHelper::formatFull($item['subtotal']) }}">{{ \App\Support\CurrencyHelper::format($item['subtotal']) }}</td>
-                                    <td class="p-4 text-center">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <button type="button" wire:click="openEditRabModal({{ $loop->index }})" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Edit</button>
-                                            <button type="button" wire:click="confirmDeleteRab({{ $loop->index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Hapus</button>
-                                        </div>
-                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
                         <tfoot>
                             <tr class="bg-blue-50/80 border-t-2 border-blue-200">
-                                <td colspan="6" class="p-4 text-left font-extrabold text-blue-900 uppercase text-xs">Total Rencana Anggaran Biaya (RAB Baseline)</td>
+                                <td colspan="5" class="p-4 text-left font-extrabold text-blue-900 uppercase text-xs">Total Rencana Anggaran Biaya (RAB Baseline)</td>
                                 <td class="p-4 text-right font-extrabold text-blue-950 text-sm" title="{{ \App\Support\CurrencyHelper::formatFull($totalRab) }}">{{ \App\Support\CurrencyHelper::format($totalRab) }}</td>
                             </tr>
                         </tfoot>
@@ -449,21 +436,15 @@
                                         {{ $a['status'] === 'APPROVED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : '' }}
                                         {{ $a['status'] === 'PENDING' ? 'bg-amber-50 text-amber-700 border border-amber-200' : '' }}
                                         {{ $a['status'] === 'REJECTED' ? 'bg-rose-50 text-rose-700 border border-rose-200' : '' }}
-                                        {{ $a['status'] === 'VOID' ? 'bg-slate-100 text-slate-600 border border-slate-200' : '' }}
                                     ">
                                         {{ $a['status'] }}
                                     </span>
                                 </td>
                                 <td class="p-4 text-center">
                                     @if(($a['status'] ?? '') === 'PENDING')
-                                        <div class="flex items-center justify-center gap-2">
-                                            <button type="button" wire:click="openEditAddendumModal({{ $loop->index }})" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Edit</button>
-                                            <button type="button" wire:click="confirmVoidAddendum({{ $loop->index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Void</button>
-                                        </div>
-                                    @elseif(($a['status'] ?? '') === 'APPROVED')
-                                        <button type="button" wire:click="confirmVoidAddendum({{ $loop->index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Void</button>
+                                        <button type="button" wire:click="openEditAddendumModal({{ $loop->index }})" class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline transition">Edit</button>
                                     @else
-                                        <span class="text-xs text-slate-400">Tidak aktif</span>
+                                        <span class="text-xs text-slate-400 font-medium">-</span>
                                     @endif
                                 </td>
                             </tr>
@@ -582,86 +563,25 @@
         </div>
     @endif
 
-    {{-- MODAL: DELETE RAB CONFIRMATION --}}
-    @if($showDeleteRabModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div wire:click.outside="closeDeleteRabModal" class="w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
-                <h3 class="text-lg font-extrabold text-slate-900">Hapus Item RAB?</h3>
-                <p class="mt-2 text-sm text-slate-500">Item ini akan dihapus dari daftar RAB aktif. Histori proyek tetap dipertahankan.</p>
-                <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" wire:click="closeDeleteRabModal" class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
-                    <button type="button" wire:click="deleteRabItem" class="px-4 py-2.5 rounded-xl bg-rose-600 text-white text-sm font-semibold hover:bg-rose-700">Hapus Item</button>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- MODAL: VOID ADDENDUM CONFIRMATION --}}
-    @if($showVoidAddendumModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div wire:click.outside="closeVoidAddendumModal" class="w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
-                <h3 class="text-lg font-extrabold text-slate-900">Void Addendum?</h3>
-                <p class="mt-2 text-sm text-slate-500">Addendum tidak dihapus, tetapi ditandai VOID dan tetap tersimpan sebagai histori.</p>
-                <form wire:submit.prevent="voidAddendum" class="mt-5 space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Alasan Void</label>
-                        <textarea wire:model="voidReason" rows="3" required class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea>
-                        @error('voidReason') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-                    <div class="flex justify-end gap-3">
-                        <button type="button" wire:click="closeVoidAddendumModal" class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
-                        <button type="submit" class="px-4 py-2.5 rounded-xl bg-rose-600 text-white text-sm font-semibold hover:bg-rose-700">Void Addendum</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    @endif
-
-    {{-- MODAL: EDIT RAB ITEM --}}
-    @if($showEditRabModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div wire:click.outside="closeEditRabModal" class="w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
-                <h3 class="text-lg font-extrabold text-slate-900">Edit Item RAB</h3>
-                <form wire:submit.prevent="updateRabItem" class="mt-5 space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Item Pekerjaan</label>
-                        <input type="text" wire:model="editRabItem" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                        @error('editRabItem') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Satuan</label>
-                            <select wire:model="editRabSatuan" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm">
-                                <option value="m³">m³</option><option value="m²">m²</option><option value="m'">m'</option><option value="kg">kg</option><option value="ton">ton</option><option value="Ls">Ls</option><option value="titik">titik</option><option value="unit">unit</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Volume</label>
-                            <input type="number" step="any" min="0.01" wire:model="editRabVolume" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
-                            @error('editRabVolume') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Harga Satuan (Rp)</label>
-                        <input type="number" min="1" wire:model="editRabHargaSatuan" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
-                        @error('editRabHargaSatuan') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                        <button type="button" wire:click="closeEditRabModal" class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600">Batal</button>
-                        <button type="submit" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">Simpan Perubahan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    @endif
-
     {{-- MODAL: EDIT PENDING ADDENDUM --}}
     @if($showEditAddendumModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
             <div wire:click.outside="closeEditAddendumModal" class="w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-2xl p-6">
                 <h3 class="text-lg font-extrabold text-slate-900">Edit Addendum Pending</h3>
-                <p class="mt-1 text-xs text-slate-500">Addendum approved atau void tidak dapat diedit.</p>
+                <p class="mt-1 text-xs text-slate-500">Addendum yang sudah approved tidak dapat diedit.</p>
                 <form wire:submit.prevent="updateAddendum" class="mt-5 space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Nomor Addendum Kontrak</label>
+                            <input type="text" wire:model="editAddendumContractNo" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
+                            @error('editAddendumContractNo') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Tanggal Addendum</label>
+                            <input type="date" wire:model="editAddendumDate" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
+                            @error('editAddendumDate') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1.5">Judul Addendum</label>
                         <input type="text" wire:model="editAddendumTitle" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
@@ -718,16 +638,57 @@
             </div>
 
             <form wire:submit.prevent="submitWeeklyProgress" class="px-6 py-5 space-y-4 text-xs text-slate-700">
-                <div>
-                    <label class="block font-bold text-slate-800 mb-1.5">Minggu ke-</label>
-                    <input type="number" wire:model="inputWeekNumber" min="1" required
-                           class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-800 mb-1.5">Minggu ke-</label>
+                        <input type="number" wire:model.live="inputWeekNumber" min="1" required
+                               class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" />
+                        @error('inputWeekNumber') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-800 mb-1.5">Progres Rencana (%)</label>
+                        <input type="number" wire:model.live="inputPlanPct" step="0.01" min="0" max="100" placeholder="Contoh: 2.00"
+                               class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" />
+                        @error('inputPlanPct') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                    </div>
                 </div>
 
                 <div>
                     <label class="block font-bold text-slate-800 mb-1.5">Progres Realisasi Mingguan (%)</label>
-                    <input type="number" wire:model="inputActualPct" step="0.01" min="0" max="100" required placeholder="Contoh: 2.50"
-                           class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" />
+                    <input type="number" wire:model.live="inputActualPct" step="0.01" min="0" max="100" required placeholder="Contoh: 2.50"
+                           class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm font-semibold" />
+                    @error('inputActualPct') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                </div>
+
+                {{-- LABEL DEVIASI LIVE PREVIEW --}}
+                @php
+                    $planVal = is_numeric($inputPlanPct) ? (float) $inputPlanPct : null;
+                    $actualVal = is_numeric($inputActualPct) ? (float) $inputActualPct : null;
+                    $calcDeviasi = ($planVal !== null && $actualVal !== null) ? round($planVal - $actualVal, 2) : ($actualVal !== null ? round(0 - $actualVal, 2) : null);
+                @endphp
+
+                <div class="p-3.5 rounded-xl border {{ $calcDeviasi !== null ? ($calcDeviasi <= 0 ? 'bg-emerald-50/80 border-emerald-200 text-emerald-900' : 'bg-rose-50/80 border-rose-200 text-rose-900') : 'bg-slate-50 border-slate-200 text-slate-600' }} transition-all">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full {{ $calcDeviasi !== null ? ($calcDeviasi <= 0 ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500 animate-pulse') : 'bg-slate-400' }}"></span>
+                            <span class="font-bold text-xs text-slate-800">Label Deviasi Mingguan:</span>
+                        </div>
+                        @if($calcDeviasi !== null)
+                            <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full {{ $calcDeviasi <= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' }}">
+                                {{ $calcDeviasi > 0 ? '+' : '' }}{{ number_format($calcDeviasi, 2) }}%
+                            </span>
+                        @else
+                            <span class="text-xs font-semibold text-slate-400">-- %</span>
+                        @endif
+                    </div>
+                    <div class="mt-1.5 text-[11px] flex items-center justify-between text-slate-500">
+                        @if($calcDeviasi !== null)
+                            <span>Status: <strong class="{{ $calcDeviasi <= 0 ? 'text-emerald-700' : 'text-rose-700' }}">{{ $calcDeviasi <= 0 ? 'Sesuai Target / Lebih Cepat' : 'Terlambat dari Target' }}</strong></span>
+                            <span>{{ $planVal !== null ? 'Target: ' . number_format($planVal, 2) . '% | ' : '' }}Realisasi: {{ number_format($actualVal, 2) }}%</span>
+                        @else
+                            <span class="text-slate-400">Masukkan nilai progres untuk menghitung deviasi</span>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
@@ -860,6 +821,21 @@
             </div>
 
             <form wire:submit.prevent="submitAddendumCost" class="px-6 py-5 space-y-4 text-xs text-slate-700">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-800 mb-1.5">Nomor Addendum Kontrak</label>
+                        <input type="text" wire:model="addendumContractNo" placeholder="Contoh: ADD-01/SPK-2026/001"
+                               class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition text-sm" />
+                        @error('addendumContractNo') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-800 mb-1.5">Tanggal Addendum Kontrak</label>
+                        <input type="date" wire:model="addendumDate"
+                               class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition text-sm" />
+                        @error('addendumDate') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
                 <div>
                     <label class="block font-bold text-slate-800 mb-1.5">Judul Addendum Biaya</label>
                     <input type="text" wire:model="addendumTitle" required placeholder="Contoh: Pekerjaan Galian Tambahan Segment B"
@@ -1005,7 +981,8 @@ function initSCurveChart() {
             datasets: [
                 { label: 'BCWS (Planned)', data: @json($sCurveBcws), borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2 },
                 { label: 'BCWP (Earned)', data: @json($sCurveBcwp), borderColor: '#16A34A', backgroundColor: 'rgba(22,163,74,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, spanGaps: false },
-                { label: 'ACWP (Actual)', data: @json($sCurveAcwp), borderColor: '#F97316', backgroundColor: 'rgba(249,115,22,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, borderDash: [5,3], spanGaps: false }
+                { label: 'ACWP (Actual)', data: @json($sCurveAcwp), borderColor: '#F97316', backgroundColor: 'rgba(249,115,22,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, borderDash: [5,3], spanGaps: false },
+                { label: 'Deviasi', data: @json($sCurveDeviasi), borderColor: '#E11D48', backgroundColor: 'rgba(225,29,72,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: false, pointRadius: 3, borderWidth: 2, borderDash: [3,3], spanGaps: false }
             ]
         },
         options: {
@@ -1017,7 +994,16 @@ function initSCurveChart() {
                     backgroundColor: '#0f172a', 
                     padding: 10,
                     callbacks: {
-                        label: (ctx) => ctx.dataset.label + ': Rp ' + ctx.parsed.y.toLocaleString('id-ID') + ' Miliar'
+                        label: (ctx) => {
+                            if (ctx.parsed.y === null || ctx.parsed.y === undefined) return '';
+                            const val = ctx.parsed.y;
+                            const formatted = Math.abs(val).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            if (ctx.dataset.label.toLowerCase().includes('deviasi')) {
+                                const sign = val > 0 ? '+' : (val < 0 ? '-' : '');
+                                return ctx.dataset.label + ': ' + (val === 0 ? '' : sign) + 'Rp ' + formatted + ' Miliar';
+                            }
+                            return ctx.dataset.label + ': Rp ' + formatted + ' Miliar';
+                        }
                     }
                 }
             },

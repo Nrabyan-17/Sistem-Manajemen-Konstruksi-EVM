@@ -12,7 +12,7 @@ class BoqAndAddendumTest extends TestCase
     {
         Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
             ->assertStatus(200)
-            ->assertSee('+ Item RAB')
+            ->assertSee('+ Input Item RAB')
             ->assertSee('+ Addendum Biaya')
             ->assertSee('+ Addendum Waktu')
             ->assertSee('RAB Awal (Baseline BAC)')
@@ -37,13 +37,15 @@ class BoqAndAddendumTest extends TestCase
     public function test_input_addendum_cost_updates_addendum_and_risk(): void
     {
         Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
+            ->set('addendumContractNo', 'ADD-01/SPK-2026/001')
             ->set('addendumTitle', 'Pekerjaan Retaining Wall Tambahan')
             ->set('addendumValue', 2500000000)
             ->set('addendumDesc', 'Tambahan penguatan dinding penahan tanah')
             ->call('submitAddendumCost')
             ->assertDispatched('addendum-cost-saved')
+            ->assertSee('ADD-01/SPK-2026/001')
             ->assertSee('Pekerjaan Retaining Wall Tambahan')
-            ->assertSee('ADDENDUM BIAYA');
+            ->assertSee('BIAYA (COST)');
     }
 
     public function test_input_addendum_time_updates_bast_date_and_remaining_days(): void
@@ -56,43 +58,10 @@ class BoqAndAddendumTest extends TestCase
             ->assertDispatched('addendum-time-saved')
             ->assertSee('+45 Hari')
             ->assertSee('EOT Cuaca Ekstrem')
-            ->assertSee('ADDENDUM WAKTU');
+            ->assertSee('WAKTU (EOT)');
 
         $this->assertEquals(45, $component->get('totalDaysAdded'));
         $this->assertNotEmpty($component->get('effectiveBastDate'));
-    }
-
-    public function test_delete_rab_confirmation_can_be_cancelled(): void
-    {
-        Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
-            ->call('confirmDeleteRab', 0)
-            ->assertSet('showDeleteRabModal', true)
-            ->call('closeDeleteRabModal')
-            ->assertSet('showDeleteRabModal', false)
-            ->assertSet('selectedRabIndex', null);
-    }
-
-    public function test_void_addendum_confirmation_can_be_cancelled(): void
-    {
-        Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
-            ->call('confirmVoidAddendum', 0)
-            ->assertSet('showVoidAddendumModal', true)
-            ->call('closeVoidAddendumModal')
-            ->assertSet('showVoidAddendumModal', false)
-            ->assertSet('selectedAddendumIndex', null);
-    }
-
-    public function test_rab_item_can_be_edited_and_subtotal_is_recalculated(): void
-    {
-        Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
-            ->call('openEditRabModal', 0)
-            ->set('editRabItem', 'Item RAB Diperbarui')
-            ->set('editRabVolume', 2)
-            ->set('editRabHargaSatuan', 100000)
-            ->call('updateRabItem')
-            ->assertSet('showEditRabModal', false)
-            ->assertSet('boqItems.0.item', 'Item RAB Diperbarui')
-            ->assertSet('boqItems.0.subtotal', 200000);
     }
 
     public function test_only_pending_addendum_can_be_edited(): void
@@ -113,5 +82,23 @@ class BoqAndAddendumTest extends TestCase
             ->call('updateAddendum')
             ->assertSet('showEditAddendumModal', false)
             ->assertSet('addendums.' . (count($component->get('addendums')) - 1) . '.title', 'Pending Addendum Diperbarui');
+    }
+
+    public function test_submit_weekly_progress_calculates_deviasi_and_saves(): void
+    {
+        $component = Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
+            ->set('inputWeekNumber', 26)
+            ->set('inputPlanPct', 2.00)
+            ->set('inputActualPct', 2.50)
+            ->assertSee('Label Deviasi Mingguan:')
+            ->call('submitWeeklyProgress')
+            ->assertDispatched('weekly-progress-saved');
+
+        $progressList = $component->get('weeklyProgress');
+        $lastItem = end($progressList);
+        $this->assertEquals(26, $lastItem['week']);
+        $this->assertEquals(2.00, $lastItem['plan_pct']);
+        $this->assertEquals(2.50, $lastItem['actual_pct']);
+        $this->assertEquals(-0.50, $lastItem['deviasi']);
     }
 }

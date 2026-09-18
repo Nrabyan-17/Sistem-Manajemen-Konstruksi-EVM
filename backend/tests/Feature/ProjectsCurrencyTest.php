@@ -56,4 +56,17 @@ class ProjectsCurrencyTest extends TestCase
             ->assertSee('+Rp 1,5 Miliar')
             ->assertDontSee('href="/addendum"', false);
     }
+
+    public function test_project_detail_evm_s_curve_displays_deviasi_kpi_and_data(): void
+    {
+        $component = Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
+            ->assertStatus(200)
+            ->assertSee('Deviasi (BCWS - BCWP)')
+            ->assertSee('BCWS (Planned)')
+            ->assertSee('BCWP (Earned)')
+            ->assertSee('ACWP (Actual)');
+
+        $this->assertNotEmpty($component->get('sCurveDeviasi'));
+        $this->assertIsArray($component->get('sCurveDeviasi'));
+    }
 }

@@ -29,6 +29,7 @@ class ProjectDetail extends Component
     public array $sCurveBcws;
     public array $sCurveBcwp;
     public array $sCurveAcwp;
+    public array $sCurveDeviasi;
 
     public array $milestones;
     public array $addendums = [];
@@ -42,6 +43,7 @@ class ProjectDetail extends Component
     // Weekly Report Input Modal State
     public bool $showWeeklyModal = false;
     public int $inputWeekNumber = 1;
+    public string $inputPlanPct = '';
     public string $inputActualPct = '';
 
     // Modal & Form States: Input RAB
@@ -50,20 +52,18 @@ class ProjectDetail extends Component
     public string $newRabSatuan = 'm³';
     public string $newRabVolume = '';
     public string $newRabHargaSatuan = '';
-    public bool $showEditRabModal = false;
-    public ?int $editRabIndex = null;
-    public string $editRabItem = '';
-    public string $editRabSatuan = 'm³';
-    public string $editRabVolume = '';
-    public string $editRabHargaSatuan = '';
 
     // Modal & Form States: Input Addendum Biaya
     public bool $showAddendumCostModal = false;
+    public string $addendumContractNo = '';
+    public string $addendumDate = '';
     public string $addendumTitle = '';
     public string $addendumValue = '';
     public string $addendumDesc = '';
     public bool $showEditAddendumModal = false;
     public ?int $editAddendumIndex = null;
+    public string $editAddendumContractNo = '';
+    public string $editAddendumDate = '';
     public string $editAddendumTitle = '';
     public string $editAddendumValue = '';
     public string $editAddendumDesc = '';
@@ -75,11 +75,6 @@ class ProjectDetail extends Component
     public int $addDays = 30;
     public string $timeReason = '';
     public string $previewBastDate = '';
-    public bool $showDeleteRabModal = false;
-    public bool $showVoidAddendumModal = false;
-    public ?int $selectedRabIndex = null;
-    public ?int $selectedAddendumIndex = null;
-    public string $voidReason = '';
 
     // Modal & Form State: Edit Project Master Data
     public bool $showEditProjectModal = false;
@@ -163,6 +158,10 @@ class ProjectDetail extends Component
             fn ($f, $i) => $i <= $cutoffIndex ? round($f * $this->acwp / 1e9, 2) : null,
             $shape, array_keys($shape)
         );
+        $this->sCurveDeviasi = array_map(
+            fn ($f, $i) => $i <= $cutoffIndex ? round($this->sCurveBcws[$i] - $this->sCurveBcwp[$i], 2) : null,
+            $shape, array_keys($shape)
+        );
 
         // ===== Milestones scaled to current progress =====
         $template = [
@@ -232,123 +231,6 @@ class ProjectDetail extends Component
         $this->resetValidation();
     }
 
-    public function confirmDeleteRab(int $index): void
-    {
-        if (isset($this->boqItems[$index])) {
-            $this->selectedRabIndex = $index;
-            $this->showDeleteRabModal = true;
-        }
-    }
-
-    public function closeDeleteRabModal(): void
-    {
-        $this->showDeleteRabModal = false;
-        $this->selectedRabIndex = null;
-    }
-
-    public function deleteRabItem(): void
-    {
-        if ($this->selectedRabIndex === null || !isset($this->boqItems[$this->selectedRabIndex])) {
-            return;
-        }
-
-        unset($this->boqItems[$this->selectedRabIndex]);
-        $this->boqItems = array_values($this->boqItems);
-        foreach ($this->boqItems as $index => &$item) {
-            $item['no'] = $index + 1;
-        }
-        unset($item);
-        ProjectMockData::updateBoqItems($this->project['project_id'], $this->boqItems);
-        $this->showDeleteRabModal = false;
-        $this->selectedRabIndex = null;
-        $this->dispatch('rab-item-deleted', message: 'Item RAB berhasil dihapus.');
-    }
-
-    public function openEditRabModal(int $index): void
-    {
-        if (!isset($this->boqItems[$index])) {
-            return;
-        }
-
-        $item = $this->boqItems[$index];
-        $this->editRabIndex = $index;
-        $this->editRabItem = $item['item'];
-        $this->editRabSatuan = $item['satuan'];
-        $this->editRabVolume = (string) $item['volume'];
-        $this->editRabHargaSatuan = (string) $item['harga_satuan'];
-        $this->showEditRabModal = true;
-    }
-
-    public function closeEditRabModal(): void
-    {
-        $this->showEditRabModal = false;
-        $this->editRabIndex = null;
-        $this->resetValidation();
-    }
-
-    public function updateRabItem(): void
-    {
-        $this->validate([
-            'editRabItem' => 'required|string|min:3|max:255',
-            'editRabSatuan' => 'required|string|max:50',
-            'editRabVolume' => 'required|numeric|min:0.01',
-            'editRabHargaSatuan' => 'required|numeric|min:1',
-        ]);
-
-        if ($this->editRabIndex === null || !isset($this->boqItems[$this->editRabIndex])) {
-            return;
-        }
-
-        $volume = (float) $this->editRabVolume;
-        $hargaSatuan = (float) $this->editRabHargaSatuan;
-        $this->boqItems[$this->editRabIndex] = array_merge($this->boqItems[$this->editRabIndex], [
-            'item' => trim($this->editRabItem),
-            'satuan' => $this->editRabSatuan,
-            'volume' => $volume,
-            'harga_satuan' => $hargaSatuan,
-            'subtotal' => $volume * $hargaSatuan,
-        ]);
-        ProjectMockData::updateBoqItems($this->project['project_id'], $this->boqItems);
-        $this->closeEditRabModal();
-        $this->dispatch('rab-item-updated', message: 'Item RAB berhasil diperbarui.');
-    }
-
-    public function confirmVoidAddendum(int $index): void
-    {
-        if (isset($this->addendums[$index]) && ($this->addendums[$index]['status'] ?? '') !== 'VOID') {
-            $this->selectedAddendumIndex = $index;
-            $this->voidReason = '';
-            $this->showVoidAddendumModal = true;
-        }
-    }
-
-    public function closeVoidAddendumModal(): void
-    {
-        $this->showVoidAddendumModal = false;
-        $this->selectedAddendumIndex = null;
-        $this->voidReason = '';
-        $this->resetValidation();
-    }
-
-    public function voidAddendum(): void
-    {
-        $this->validate(['voidReason' => 'required|string|min:3|max:500']);
-
-        if ($this->selectedAddendumIndex === null || !isset($this->addendums[$this->selectedAddendumIndex])) {
-            return;
-        }
-
-        $this->addendums[$this->selectedAddendumIndex]['status'] = 'VOID';
-        $this->addendums[$this->selectedAddendumIndex]['void_reason'] = trim($this->voidReason);
-        $this->addendums[$this->selectedAddendumIndex]['voided_at'] = date('Y-m-d');
-        ProjectMockData::updateAddendums($this->project['project_id'], $this->addendums);
-        $this->showVoidAddendumModal = false;
-        $this->selectedAddendumIndex = null;
-        $this->voidReason = '';
-        $this->recalculateAddendumRisk();
-        $this->dispatch('addendum-voided', message: 'Addendum dibatalkan dan tetap tersimpan di histori.');
-    }
-
     public function openEditAddendumModal(int $index): void
     {
         if (!isset($this->addendums[$index]) || ($this->addendums[$index]['status'] ?? '') !== 'PENDING') {
@@ -357,6 +239,8 @@ class ProjectDetail extends Component
 
         $addendum = $this->addendums[$index];
         $this->editAddendumIndex = $index;
+        $this->editAddendumContractNo = $addendum['contract_no'] ?? $addendum['addendum_id'] ?? '';
+        $this->editAddendumDate = $addendum['date'] ?? date('Y-m-d');
         $this->editAddendumTitle = $addendum['title'];
         $this->editAddendumValue = (string) ($addendum['value'] ?? 0);
         $this->editAddendumDesc = $addendum['description'] ?? '';
@@ -368,12 +252,16 @@ class ProjectDetail extends Component
     {
         $this->showEditAddendumModal = false;
         $this->editAddendumIndex = null;
+        $this->editAddendumContractNo = '';
+        $this->editAddendumDate = '';
         $this->resetValidation();
     }
 
     public function updateAddendum(): void
     {
         $this->validate([
+            'editAddendumContractNo' => 'nullable|string|max:100',
+            'editAddendumDate' => 'nullable|date',
             'editAddendumTitle' => 'required|string|min:3|max:255',
             'editAddendumValue' => 'required|numeric',
             'editAddendumDesc' => 'nullable|string|max:500',
@@ -385,6 +273,13 @@ class ProjectDetail extends Component
             return;
         }
 
+        if (trim($this->editAddendumContractNo) !== '') {
+            $this->addendums[$this->editAddendumIndex]['addendum_id'] = trim($this->editAddendumContractNo);
+            $this->addendums[$this->editAddendumIndex]['contract_no'] = trim($this->editAddendumContractNo);
+        }
+        if (!empty($this->editAddendumDate)) {
+            $this->addendums[$this->editAddendumIndex]['date'] = $this->editAddendumDate;
+        }
         $this->addendums[$this->editAddendumIndex]['title'] = trim($this->editAddendumTitle);
         $this->addendums[$this->editAddendumIndex]['value'] = (float) $this->editAddendumValue;
         $this->addendums[$this->editAddendumIndex]['description'] = trim($this->editAddendumDesc);
@@ -444,18 +339,25 @@ class ProjectDetail extends Component
     public function openWeeklyModal()
     {
         $this->showWeeklyModal = true;
+        $lastWeek = end($this->weeklyProgress);
+        $this->inputWeekNumber = $lastWeek ? $lastWeek['week'] + 1 : 1;
+        $this->inputPlanPct = '';
+        $this->inputActualPct = '';
     }
 
     public function closeWeeklyModal()
     {
         $this->showWeeklyModal = false;
+        $this->inputPlanPct = '';
         $this->inputActualPct = '';
+        $this->resetValidation();
     }
 
     public function submitWeeklyProgress()
     {
         $this->validate([
             'inputWeekNumber' => 'required|integer|min:1',
+            'inputPlanPct' => 'nullable|numeric|min:0|max:100',
             'inputActualPct' => 'required|numeric|min:0|max:100',
         ]);
 
@@ -466,24 +368,32 @@ class ProjectDetail extends Component
         $endDate->modify('+6 days');
 
         // Calculate cumulative
-        $prevCumulative = 0;
+        $prevCumulativeActual = 0;
+        $prevCumulativePlan = 0;
         if (!empty($this->weeklyProgress)) {
             $last = end($this->weeklyProgress);
-            $prevCumulative = $last['cumulative_actual_pct'];
+            $prevCumulativeActual = $last['cumulative_actual_pct'] ?? 0;
+            $prevCumulativePlan = $last['cumulative_plan_pct'] ?? 0;
         }
+
+        $plan = is_numeric($this->inputPlanPct) ? (float) $this->inputPlanPct : 0;
+        $actual = (float) $this->inputActualPct;
+        $deviasi = round($plan - $actual, 2);
 
         $newEntry = [
             'week' => $this->inputWeekNumber,
             'start_date' => $startDate->format('Y-m-d'),
             'end_date' => $endDate->format('Y-m-d'),
-            'plan_pct' => 0,
-            'cumulative_plan_pct' => 0,
-            'actual_pct' => (float) $this->inputActualPct,
-            'cumulative_actual_pct' => round($prevCumulative + (float) $this->inputActualPct, 2),
+            'plan_pct' => $plan,
+            'cumulative_plan_pct' => round($prevCumulativePlan + $plan, 2),
+            'actual_pct' => $actual,
+            'cumulative_actual_pct' => round($prevCumulativeActual + $actual, 2),
+            'deviasi' => $deviasi,
         ];
 
         $this->weeklyProgress[] = $newEntry;
         $this->inputWeekNumber++;
+        $this->inputPlanPct = '';
         $this->inputActualPct = '';
         $this->showWeeklyModal = false;
 
@@ -545,19 +455,29 @@ class ProjectDetail extends Component
     public function openAddendumCostModal()
     {
         $this->showAddendumCostModal = true;
-    }
-
-    public function closeAddendumCostModal()
-    {
-        $this->showAddendumCostModal = false;
+        $this->addendumContractNo = '';
+        $this->addendumDate = date('Y-m-d');
         $this->addendumTitle = '';
         $this->addendumValue = '';
         $this->addendumDesc = '';
     }
 
+    public function closeAddendumCostModal()
+    {
+        $this->showAddendumCostModal = false;
+        $this->addendumContractNo = '';
+        $this->addendumDate = '';
+        $this->addendumTitle = '';
+        $this->addendumValue = '';
+        $this->addendumDesc = '';
+        $this->resetValidation();
+    }
+
     public function submitAddendumCost()
     {
         $this->validate([
+            'addendumContractNo' => 'nullable|string|max:100',
+            'addendumDate' => 'nullable|date',
             'addendumTitle' => 'required|string|min:3|max:255',
             'addendumValue' => 'required|numeric',
             'addendumDesc' => 'nullable|string|max:500',
@@ -565,15 +485,17 @@ class ProjectDetail extends Component
 
         $val = (float) $this->addendumValue;
         $projCode = substr($this->project['project_id'], 4) ?: '001';
-        $addId = 'ADD-' . $projCode . '-' . str_pad(count($this->addendums) + 1, 2, '0', STR_PAD_LEFT);
+        $generatedId = 'ADD-' . $projCode . '-' . str_pad(count($this->addendums) + 1, 2, '0', STR_PAD_LEFT);
+        $addId = trim($this->addendumContractNo) !== '' ? trim($this->addendumContractNo) : $generatedId;
 
         $this->addendums[] = [
             'addendum_id' => $addId,
+            'contract_no' => trim($this->addendumContractNo) !== '' ? trim($this->addendumContractNo) : $addId,
             'project_id' => $this->project['project_id'],
             'project_name' => $this->project['project_name'],
             'title' => $this->addendumTitle,
             'value' => $val,
-            'date' => date('Y-m-d'),
+            'date' => $this->addendumDate ?: date('Y-m-d'),
             'status' => 'PENDING',
             'description' => $this->addendumDesc ?: 'Addendum biaya pekerjaan tambah/kurang.',
             'type' => 'COST',
