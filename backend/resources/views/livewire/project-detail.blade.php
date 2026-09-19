@@ -97,33 +97,35 @@
                     <span>SPK: {{ $project['spk_number'] }}</span>
                 </div>
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-                <button wire:click="openEditProjectModal"
-                        class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M4 20h4l10.768-10.768a2.5 2.5 0 00-3.536-3.536L4.464 16.464A2 2 0 004 17.878V20z" />
-                    </svg>
-                    Edit Project
-                </button>
-                <button @click="showWeeklyModal = true"
-                        class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Input Lap. Mingguan
-                </button>
-            </div>
         </div>
     </div>
 
     {{-- TABS --}}
-    <div class="flex items-center gap-1 bg-slate-100 rounded-xl p-1 w-fit flex-wrap mt-6">
-        <button @click="tab = 'overview'" :class="tab === 'overview' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Overview</button>
-        <button @click="tab = 'evm'" :class="tab === 'evm' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">EVM &amp; S-Curve</button>
-        <button @click="tab = 'financial'" :class="tab === 'financial' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Financial</button>
-        <button @click="tab = 'boq'" :class="tab === 'boq' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">BOQ</button>
-        <button @click="tab = 'addendum'" :class="tab === 'addendum' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Addendum</button>
-        <button @click="tab = 'activity'" :class="tab === 'activity' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Activity</button>
+    <div class="flex items-center justify-between gap-3 mt-6 flex-wrap">
+        <div class="flex items-center gap-1 bg-slate-100 rounded-xl p-1 flex-wrap">
+            <button @click="tab = 'overview'" :class="tab === 'overview' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Overview</button>
+            <button @click="tab = 'evm'" :class="tab === 'evm' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">EVM &amp; S-Curve</button>
+            <button @click="tab = 'financial'" :class="tab === 'financial' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Financial</button>
+            <button @click="tab = 'boq'" :class="tab === 'boq' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">BOQ</button>
+            <button @click="tab = 'addendum'" :class="tab === 'addendum' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Addendum</button>
+            <button @click="tab = 'activity'" :class="tab === 'activity' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Activity</button>
+        </div>
+        <div class="flex items-center gap-2 ml-auto">
+            <button wire:click="openEditProjectModal"
+                    class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M4 20h4l10.768-10.768a2.5 2.5 0 00-3.536-3.536L4.464 16.464A2 2 0 004 17.878V20z" />
+                </svg>
+                Edit Project
+            </button>
+            <button @click="showWeeklyModal = true"
+                    class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Input Lap. Mingguan
+            </button>
+        </div>
     </div>
 
     {{-- TAB: OVERVIEW --}}
@@ -324,10 +326,6 @@
                     <h3 class="text-base font-bold text-slate-900">Rencana Anggaran Biaya &amp; Rincian Item BOQ</h3>
                     <p class="text-xs text-slate-500 mt-0.5">Daftar rincian item pekerjaan dan anggaran biaya awal proyek (RAB Baseline)</p>
                 </div>
-                <button @click="showRabModal = true" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1.5 shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                    + Input Item RAB
-                </button>
             </div>
             @if(count($boqItems) === 0)
                 <div class="py-10 text-center">
@@ -381,11 +379,9 @@
             </div>
             <div class="flex items-center gap-2">
                 <button @click="showAddendumCostModal = true" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                     + Addendum Biaya
                 </button>
                 <button @click="showAddendumTimeModal = true" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     + Addendum Waktu
                 </button>
             </div>
@@ -551,6 +547,42 @@
                             <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">BAST Date</label>
                             <input type="date" wire:model="editBastDate" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
                             @error('editBastDate') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    {{-- Import Data (Opsional) --}}
+                    <div class="pt-4 border-t border-slate-100">
+                        <p class="text-xs font-bold text-slate-800 mb-3">Import Data (Opsional)</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer">
+                                <input type="file" wire:model="editRabImport" accept=".xlsx,.xls,.csv" class="sr-only" />
+                                <svg viewBox="0 0 24 24" class="w-6 h-6 mx-auto text-slate-400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path d="M8 3.8V8.5C8 9.05 8.45 9.5 9 9.5H14.5L18 13V18.2C18 18.75 17.55 19.2 17 19.2H7C6.45 19.2 6 18.75 6 18.2V4.8C6 4.25 6.45 3.8 7 3.8H8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                    <path d="M14.5 9.5V3.8L18 7.3H14.5V9.5Z" fill="currentColor" opacity="0.2"/>
+                                    <path d="M8.5 13.5H15.5M8.5 16.2H13.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                                    <path d="M9.5 9.5V11.5M12 9.5V11.5M14.5 9.5V11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                                </svg>
+                                <p class="text-[10px] font-bold text-slate-600 mt-2">Import Excel RAB</p>
+                                <p class="text-[9px] text-slate-400 mt-0.5">No, Item, Sat, Vol, Hrg Sat, Subtotal</p>
+                                @if($editRabImport)
+                                    <p class="text-[9px] text-blue-600 font-semibold mt-2 truncate">{{ $editRabImport->getClientOriginalName() }}</p>
+                                @endif
+                                @error('editRabImport') <span class="text-[9px] text-rose-500 mt-1 block">{{ $message }}</span> @enderror
+                            </label>
+                            <label class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer">
+                                <input type="file" wire:model="editSCurveImport" accept=".xlsx,.xls,.csv" class="sr-only" />
+                                <svg viewBox="0 0 24 24" class="w-6 h-6 mx-auto text-slate-400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path d="M5 15.5L9.5 11L12.5 14L18.5 8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M15.8 8.5H18.5V11.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/>
+                                </svg>
+                                <p class="text-[10px] font-bold text-slate-600 mt-2">Import Kurva S</p>
+                                <p class="text-[9px] text-slate-400 mt-0.5">Mg ke, Tgl Awal, Tgl Akhir, Rencana, Kumulatif</p>
+                                @if($editSCurveImport)
+                                    <p class="text-[9px] text-blue-600 font-semibold mt-2 truncate">{{ $editSCurveImport->getClientOriginalName() }}</p>
+                                @endif
+                                @error('editSCurveImport') <span class="text-[9px] text-rose-500 mt-1 block">{{ $message }}</span> @enderror
+                            </label>
                         </div>
                     </div>
 
@@ -989,7 +1021,7 @@ function initSCurveChart() {
             responsive: true, maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             plugins: {
-                legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
+                legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 18 } },
                 tooltip: { 
                     backgroundColor: '#0f172a', 
                     padding: 10,

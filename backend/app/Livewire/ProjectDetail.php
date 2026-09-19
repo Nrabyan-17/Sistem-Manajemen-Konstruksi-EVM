@@ -4,9 +4,12 @@ namespace App\Livewire;
 
 use App\Support\ProjectMockData;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class ProjectDetail extends Component
 {
+    use WithFileUploads;
+
     public array $project;
     public array $history;
     public string $activeTab = 'overview';
@@ -86,6 +89,8 @@ class ProjectDetail extends Component
     public string $editContractValue = '';
     public string $editStartDate = '';
     public string $editBastDate = '';
+    public $editRabImport;
+    public $editSCurveImport;
 
     // Time extension trackers
     public int $totalDaysAdded = 0;
@@ -228,6 +233,8 @@ class ProjectDetail extends Component
     public function closeEditProjectModal(): void
     {
         $this->showEditProjectModal = false;
+        $this->editRabImport = null;
+        $this->editSCurveImport = null;
         $this->resetValidation();
     }
 
@@ -312,6 +319,8 @@ class ProjectDetail extends Component
             'editContractValue' => 'required|numeric|min:1',
             'editStartDate' => 'required|date',
             'editBastDate' => 'required|date|after_or_equal:editStartDate',
+            'editRabImport' => 'nullable|file|mimes:xlsx,xls,csv|max:10240',
+            'editSCurveImport' => 'nullable|file|mimes:xlsx,xls,csv|max:10240',
         ]);
 
         ProjectMockData::update($this->project['project_id'], [
@@ -327,6 +336,8 @@ class ProjectDetail extends Component
 
         $projectId = $this->project['project_id'];
         $this->showEditProjectModal = false;
+        $this->editRabImport = null;
+        $this->editSCurveImport = null;
         $this->mount($projectId);
         $this->dispatch('project-updated', message: 'Data project berhasil diperbarui!');
     }

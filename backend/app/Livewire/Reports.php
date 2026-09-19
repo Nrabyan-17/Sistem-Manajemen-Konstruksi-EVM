@@ -9,7 +9,7 @@ use Livewire\Attributes\Title;
 #[Title('Reports - EVM Dashboard')]
 class Reports extends Component
 {
-    public $selectedProject = 'all';
+    public $selectedProject = '';
     public $statusFilter = 'all';
     public $pmFilter = 'all';
     public $reportType = 'evm'; // evm, financial, schedule
@@ -21,7 +21,7 @@ class Reports extends Component
 
     public function handleClearFilters()
     {
-        $this->selectedProject = 'all';
+        $this->selectedProject = '';
         $this->statusFilter = 'all';
         $this->pmFilter = 'all';
         $this->reportType = 'evm';
