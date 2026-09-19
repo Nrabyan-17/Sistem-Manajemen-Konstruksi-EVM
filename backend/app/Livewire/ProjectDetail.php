@@ -45,9 +45,18 @@ class ProjectDetail extends Component
 
     // Weekly Report Input Modal State
     public bool $showWeeklyModal = false;
+    public string $weeklyModalMode = 'manual'; // 'manual' or 'import'
     public int $inputWeekNumber = 1;
     public string $inputPlanPct = '';
     public string $inputActualPct = '';
+    public string $inputStartDate = '';
+    public string $inputEndDate = '';
+    public string $inputDateRange = '';
+
+    // Weekly Report Import Excel State
+    public $weeklyImportFile = null;
+    public array $importPreviewRows = [];
+    public string $importError = '';
 
     // Modal & Form States: Input RAB
     public bool $showRabModal = false;
@@ -60,9 +69,10 @@ class ProjectDetail extends Component
     public bool $showAddendumCostModal = false;
     public string $addendumContractNo = '';
     public string $addendumDate = '';
-    public string $addendumTitle = '';
+    public string $addendumTitle = 'Add tambah kurang volume';
     public string $addendumValue = '';
-    public string $addendumDesc = '';
+    public string $addendumDesc = 'Add tambah kurang volume';
+    public $addendumRabFile = null;
     public bool $showEditAddendumModal = false;
     public ?int $editAddendumIndex = null;
     public string $editAddendumContractNo = '';
@@ -184,9 +194,10 @@ class ProjectDetail extends Component
             return $m;
         }, $template);
 
-        // Set initial week for weekly input
+        // Set initial week and automatic dates for weekly input
         $lastWeek = end($this->weeklyProgress);
-        $this->inputWeekNumber = $lastWeek ? $lastWeek['week'] + 1 : 1;
+        $this->inputWeekNumber = $lastWeek ? (int) $lastWeek['week'] + 1 : 1;
+        $this->updateCalculatedDatesAndPlan();
 
         // ===== Time Extension Tracker =====
         $this->totalDaysAdded = 0;
@@ -350,18 +361,84 @@ class ProjectDetail extends Component
     public function openWeeklyModal()
     {
         $this->showWeeklyModal = true;
+        $this->weeklyModalMode = 'manual';
+        $this->resetImportForm();
         $lastWeek = end($this->weeklyProgress);
-        $this->inputWeekNumber = $lastWeek ? $lastWeek['week'] + 1 : 1;
-        $this->inputPlanPct = '';
+        $this->inputWeekNumber = $lastWeek ? (int) $lastWeek['week'] + 1 : 1;
+        $this->updateCalculatedDatesAndPlan();
         $this->inputActualPct = '';
     }
 
     public function closeWeeklyModal()
     {
         $this->showWeeklyModal = false;
-        $this->inputPlanPct = '';
+        $this->resetImportForm();
         $this->inputActualPct = '';
         $this->resetValidation();
+    }
+
+    public function setWeeklyModalMode(string $mode)
+    {
+        $this->weeklyModalMode = in_array($mode, ['manual', 'import'], true) ? $mode : 'manual';
+        $this->resetValidation();
+    }
+
+    public function updatedInputWeekNumber($val)
+    {
+        $this->inputWeekNumber = max(1, (int) $val);
+        $this->updateCalculatedDatesAndPlan();
+    }
+
+    public function getPlannedProgressForWeek(int $week): float
+    {
+        // 1. Check if mock data has plan for this week
+        $mockList = ProjectMockData::weeklyProgressFor($this->project['project_id'] ?? '');
+        foreach ($mockList as $item) {
+            if ((int) $item['week'] === $week && isset($item['plan_pct'])) {
+                return (float) $item['plan_pct'];
+            }
+        }
+
+        // 2. Check if already recorded in weeklyProgress
+        foreach ($this->weeklyProgress as $item) {
+            if ((int) $item['week'] === $week && isset($item['plan_pct'])) {
+                return (float) $item['plan_pct'];
+            }
+        }
+
+        // 3. Fallback calculation based on project schedule duration
+        $startDate = new \DateTime($this->project['start_date'] ?? '2026-01-01');
+        $bastDate = new \DateTime($this->effectiveBastDate ?: ($this->project['bast_date'] ?? '2026-12-31'));
+        $days = max(7, $startDate->diff($bastDate)->days);
+        $totalWeeks = max(1, (int) ceil($days / 7));
+
+        if ($week > $totalWeeks) {
+            return 0.0;
+        }
+
+        $existingPlanSum = array_sum(array_column($this->weeklyProgress, 'plan_pct'));
+        $remainingPlan = max(0, 100 - $existingPlanSum);
+        $remainingWeeks = max(1, $totalWeeks - count($this->weeklyProgress));
+
+        return round($remainingPlan / $remainingWeeks, 2);
+    }
+
+    public function updateCalculatedDatesAndPlan(): void
+    {
+        if (empty($this->project['start_date'])) return;
+
+        $week = max(1, $this->inputWeekNumber);
+        $startDate = new \DateTime($this->project['start_date']);
+        $startDate->modify('+' . (($week - 1) * 7) . ' days');
+        $endDate = clone $startDate;
+        $endDate->modify('+6 days');
+
+        $this->inputStartDate = $startDate->format('Y-m-d');
+        $this->inputEndDate = $endDate->format('Y-m-d');
+        $this->inputDateRange = $startDate->format('d M Y') . ' — ' . $endDate->format('d M Y');
+
+        $plan = $this->getPlannedProgressForWeek($week);
+        $this->inputPlanPct = number_format($plan, 2, '.', '');
     }
 
     public function submitWeeklyProgress()
@@ -372,11 +449,12 @@ class ProjectDetail extends Component
             'inputActualPct' => 'required|numeric|min:0|max:100',
         ]);
 
-        // Determine start/end dates based on project start and week number
-        $startDate = new \DateTime($this->project['start_date']);
-        $startDate->modify('+' . (($this->inputWeekNumber - 1) * 7) . ' days');
-        $endDate = clone $startDate;
-        $endDate->modify('+6 days');
+        if (empty($this->inputStartDate) || empty($this->inputEndDate)) {
+            $this->updateCalculatedDatesAndPlan();
+        }
+
+        $startDate = new \DateTime($this->inputStartDate ?: $this->project['start_date']);
+        $endDate = new \DateTime($this->inputEndDate ?: $startDate->format('Y-m-d'));
 
         // Calculate cumulative
         $prevCumulativeActual = 0;
@@ -387,7 +465,7 @@ class ProjectDetail extends Component
             $prevCumulativePlan = $last['cumulative_plan_pct'] ?? 0;
         }
 
-        $plan = is_numeric($this->inputPlanPct) ? (float) $this->inputPlanPct : 0;
+        $plan = is_numeric($this->inputPlanPct) ? (float) $this->inputPlanPct : $this->getPlannedProgressForWeek($this->inputWeekNumber);
         $actual = (float) $this->inputActualPct;
         $deviasi = round($plan - $actual, 2);
 
@@ -403,12 +481,240 @@ class ProjectDetail extends Component
         ];
 
         $this->weeklyProgress[] = $newEntry;
+
+        // Update project EVM metrics
+        $this->project['progress'] = $newEntry['cumulative_actual_pct'];
+        $this->bcwp = $this->bac * ($this->project['progress'] / 100);
+        $this->acwp = $this->bcwp / max(0.01, $this->project['cpi'] ?? 1);
+        $this->bcws = $this->bac * ($newEntry['cumulative_plan_pct'] / 100);
+        $this->cv   = $this->bcwp - $this->acwp;
+        $this->sv   = $this->bcwp - $this->bcws;
+        $this->deviasi = round(($this->bcws / $this->bac * 100) - ($this->project['progress']), 2);
+
         $this->inputWeekNumber++;
-        $this->inputPlanPct = '';
+        $this->updateCalculatedDatesAndPlan();
         $this->inputActualPct = '';
         $this->showWeeklyModal = false;
 
-        $this->dispatch('weekly-progress-saved', message: 'Laporan mingguan berhasil disimpan!');
+        $this->dispatch('weekly-progress-saved', message: "Laporan Minggu ke-{$newEntry['week']} berhasil disimpan!");
+    }
+
+    public function downloadWeeklyTemplate()
+    {
+        $start = new \DateTime($this->project['start_date'] ?? '2026-01-01');
+        $csv = "Minggu,Tanggal Mulai,Tanggal Selesai,Progres Rencana (%),Progres Realisasi (%)\n";
+        for ($w = 1; $w <= 4; $w++) {
+            $s = clone $start;
+            $s->modify('+' . (($w - 1) * 7) . ' days');
+            $e = clone $s;
+            $e->modify('+6 days');
+            $csv .= "{$w},{$s->format('Y-m-d')},{$e->format('Y-m-d')},2.50,2.40\n";
+        }
+
+        return response()->streamDownload(function () use ($csv) {
+            echo $csv;
+        }, 'template_laporan_mingguan_' . ($this->project['project_id'] ?? 'PRJ') . '.csv', [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    public function updatedWeeklyImportFile()
+    {
+        $this->validate([
+            'weeklyImportFile' => 'required|file|mimes:xlsx,xls,csv,txt|max:10240',
+        ]);
+
+        $this->importPreviewRows = [];
+        $this->importError = '';
+
+        try {
+            $path = $this->weeklyImportFile->getRealPath();
+            $extension = strtolower($this->weeklyImportFile->getClientOriginalExtension());
+
+            $rows = [];
+            if ($extension === 'csv' || $extension === 'txt') {
+                $handle = fopen($path, 'r');
+                if ($handle !== false) {
+                    $firstLine = fgets($handle);
+                    rewind($handle);
+                    $delimiter = (strpos($firstLine, ';') !== false && strpos($firstLine, ',') === false) ? ';' : ',';
+
+                    $rowIndex = 0;
+                    while (($data = fgetcsv($handle, 1000, $delimiter)) !== false) {
+                        $rowIndex++;
+                        if ($rowIndex === 1 && !is_numeric(trim($data[0] ?? ''))) {
+                            continue;
+                        }
+                        if (empty(array_filter($data, fn($v) => trim($v) !== ''))) {
+                            continue;
+                        }
+                        $rows[] = $data;
+                    }
+                    fclose($handle);
+                }
+            } else {
+                $rows = $this->parseSimpleSpreadsheet($path);
+            }
+
+            if (empty($rows)) {
+                $this->importError = 'File tidak memiliki baris data mingguan yang valid.';
+                return;
+            }
+
+            $startDateObj = new \DateTime($this->project['start_date'] ?? '2026-01-01');
+            $preview = [];
+
+            foreach ($rows as $r) {
+                $week = isset($r[0]) && is_numeric(trim($r[0])) ? (int) trim($r[0]) : (count($preview) + 1);
+
+                $sDate = !empty($r[1]) && preg_match('/^\d{4}-\d{2}-\d{2}$/', trim($r[1]))
+                    ? trim($r[1])
+                    : (clone $startDateObj)->modify('+' . (($week - 1) * 7) . ' days')->format('Y-m-d');
+
+                $eDate = !empty($r[2]) && preg_match('/^\d{4}-\d{2}-\d{2}$/', trim($r[2]))
+                    ? trim($r[2])
+                    : (new \DateTime($sDate))->modify('+6 days')->format('Y-m-d');
+
+                $planVal = isset($r[3]) && is_numeric(str_replace(',', '.', trim($r[3])))
+                    ? (float) str_replace(',', '.', trim($r[3]))
+                    : (isset($r[1]) && is_numeric(str_replace(',', '.', trim($r[1]))) ? (float) str_replace(',', '.', trim($r[1])) : $this->getPlannedProgressForWeek($week));
+
+                $actualVal = isset($r[4]) && is_numeric(str_replace(',', '.', trim($r[4])))
+                    ? (float) str_replace(',', '.', trim($r[4]))
+                    : (isset($r[2]) && is_numeric(str_replace(',', '.', trim($r[2]))) ? (float) str_replace(',', '.', trim($r[2])) : 0.0);
+
+                $dev = round($planVal - $actualVal, 2);
+
+                $preview[] = [
+                    'week' => $week,
+                    'start_date' => $sDate,
+                    'end_date' => $eDate,
+                    'plan_pct' => $planVal,
+                    'actual_pct' => $actualVal,
+                    'deviasi' => $dev,
+                ];
+            }
+
+            $this->importPreviewRows = $preview;
+        } catch (\Throwable $e) {
+            $this->importError = 'Gagal memproses file: ' . $e->getMessage();
+        }
+    }
+
+    protected function parseSimpleSpreadsheet(string $path): array
+    {
+        $rows = [];
+        if (class_exists(\ZipArchive::class)) {
+            $zip = new \ZipArchive();
+            if ($zip->open($path) === true) {
+                $sharedStrings = [];
+                $sharedXml = $zip->getFromName('xl/sharedStrings.xml');
+                if ($sharedXml) {
+                    $xml = simplexml_load_string($sharedXml);
+                    if ($xml) {
+                        foreach ($xml->si as $si) {
+                            $sharedStrings[] = (string) ($si->t ?? $si->r->t ?? '');
+                        }
+                    }
+                }
+
+                $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');
+                if ($sheetXml) {
+                    $xml = simplexml_load_string($sheetXml);
+                    if ($xml && isset($xml->sheetData->row)) {
+                        $isFirst = true;
+                        foreach ($xml->sheetData->row as $row) {
+                            if ($isFirst) {
+                                $isFirst = false;
+                                continue;
+                            }
+                            $rowData = [];
+                            foreach ($row->c as $c) {
+                                $type = (string) $c['t'];
+                                $val = (string) $c->v;
+                                if ($type === 's' && isset($sharedStrings[(int) $val])) {
+                                    $rowData[] = $sharedStrings[(int) $val];
+                                } else {
+                                    $rowData[] = $val;
+                                }
+                            }
+                            if (!empty(array_filter($rowData, fn($v) => trim($v) !== ''))) {
+                                $rows[] = $rowData;
+                            }
+                        }
+                    }
+                }
+                $zip->close();
+            }
+        }
+        return $rows;
+    }
+
+    public function processWeeklyImport()
+    {
+        if (empty($this->importPreviewRows)) {
+            $this->importError = 'Tidak ada baris data untuk diimpor. Silakan upload file terlebih dahulu.';
+            return;
+        }
+
+        usort($this->importPreviewRows, fn($a, $b) => $a['week'] <=> $b['week']);
+
+        $existingWeeks = [];
+        foreach ($this->weeklyProgress as $p) {
+            $existingWeeks[$p['week']] = $p;
+        }
+
+        foreach ($this->importPreviewRows as $item) {
+            $existingWeeks[$item['week']] = [
+                'week' => (int) $item['week'],
+                'start_date' => $item['start_date'],
+                'end_date' => $item['end_date'],
+                'plan_pct' => (float) $item['plan_pct'],
+                'cumulative_plan_pct' => 0,
+                'actual_pct' => (float) $item['actual_pct'],
+                'cumulative_actual_pct' => 0,
+                'deviasi' => round((float) $item['plan_pct'] - (float) $item['actual_pct'], 2),
+            ];
+        }
+
+        ksort($existingWeeks);
+
+        $runningPlan = 0;
+        $runningActual = 0;
+        $recalculated = [];
+        foreach ($existingWeeks as $w => $entry) {
+            $runningPlan += $entry['plan_pct'];
+            $runningActual += $entry['actual_pct'];
+            $entry['cumulative_plan_pct'] = round($runningPlan, 2);
+            $entry['cumulative_actual_pct'] = round($runningActual, 2);
+            $recalculated[] = $entry;
+        }
+
+        $this->weeklyProgress = $recalculated;
+
+        $lastEntry = end($this->weeklyProgress);
+        if ($lastEntry) {
+            $this->project['progress'] = $lastEntry['cumulative_actual_pct'];
+            $this->bcwp = $this->bac * ($this->project['progress'] / 100);
+            $this->acwp = $this->bcwp / max(0.01, $this->project['cpi'] ?? 1);
+            $this->bcws = $this->bac * ($lastEntry['cumulative_plan_pct'] / 100);
+            $this->cv   = $this->bcwp - $this->acwp;
+            $this->sv   = $this->bcwp - $this->bcws;
+            $this->deviasi = round(($this->bcws / $this->bac * 100) - ($this->project['progress']), 2);
+        }
+
+        $count = count($this->importPreviewRows);
+        $this->resetImportForm();
+        $this->showWeeklyModal = false;
+
+        $this->dispatch('weekly-progress-saved', message: "Berhasil mengimpor {$count} data laporan mingguan dari Excel!");
+    }
+
+    public function resetImportForm()
+    {
+        $this->weeklyImportFile = null;
+        $this->importPreviewRows = [];
+        $this->importError = '';
     }
 
     // ===== Action Methods: Input RAB =====
@@ -466,11 +772,13 @@ class ProjectDetail extends Component
     public function openAddendumCostModal()
     {
         $this->showAddendumCostModal = true;
-        $this->addendumContractNo = '';
+        $projCode = substr($this->project['project_id'], 4) ?: '001';
+        $this->addendumContractNo = 'ADD-' . $projCode . '-' . str_pad(count($this->addendums) + 1, 2, '0', STR_PAD_LEFT);
         $this->addendumDate = date('Y-m-d');
-        $this->addendumTitle = '';
+        $this->addendumTitle = 'Add tambah kurang volume';
         $this->addendumValue = '';
-        $this->addendumDesc = '';
+        $this->addendumDesc = 'Add tambah kurang volume';
+        $this->addendumRabFile = null;
     }
 
     public function closeAddendumCostModal()
@@ -478,20 +786,33 @@ class ProjectDetail extends Component
         $this->showAddendumCostModal = false;
         $this->addendumContractNo = '';
         $this->addendumDate = '';
-        $this->addendumTitle = '';
+        $this->addendumTitle = 'Add tambah kurang volume';
         $this->addendumValue = '';
-        $this->addendumDesc = '';
+        $this->addendumDesc = 'Add tambah kurang volume';
+        $this->addendumRabFile = null;
         $this->resetValidation();
+    }
+
+    public function removeAddendumRabFile()
+    {
+        $this->addendumRabFile = null;
     }
 
     public function submitAddendumCost()
     {
+        if (empty($this->addendumTitle)) {
+            $this->addendumTitle = 'Add tambah kurang volume';
+        }
+        if (empty($this->addendumDesc)) {
+            $this->addendumDesc = 'Add tambah kurang volume';
+        }
+
         $this->validate([
             'addendumContractNo' => 'nullable|string|max:100',
             'addendumDate' => 'nullable|date',
             'addendumTitle' => 'required|string|min:3|max:255',
             'addendumValue' => 'required|numeric',
-            'addendumDesc' => 'nullable|string|max:500',
+            'addendumRabFile' => 'nullable|file|mimes:xlsx,xls,csv,txt|max:10240',
         ]);
 
         $val = (float) $this->addendumValue;
@@ -499,18 +820,24 @@ class ProjectDetail extends Component
         $generatedId = 'ADD-' . $projCode . '-' . str_pad(count($this->addendums) + 1, 2, '0', STR_PAD_LEFT);
         $addId = trim($this->addendumContractNo) !== '' ? trim($this->addendumContractNo) : $generatedId;
 
+        $attachmentName = null;
+        if ($this->addendumRabFile) {
+            $attachmentName = $this->addendumRabFile->getClientOriginalName();
+        }
+
         $this->addendums[] = [
             'addendum_id' => $addId,
             'contract_no' => trim($this->addendumContractNo) !== '' ? trim($this->addendumContractNo) : $addId,
             'project_id' => $this->project['project_id'],
             'project_name' => $this->project['project_name'],
-            'title' => $this->addendumTitle,
+            'title' => $this->addendumTitle ?: 'Add tambah kurang volume',
             'value' => $val,
             'date' => $this->addendumDate ?: date('Y-m-d'),
             'status' => 'PENDING',
-            'description' => $this->addendumDesc ?: 'Addendum biaya pekerjaan tambah/kurang.',
+            'description' => $this->addendumDesc . ($attachmentName ? " (Lampiran RAB: {$attachmentName})" : ''),
             'type' => 'COST',
             'days_added' => 0,
+            'attachment' => $attachmentName,
         ];
 
         ProjectMockData::updateAddendums($this->project['project_id'], $this->addendums);

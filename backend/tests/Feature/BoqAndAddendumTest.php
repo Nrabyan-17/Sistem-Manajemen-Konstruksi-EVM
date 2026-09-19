@@ -12,7 +12,6 @@ class BoqAndAddendumTest extends TestCase
     {
         Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
             ->assertStatus(200)
-            ->assertSee('+ Input Item RAB')
             ->assertSee('+ Addendum Biaya')
             ->assertSee('+ Addendum Waktu')
             ->assertSee('RAB Awal (Baseline BAC)')
@@ -46,6 +45,35 @@ class BoqAndAddendumTest extends TestCase
             ->assertSee('ADD-01/SPK-2026/001')
             ->assertSee('Pekerjaan Retaining Wall Tambahan')
             ->assertSee('BIAYA (COST)');
+    }
+
+    public function test_addendum_cost_modal_has_automatic_fields_and_supports_excel_upload(): void
+    {
+        $component = Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001']);
+
+        // Check that opening addendum cost modal auto-fills default title and contract no
+        $component->call('openAddendumCostModal')
+            ->assertSet('addendumTitle', 'Add tambah kurang volume')
+            ->assertSee('Add tambah kurang volume')
+            ->assertSee('Upload Excel RAB Addendum')
+            ->assertSee('Grand Horizon Tower')
+            ->assertSee('Tgl Kontrak')
+            ->assertSee('Tgl BAST')
+            ->assertSee('Nilai Kontrak');
+
+        // Create a fake excel upload
+        $file = \Illuminate\Http\UploadedFile::fake()->create('rab_addendum_v1.xlsx', 150, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $component->set('addendumRabFile', $file)
+            ->set('addendumValue', 750000000)
+            ->call('submitAddendumCost')
+            ->assertDispatched('addendum-cost-saved')
+            ->assertSee('Add tambah kurang volume');
+
+        $addendums = $component->get('addendums');
+        $lastAddendum = end($addendums);
+        $this->assertEquals('Add tambah kurang volume', $lastAddendum['title']);
+        $this->assertEquals(750000000, $lastAddendum['value']);
+        $this->assertEquals('rab_addendum_v1.xlsx', $lastAddendum['attachment']);
     }
 
     public function test_input_addendum_time_updates_bast_date_and_remaining_days(): void
@@ -90,7 +118,7 @@ class BoqAndAddendumTest extends TestCase
             ->set('inputWeekNumber', 26)
             ->set('inputPlanPct', 2.00)
             ->set('inputActualPct', 2.50)
-            ->assertSee('Label Deviasi Mingguan:')
+            ->assertSee('Deviasi Mingguan:')
             ->call('submitWeeklyProgress')
             ->assertDispatched('weekly-progress-saved');
 
@@ -100,5 +128,30 @@ class BoqAndAddendumTest extends TestCase
         $this->assertEquals(2.00, $lastItem['plan_pct']);
         $this->assertEquals(2.50, $lastItem['actual_pct']);
         $this->assertEquals(-0.50, $lastItem['deviasi']);
+    }
+
+    public function test_weekly_progress_auto_calculates_dates_and_plan_when_week_changes(): void
+    {
+        $component = Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001']);
+        $component->call('openWeeklyModal')
+            ->assertSet('weeklyModalMode', 'manual')
+            ->set('inputWeekNumber', 5)
+            ->assertSee('09 Feb 2026 — 15 Feb 2026')
+            ->assertSet('inputPlanPct', '2.50');
+
+        $this->assertNotEmpty($component->get('inputDateRange'));
+        $this->assertEquals('2.50', $component->get('inputPlanPct'));
+    }
+
+    public function test_weekly_modal_supports_excel_import_and_template_download(): void
+    {
+        Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
+            ->call('openWeeklyModal')
+            ->call('setWeeklyModalMode', 'import')
+            ->assertSet('weeklyModalMode', 'import')
+            ->assertSee('Download Format Template')
+            ->assertSee('Unggah File Laporan (.xlsx, .xls, .csv)')
+            ->call('downloadWeeklyTemplate')
+            ->assertFileDownloaded();
     }
 }
