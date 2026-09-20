@@ -19,6 +19,31 @@ class Users extends Component
     public bool $showDeleteUserModal = false;
     public ?int $selectedUserId = null;
 
+    public array $selectedUserIds = [];
+    public bool $selectAll = false;
+
+    public function updatedSelectAll($value): void
+    {
+        if ($value) {
+            $this->selectedUserIds = array_map('strval', array_column($this->filteredUsers, 'id'));
+        } else {
+            $this->selectedUserIds = [];
+        }
+    }
+
+    public function updatedSelectedUserIds(): void
+    {
+        $filteredIds = array_map('strval', array_column($this->filteredUsers, 'id'));
+        $selectedStr = array_map('strval', $this->selectedUserIds);
+        $this->selectAll = count($filteredIds) > 0 && count(array_intersect($filteredIds, $selectedStr)) === count($filteredIds);
+    }
+
+    public function toggleSelectAll(): void
+    {
+        $this->selectAll = !$this->selectAll;
+        $this->updatedSelectAll($this->selectAll);
+    }
+
     public array $userForm = [
         'name' => '',
         'email' => '',

@@ -4,6 +4,7 @@
     showRabModal: false,
     showAddendumCostModal: false,
     showAddendumTimeModal: false,
+    addendumModalTab: 'detail',
     toastMessage: '',
     showToast: false
 }"
@@ -434,7 +435,7 @@
                 <p class="text-xs text-slate-500 mt-0.5">Daftar seluruh amandemen kontrak resmi yang tercatat untuk proyek ini</p>
             </div>
             <div class="flex items-center gap-2">
-                <button @click="showAddendumCostModal = true; $wire.openAddendumCostModal()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1">
+                <button @click="showAddendumCostModal = true; addendumModalTab = 'detail'; $wire.openAddendumCostModal()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1">
                     + Addendum Biaya
                 </button>
                 <button @click="showAddendumTimeModal = true" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1">
@@ -740,9 +741,6 @@
                         <div>
                             <div class="flex items-center justify-between mb-1.5">
                                 <label class="block font-bold text-slate-800">Tanggal / Periode</label>
-                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                                    Otomatis
-                                </span>
                             </div>
                             <div class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs font-semibold flex items-center justify-between gap-1.5">
                                 <div class="flex items-center gap-1.5 min-w-0">
@@ -756,21 +754,15 @@
                         </div>
                     </div>
 
-                    {{-- Row 2: Progres Rencana (Read Only) & Progres Realisasi (Input) --}}
+                    {{-- Row 2: Progres Rencana & Progres Realisasi --}}
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <div class="flex items-center justify-between mb-1.5">
                                 <label class="block font-bold text-slate-800">Progres Rencana (%)</label>
-                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">
-                                    Read Only
-                                </span>
                             </div>
-                            <div class="relative">
+                            <div>
                                 <input type="number" wire:model="inputPlanPct" readonly step="0.01" min="0" max="100"
-                                       class="w-full px-3.5 py-2.5 bg-slate-100/80 text-slate-600 font-bold border border-slate-200 rounded-xl cursor-not-allowed select-none focus:outline-none focus:ring-0 transition text-sm pr-8" />
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-slate-400">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                </div>
+                                       class="w-full px-3.5 py-2.5 bg-slate-100/80 text-slate-600 font-bold border border-slate-200 rounded-xl cursor-not-allowed select-none focus:outline-none focus:ring-0 transition text-sm" />
                             </div>
                             <p class="text-[10px] text-slate-400 mt-1">Otomatis dari Kurva S Baseline</p>
                             @error('inputPlanPct') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
@@ -778,7 +770,6 @@
                         <div>
                             <div class="flex items-center justify-between mb-1.5">
                                 <label class="block font-bold text-slate-800">Progres Realisasi (%) <span class="text-rose-500">*</span></label>
-                                <span class="text-[9px] font-semibold text-blue-600">Input Baru</span>
                             </div>
                             <div class="relative">
                                 <input type="number" wire:model.live="inputActualPct" step="0.01" min="0" max="100" required placeholder="Contoh: 2.50"
@@ -1031,8 +1022,9 @@
          style="display: none;">
         
         <div @click.away="showAddendumCostModal = false"
-             class="bg-white w-full max-w-lg rounded-2xl border border-slate-200 shadow-2xl overflow-hidden my-6">
+             class="bg-white w-full max-w-lg rounded-2xl border border-slate-200 shadow-2xl overflow-hidden my-6 flex flex-col">
             
+            {{-- Modal Header --}}
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
                     <span class="p-2 rounded-xl bg-amber-50 text-amber-600">
@@ -1050,172 +1042,223 @@
                 </button>
             </div>
 
-            <form wire:submit.prevent="submitAddendumCost" class="px-6 py-5 space-y-4 text-xs text-slate-700">
-                {{-- CARD INFORMASI PROYEK & KONTRAK --}}
-                <div class="p-3.5 bg-gradient-to-br from-slate-50 to-amber-50/30 rounded-xl border border-slate-200/80 space-y-2.5">
+            {{-- Modal Tab Navigation (Di bagian atas form) --}}
+            <div class="px-6 pt-3 bg-slate-50/80 border-b border-slate-200/80">
+                <div class="flex items-center gap-1.5 overflow-x-auto">
+                    <button type="button" 
+                            @click="addendumModalTab = 'detail'"
+                            :class="addendumModalTab === 'detail' ? 'border-amber-500 text-amber-800 bg-white font-bold shadow-2xs' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium'"
+                            class="px-3 py-2 text-xs rounded-t-xl border-b-2 transition flex items-center gap-1.5 shrink-0">
+                        <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        <span>Data Addendum</span>
+                    </button>
+
+                    <button type="button" 
+                            @click="addendumModalTab = 'rab'"
+                            :class="addendumModalTab === 'rab' ? 'border-emerald-500 text-emerald-800 bg-white font-bold shadow-2xs' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium'"
+                            class="px-3 py-2 text-xs rounded-t-xl border-b-2 transition flex items-center gap-1.5 shrink-0">
+                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                        <span>Upload Excel RAB Addendum</span>
+                        @if($addendumRabFile)
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                        @endif
+                    </button>
+
+                    <button type="button" 
+                            @click="addendumModalTab = 'time_schedule'"
+                            :class="addendumModalTab === 'time_schedule' ? 'border-blue-500 text-blue-800 bg-white font-bold shadow-2xs' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium'"
+                            class="px-3 py-2 text-xs rounded-t-xl border-b-2 transition flex items-center gap-1.5 shrink-0">
+                        <svg class="w-3.5 h-3.5 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                        <span>Upload Excel Time Schedule Addendum</span>
+                        @if($addendumTsFile)
+                            <span class="w-2 h-2 rounded-full bg-blue-500 ring-2 ring-white"></span>
+                        @endif
+                    </button>
+                </div>
+            </div>
+
+            <form wire:submit.prevent="submitAddendumCost" class="px-6 py-5 space-y-4 text-xs text-slate-700 flex-1">
+                {{-- TAB 1: FORM DATA ADDENDUM --}}
+                <div x-show="addendumModalTab === 'detail'" class="space-y-4">
+                    {{-- CARD INFORMASI PROYEK & KONTRAK --}}
+                    <div class="p-3.5 bg-gradient-to-br from-slate-50 to-amber-50/30 rounded-xl border border-slate-200/80 space-y-2.5">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                    Nama Pekerjaan
+                                </span>
+                            </div>
+                            <div class="text-xs font-extrabold text-slate-900 mt-1 leading-snug">
+                                {{ $project['project_name'] }}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-center">
+                            <div class="bg-white/80 p-2 rounded-lg border border-slate-200/60">
+                                <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wide">Tgl Kontrak</span>
+                                <span class="text-[11px] font-extrabold text-slate-800 block mt-0.5">
+                                    {{ !empty($project['start_date']) ? date('d M Y', strtotime($project['start_date'])) : '-' }}
+                                </span>
+                            </div>
+                            <div class="bg-white/80 p-2 rounded-lg border border-slate-200/60">
+                                <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wide">Tgl BAST</span>
+                                <span class="text-[11px] font-extrabold text-slate-800 block mt-0.5">
+                                    {{ !empty($effectiveBastDate ?: $project['bast_date']) ? date('d M Y', strtotime($effectiveBastDate ?: $project['bast_date'])) : '-' }}
+                                </span>
+                            </div>
+                            <div class="bg-white/80 p-2 rounded-lg border border-slate-200/60">
+                                <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wide">Nilai Kontrak</span>
+                                <span class="text-[11px] font-extrabold text-amber-700 font-mono block mt-0.5">
+                                    Rp {{ number_format($bac, 0, ',', '.') }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-slate-800 mb-1">Nomor Addendum Kontrak</label>
+                            <input type="text" wire:model="addendumContractNo" placeholder="Contoh: ADD-01/SPK-2026/001"
+                                   class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition text-xs font-medium" />
+                            @error('addendumContractNo') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-800 mb-1">Tanggal Addendum Kontrak</label>
+                            <input type="date" wire:model="addendumDate"
+                                   class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition text-xs font-medium" />
+                            @error('addendumDate') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
+                    {{-- JUDUL ADDENDUM --}}
                     <div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                                Nama Pekerjaan
-                            </span>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block font-bold text-slate-800">Judul Addendum</label>
                         </div>
-                        <div class="text-xs font-extrabold text-slate-900 mt-1 leading-snug">
-                            {{ $project['project_name'] }}
-                        </div>
+                        <input type="text" wire:model="addendumTitle" readonly
+                               value="Add tambah kurang volume"
+                               class="w-full px-3 py-2 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-700 font-bold text-xs cursor-not-allowed select-all" />
+                        @error('addendumTitle') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-center">
-                        <div class="bg-white/80 p-2 rounded-lg border border-slate-200/60">
-                            <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wide">Tgl Kontrak</span>
-                            <span class="text-[11px] font-extrabold text-slate-800 block mt-0.5">
-                                {{ !empty($project['start_date']) ? date('d M Y', strtotime($project['start_date'])) : '-' }}
-                            </span>
-                        </div>
-                        <div class="bg-white/80 p-2 rounded-lg border border-slate-200/60">
-                            <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wide">Tgl BAST</span>
-                            <span class="text-[11px] font-extrabold text-slate-800 block mt-0.5">
-                                {{ !empty($effectiveBastDate ?: $project['bast_date']) ? date('d M Y', strtotime($effectiveBastDate ?: $project['bast_date'])) : '-' }}
-                            </span>
-                        </div>
-                        <div class="bg-white/80 p-2 rounded-lg border border-slate-200/60">
-                            <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wide">Nilai Kontrak</span>
-                            <span class="text-[11px] font-extrabold text-amber-700 font-mono block mt-0.5">
-                                Rp {{ number_format($bac, 0, ',', '.') }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {{-- NILAI ADDENDUM (INPUTAN) --}}
                     <div>
-                        <label class="block font-bold text-slate-800 mb-1">Nomor Addendum Kontrak</label>
-                        <input type="text" wire:model="addendumContractNo" placeholder="Contoh: ADD-01/SPK-2026/001"
-                               class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition text-xs font-medium" />
-                        @error('addendumContractNo') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                        <label class="block font-bold text-slate-800 mb-1">Nilai Perubahan Addendum (Rp) <span class="text-rose-500">*</span></label>
+                        <input type="number" wire:model.live="addendumValue" required placeholder="Contoh: 150000000 (atau -50000000 jika pengurangan)"
+                               class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition text-sm font-bold text-slate-900" />
+                        <p class="text-[10px] text-slate-400 mt-1">Gunakan angka positif (+) untuk penambahan biaya, atau negatif (-) jika efisiensi / pengurangan volume.</p>
+                        @error('addendumValue') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                     </div>
-                    <div>
-                        <label class="block font-bold text-slate-800 mb-1">Tanggal Addendum Kontrak</label>
-                        <input type="date" wire:model="addendumDate"
-                               class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition text-xs font-medium" />
-                        @error('addendumDate') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+
+                    {{-- Status Lampiran File --}}
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500 font-semibold text-[11px]">Lampiran:</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $addendumRabFile ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500' }}">
+                                RAB: {{ $addendumRabFile ? '✓ Terlampir' : 'Kosong' }}
+                            </span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $addendumTsFile ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-500' }}">
+                                TS: {{ $addendumTsFile ? '✓ Terlampir' : 'Kosong' }}
+                            </span>
+                        </div>
+                        <button type="button" @click="addendumModalTab = 'rab'" class="text-[11px] font-bold text-amber-600 hover:text-amber-700 hover:underline">
+                            Kelola Lampiran →
+                        </button>
                     </div>
                 </div>
 
-                {{-- JUDUL ADDENDUM --}}
-                <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <label class="block font-bold text-slate-800">Judul Addendum</label>
+                {{-- TAB 2: UPLOAD EXCEL RAB ADDENDUM --}}
+                <div x-show="addendumModalTab === 'rab'" class="space-y-4 py-1">
+                    <div class="p-3.5 bg-emerald-50/70 rounded-xl border border-emerald-200/80 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-emerald-950">Upload Excel RAB Addendum</h4>
+                            <p class="text-[11px] text-emerald-700 mt-0.5">Unggah rincian item pekerjaan tambah/kurang beserta volume & harga satuan dalam format file Excel (.xlsx, .xls, .csv Maks. 10MB).</p>
+                        </div>
                     </div>
-                    <input type="text" wire:model="addendumTitle" readonly
-                           value="Add tambah kurang volume"
-                           class="w-full px-3 py-2 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-700 font-bold text-xs cursor-not-allowed select-all" />
-                    @error('addendumTitle') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
-                </div>
-
-                {{-- NILAI ADDENDUM (INPUTAN) --}}
-                <div>
-                    <label class="block font-bold text-slate-800 mb-1">Nilai Perubahan Addendum (Rp) <span class="text-rose-500">*</span></label>
-                    <input type="number" wire:model.live="addendumValue" required placeholder="Contoh: 150000000 (atau -50000000 jika pengurangan)"
-                           class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition text-sm font-bold text-slate-900" />
-                    <p class="text-[10px] text-slate-400 mt-1">Gunakan angka positif (+) untuk penambahan biaya, atau negatif (-) jika efisiensi / pengurangan volume.</p>
-                    @error('addendumValue') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
-                </div>
-
-                {{-- TAMBAHAN: UPLOAD EXCEL RAB DAN TIME SCHEDULE ADDENDUM --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                    <label class="block font-bold text-slate-800 mb-1.5 flex items-center justify-between">
-                        <span class="flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
-                            Upload Excel RAB Addendum
-                        </span>
-                        <span class="text-[10px] text-slate-400 font-normal">.xlsx, .xls, .csv (Maks. 10MB)</span>
-                    </label>
 
                     @if(!$addendumRabFile)
-                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-amber-400 rounded-xl p-4 bg-slate-50/50 hover:bg-amber-50/30 transition cursor-pointer group">
+                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-emerald-400 rounded-2xl p-8 bg-slate-50/50 hover:bg-emerald-50/30 transition cursor-pointer group text-center">
                             <input type="file" wire:model="addendumRabFile" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" class="hidden" />
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center group-hover:scale-105 transition">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                                </div>
-                                <div class="text-left">
-                                    <div class="text-xs font-bold text-slate-700 group-hover:text-amber-700 transition">Pilih file Excel RAB Addendum</div>
-                                    <div class="text-[10px] text-slate-400">Klik untuk menjelajah file dari komputer Anda</div>
-                                </div>
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center group-hover:scale-110 transition shadow-2xs mb-3">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                             </div>
+                            <p class="text-xs font-bold text-slate-800 group-hover:text-emerald-700 transition">Pilih file Excel RAB Addendum</p>
+                            <p class="text-[10px] text-slate-400 mt-1">Klik untuk menjelajah file dari komputer Anda (.xlsx, .xls, .csv)</p>
                         </label>
                     @else
-                        <div class="flex items-center justify-between p-3 bg-emerald-50/80 border border-emerald-200 rounded-xl">
-                            <div class="flex items-center gap-2.5 overflow-hidden">
-                                <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div class="p-4 bg-emerald-50/80 border border-emerald-200 rounded-2xl flex items-center justify-between">
+                            <div class="flex items-center gap-3 overflow-hidden">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </div>
                                 <div class="truncate">
-                                    <div class="text-xs font-bold text-emerald-950 truncate">{{ $addendumRabFile->getClientOriginalName() }}</div>
-                                    <div class="text-[10px] text-emerald-700">{{ number_format($addendumRabFile->getSize() / 1024, 1) }} KB • Siap dilampirkan</div>
+                                    <p class="text-xs font-bold text-emerald-950 truncate">{{ $addendumRabFile->getClientOriginalName() }}</p>
+                                    <p class="text-[10px] text-emerald-700 mt-0.5">{{ number_format($addendumRabFile->getSize() / 1024, 1) }} KB • Siap dilampirkan</p>
                                 </div>
                             </div>
-                            <button type="button" wire:click="removeAddendumRabFile" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition" title="Hapus file">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            <button type="button" wire:click="removeAddendumRabFile" class="text-slate-400 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition" title="Hapus file">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </div>
                     @endif
 
-                    <div wire:loading wire:target="addendumRabFile" class="text-xs text-amber-600 font-semibold mt-1.5 flex items-center gap-1.5">
-                        <svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        Mengunggah file Excel...
+                    <div wire:loading wire:target="addendumRabFile" class="text-xs text-emerald-600 font-semibold flex items-center gap-1.5">
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Mengunggah file Excel RAB...
                     </div>
                     @error('addendumRabFile') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
-                <div>
-                    <label class="block font-bold text-slate-800 mb-1.5 flex items-center justify-between">
-                        <span class="flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
-                            Upload Excel Time Schedule Addendum
-                        </span>
-                        <span class="text-[10px] text-slate-400 font-normal">.xlsx, .xls, .csv (Maks. 10MB)</span>
-                    </label>
+                {{-- TAB 3: UPLOAD EXCEL TIME SCHEDULE ADDENDUM --}}
+                <div x-show="addendumModalTab === 'time_schedule'" class="space-y-4 py-1">
+                    <div class="p-3.5 bg-blue-50/70 rounded-xl border border-blue-200/80 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-blue-950">Upload Excel Time Schedule Addendum</h4>
+                            <p class="text-[11px] text-blue-700 mt-0.5">Unggah penyesuaian jadwal Kurva S / Time Schedule addendum dalam format spreadsheet (.xlsx, .xls, .csv Maks. 10MB).</p>
+                        </div>
+                    </div>
 
                     @if(!$addendumTsFile)
-                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl p-4 bg-slate-50/50 hover:bg-blue-50/30 transition cursor-pointer group">
+                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-2xl p-8 bg-slate-50/50 hover:bg-blue-50/30 transition cursor-pointer group text-center">
                             <input type="file" wire:model="addendumTsFile" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" class="hidden" />
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center group-hover:scale-105 transition">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                                </div>
-                                <div class="text-left">
-                                    <div class="text-xs font-bold text-slate-700 group-hover:text-blue-700 transition">Pilih file Time Schedule Addendum</div>
-                                    <div class="text-[10px] text-slate-400">Klik untuk menjelajah file dari komputer Anda</div>
-                                </div>
+                            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center group-hover:scale-110 transition shadow-2xs mb-3">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                             </div>
+                            <p class="text-xs font-bold text-slate-800 group-hover:text-blue-700 transition">Pilih file Time Schedule Addendum</p>
+                            <p class="text-[10px] text-slate-400 mt-1">Klik untuk menjelajah file dari komputer Anda (.xlsx, .xls, .csv)</p>
                         </label>
                     @else
-                        <div class="flex items-center justify-between p-3 bg-blue-50/80 border border-blue-200 rounded-xl">
-                            <div class="flex items-center gap-2.5 overflow-hidden">
-                                <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div class="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl flex items-center justify-between">
+                            <div class="flex items-center gap-3 overflow-hidden">
+                                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </div>
                                 <div class="truncate">
-                                    <div class="text-xs font-bold text-blue-950 truncate">{{ $addendumTsFile->getClientOriginalName() }}</div>
-                                    <div class="text-[10px] text-blue-700">{{ number_format($addendumTsFile->getSize() / 1024, 1) }} KB • Siap dilampirkan</div>
+                                    <p class="text-xs font-bold text-blue-950 truncate">{{ $addendumTsFile->getClientOriginalName() }}</p>
+                                    <p class="text-[10px] text-blue-700 mt-0.5">{{ number_format($addendumTsFile->getSize() / 1024, 1) }} KB • Siap dilampirkan</p>
                                 </div>
                             </div>
-                            <button type="button" wire:click="removeAddendumTsFile" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition" title="Hapus file">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1 1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            <button type="button" wire:click="removeAddendumTsFile" class="text-slate-400 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition" title="Hapus file">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </div>
                     @endif
 
-                    <div wire:loading wire:target="addendumTsFile" class="text-xs text-blue-600 font-semibold mt-1.5 flex items-center gap-1.5">
+                    <div wire:loading wire:target="addendumTsFile" class="text-xs text-blue-600 font-semibold flex items-center gap-1.5">
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         Mengunggah file Time Schedule...
                     </div>
                     @error('addendumTsFile') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                 </div>
-                </div>
 
+                {{-- Modal Action Footer --}}
                 <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                     <button type="button" @click="showAddendumCostModal = false" 
                             class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">

@@ -44,4 +44,28 @@ class UsersModalTest extends TestCase
             ->assertSet('selectedUserId', 4)
             ->assertSee('Delete User');
     }
+
+    public function test_select_all_checkbox_selects_and_deselects_all_users(): void
+    {
+        $component = Livewire::test(Users::class);
+
+        // Initially no users selected
+        $component->assertSet('selectAll', false)
+            ->assertSet('selectedUserIds', []);
+
+        // Check selectAll -> all 7 users selected
+        $component->set('selectAll', true)
+            ->assertCount('selectedUserIds', 7)
+            ->assertSee('7 user dipilih');
+
+        // Uncheck selectAll -> empty
+        $component->set('selectAll', false)
+            ->assertCount('selectedUserIds', 0)
+            ->assertDontSee('user dipilih');
+
+        // Toggle via method
+        $component->call('toggleSelectAll')
+            ->assertSet('selectAll', true)
+            ->assertCount('selectedUserIds', 7);
+    }
 }

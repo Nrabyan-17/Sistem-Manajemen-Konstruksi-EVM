@@ -90,9 +90,23 @@
     {{-- Users Table --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         {{-- Table Header --}}
-        <div class="px-6 py-4 border-b border-slate-100">
-            <h2 class="text-base font-semibold text-slate-900">All Users</h2>
-            <p class="text-xs text-slate-500 mt-0.5">Showing {{ count($filteredUsers) }} of {{ $totalUsers }} registered accounts</p>
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <h2 class="text-base font-semibold text-slate-900">All Users</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Showing {{ count($filteredUsers) }} of {{ $totalUsers }} registered accounts</p>
+            </div>
+            @if(count($selectedUserIds) > 0)
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-semibold">
+                        {{ count($selectedUserIds) }} user dipilih
+                    </span>
+                    <button type="button" 
+                            wire:click="$set('selectedUserIds', [])" 
+                            class="text-xs text-slate-500 hover:text-rose-600 font-medium transition">
+                        Batal Pilih
+                    </button>
+                </div>
+            @endif
         </div>
 
         <div class="overflow-x-auto">
@@ -100,9 +114,14 @@
                 <thead>
                     <tr class="border-b border-slate-100 bg-slate-50/60">
                         <th class="w-10 px-5 py-3 text-left">
-                            <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer focus:ring-blue-500">
+                            <input type="checkbox" 
+                                   id="selectAllUsers"
+                                   wire:model.live="selectAll"
+                                   class="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer focus:ring-blue-500">
                         </th>
-                        <th class="px-4 py-3 text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase">User</th>
+                        <th class="px-4 py-3 text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                            <label for="selectAllUsers" class="cursor-pointer select-none hover:text-slate-600 transition">User</label>
+                        </th>
                         <th class="px-4 py-3 text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase">Role</th>
                         <th class="px-4 py-3 text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase">Department</th>
                         <th class="px-4 py-3 text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase">Projects</th>
@@ -113,10 +132,16 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($filteredUsers as $user)
-                    <tr class="hover:bg-slate-50/60 transition group">
+                    @php
+                        $isSelected = in_array((string)$user['id'], array_map('strval', $selectedUserIds));
+                    @endphp
+                    <tr class="hover:bg-slate-50/60 transition group {{ $isSelected ? 'bg-blue-50/30' : '' }}">
                         {{-- Checkbox --}}
                         <td class="px-5 py-4">
-                            <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer focus:ring-blue-500">
+                            <input type="checkbox" 
+                                   wire:model.live="selectedUserIds"
+                                   value="{{ $user['id'] }}"
+                                   class="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer focus:ring-blue-500">
                         </td>
 
                         {{-- User Info --}}
