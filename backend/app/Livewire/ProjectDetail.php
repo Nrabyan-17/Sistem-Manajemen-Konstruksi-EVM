@@ -73,6 +73,7 @@ class ProjectDetail extends Component
     public string $addendumValue = '';
     public string $addendumDesc = 'Add tambah kurang volume';
     public $addendumRabFile = null;
+    public $addendumTsFile = null;
     public bool $showEditAddendumModal = false;
     public ?int $editAddendumIndex = null;
     public string $editAddendumContractNo = '';
@@ -323,10 +324,7 @@ class ProjectDetail extends Component
     {
         $this->validate([
             'editProjectName' => 'required|string|min:3|max:255',
-            'editSpkNumber' => 'required|string|max:100',
-            'editClient' => 'required|string|max:255',
             'editProjectManager' => 'required|string|max:255',
-            'editLocation' => 'required|string|max:255',
             'editContractValue' => 'required|numeric|min:1',
             'editStartDate' => 'required|date',
             'editBastDate' => 'required|date|after_or_equal:editStartDate',
@@ -336,10 +334,7 @@ class ProjectDetail extends Component
 
         ProjectMockData::update($this->project['project_id'], [
             'project_name' => trim($this->editProjectName),
-            'spk_number' => trim($this->editSpkNumber),
-            'client' => trim($this->editClient),
             'project_manager' => trim($this->editProjectManager),
-            'location' => trim($this->editLocation),
             'contract_value' => (float) $this->editContractValue,
             'start_date' => $this->editStartDate,
             'bast_date' => $this->editBastDate,
@@ -779,6 +774,7 @@ class ProjectDetail extends Component
         $this->addendumValue = '';
         $this->addendumDesc = 'Add tambah kurang volume';
         $this->addendumRabFile = null;
+        $this->addendumTsFile = null;
     }
 
     public function closeAddendumCostModal()
@@ -790,12 +786,18 @@ class ProjectDetail extends Component
         $this->addendumValue = '';
         $this->addendumDesc = 'Add tambah kurang volume';
         $this->addendumRabFile = null;
+        $this->addendumTsFile = null;
         $this->resetValidation();
     }
 
     public function removeAddendumRabFile()
     {
         $this->addendumRabFile = null;
+    }
+
+    public function removeAddendumTsFile()
+    {
+        $this->addendumTsFile = null;
     }
 
     public function submitAddendumCost()
@@ -813,6 +815,7 @@ class ProjectDetail extends Component
             'addendumTitle' => 'required|string|min:3|max:255',
             'addendumValue' => 'required|numeric',
             'addendumRabFile' => 'nullable|file|mimes:xlsx,xls,csv,txt|max:10240',
+            'addendumTsFile' => 'nullable|file|mimes:xlsx,xls,csv,txt|max:10240',
         ]);
 
         $val = (float) $this->addendumValue;
@@ -824,6 +827,10 @@ class ProjectDetail extends Component
         if ($this->addendumRabFile) {
             $attachmentName = $this->addendumRabFile->getClientOriginalName();
         }
+        $timeScheduleAttachmentName = null;
+        if ($this->addendumTsFile) {
+            $timeScheduleAttachmentName = $this->addendumTsFile->getClientOriginalName();
+        }
 
         $this->addendums[] = [
             'addendum_id' => $addId,
@@ -834,10 +841,13 @@ class ProjectDetail extends Component
             'value' => $val,
             'date' => $this->addendumDate ?: date('Y-m-d'),
             'status' => 'PENDING',
-            'description' => $this->addendumDesc . ($attachmentName ? " (Lampiran RAB: {$attachmentName})" : ''),
+            'description' => $this->addendumDesc
+                . ($attachmentName ? " (Lampiran RAB: {$attachmentName})" : '')
+                . ($timeScheduleAttachmentName ? " (Lampiran TS: {$timeScheduleAttachmentName})" : ''),
             'type' => 'COST',
             'days_added' => 0,
             'attachment' => $attachmentName,
+            'time_schedule_attachment' => $timeScheduleAttachmentName,
         ];
 
         ProjectMockData::updateAddendums($this->project['project_id'], $this->addendums);

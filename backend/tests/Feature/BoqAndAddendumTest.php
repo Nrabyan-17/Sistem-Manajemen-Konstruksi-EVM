@@ -56,6 +56,7 @@ class BoqAndAddendumTest extends TestCase
             ->assertSet('addendumTitle', 'Add tambah kurang volume')
             ->assertSee('Add tambah kurang volume')
             ->assertSee('Upload Excel RAB Addendum')
+            ->assertSee('Upload Excel Time Schedule Addendum')
             ->assertSee('Grand Horizon Tower')
             ->assertSee('Tgl Kontrak')
             ->assertSee('Tgl BAST')
@@ -63,7 +64,9 @@ class BoqAndAddendumTest extends TestCase
 
         // Create a fake excel upload
         $file = \Illuminate\Http\UploadedFile::fake()->create('rab_addendum_v1.xlsx', 150, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $timeScheduleFile = \Illuminate\Http\UploadedFile::fake()->create('ts_addendum_v1.xlsx', 120, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         $component->set('addendumRabFile', $file)
+            ->set('addendumTsFile', $timeScheduleFile)
             ->set('addendumValue', 750000000)
             ->call('submitAddendumCost')
             ->assertDispatched('addendum-cost-saved')
@@ -74,6 +77,7 @@ class BoqAndAddendumTest extends TestCase
         $this->assertEquals('Add tambah kurang volume', $lastAddendum['title']);
         $this->assertEquals(750000000, $lastAddendum['value']);
         $this->assertEquals('rab_addendum_v1.xlsx', $lastAddendum['attachment']);
+        $this->assertEquals('ts_addendum_v1.xlsx', $lastAddendum['time_schedule_attachment']);
     }
 
     public function test_input_addendum_time_updates_bast_date_and_remaining_days(): void

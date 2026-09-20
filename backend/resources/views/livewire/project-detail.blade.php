@@ -118,13 +118,6 @@
                 </svg>
                 Edit Project
             </button>
-            <button wire:click="openWeeklyModal" @click="showWeeklyModal = true"
-                    class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                Input Lap. Mingguan
-            </button>
         </div>
     </div>
 
@@ -237,10 +230,7 @@
                 <div class="flex items-center gap-2">
                     <button wire:click="openWeeklyModal" @click="showWeeklyModal = true"
                             class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
-                        + Input Laporan
+                        Input Laporan Mingguan
                     </button>
                 </div>
             </div>
@@ -391,14 +381,6 @@
                 <div>
                     <h3 class="text-base font-bold text-slate-900">Rencana Anggaran Biaya &amp; Rincian Item BOQ</h3>
                     <p class="text-xs text-slate-500 mt-0.5">Daftar rincian item pekerjaan dan anggaran biaya awal proyek (RAB Baseline)</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button @click="showAddendumCostModal = true; $wire.openAddendumCostModal()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1">
-                        + Addendum Biaya
-                    </button>
-                    <button @click="showAddendumTimeModal = true" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1">
-                        + Addendum Waktu
-                    </button>
                 </div>
             </div>
             @if(count($boqItems) === 0)
@@ -589,13 +571,11 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">SPK Number</label>
-                            <input type="text" wire:model="editSpkNumber" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                            @error('editSpkNumber') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                            <input type="text" wire:model="editSpkNumber" readonly class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-sm text-slate-500 cursor-not-allowed focus:outline-none" />
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Client</label>
-                            <input type="text" wire:model="editClient" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                            @error('editClient') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                            <input type="text" wire:model="editClient" readonly class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-sm text-slate-500 cursor-not-allowed focus:outline-none" />
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Project Manager</label>
@@ -604,8 +584,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Location</label>
-                            <input type="text" wire:model="editLocation" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                            @error('editLocation') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                            <input type="text" wire:model="editLocation" readonly class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-sm text-slate-500 cursor-not-allowed focus:outline-none" />
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Contract Value (Rp)</label>
@@ -735,7 +714,7 @@
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                 <div>
                     <h3 class="text-base font-extrabold text-slate-900">Input Laporan Mingguan</h3>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Perbarui data progres mingguan (Manual atau Import Excel)</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Perbarui data progres mingguan secara manual atau melalui file Excel/CSV</p>
                 </div>
                 <button type="button" @click="showWeeklyModal = false; $wire.closeWeeklyModal()" class="text-slate-400 hover:text-slate-600 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -744,26 +723,7 @@
                 </button>
             </div>
 
-            {{-- Mode Switcher Tabs (Manual vs Import Excel) --}}
-            <div class="px-6 pt-4 pb-1">
-                <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-xl">
-                    <button type="button" 
-                            wire:click="setWeeklyModalMode('manual')" 
-                            class="py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 {{ $weeklyModalMode === 'manual' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-800' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                        Input Manual
-                    </button>
-                    <button type="button" 
-                            wire:click="setWeeklyModalMode('import')" 
-                            class="py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 {{ $weeklyModalMode === 'import' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-800' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                        Import Excel / CSV
-                    </button>
-                </div>
-            </div>
-
-            {{-- MODE 1: INPUT MANUAL --}}
-            @if($weeklyModalMode === 'manual')
+            {{-- INPUT MANUAL DAN UPLOAD FILE --}}
                 <form wire:submit.prevent="submitWeeklyProgress" class="px-6 py-4 space-y-4 text-xs text-slate-700">
                     
                     {{-- Row 1: Minggu ke- & Tanggal / Periode Laporan --}}
@@ -863,24 +823,8 @@
                         </div>
                     </div>
 
-                    {{-- Modal Footer --}}
-                    <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-                        <button type="button" @click="showWeeklyModal = false; $wire.closeWeeklyModal()" 
-                                class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
-                            Batal
-                        </button>
-                        <button type="submit" 
-                                class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition shadow-md shadow-blue-500/25 flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            Simpan Laporan
-                        </button>
-                    </div>
-                </form>
-            @endif
-
-            {{-- MODE 2: IMPORT EXCEL / CSV --}}
-            @if($weeklyModalMode === 'import')
-                <div class="px-6 py-4 space-y-4 text-xs text-slate-700">
+                    {{-- Upload Excel/CSV dan preview berada dalam form yang sama dengan input manual --}}
+                <div class="space-y-4 text-xs text-slate-700">
                     {{-- Template Download Bar --}}
                     <div class="p-3 bg-blue-50/70 rounded-xl border border-blue-100 flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2">
@@ -965,21 +909,28 @@
                         </div>
                     @endif
 
-                    {{-- Import Footer --}}
+                    {{-- Footer --}}
                     <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                         <button type="button" @click="showWeeklyModal = false; $wire.closeWeeklyModal()" 
                                 class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
                             Batal
                         </button>
-                        <button type="button" wire:click="processWeeklyImport" 
-                                @if(empty($importPreviewRows)) disabled @endif
-                                class="px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5 {{ !empty($importPreviewRows) ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 cursor-pointer' : 'bg-slate-200 text-slate-400 cursor-not-allowed' }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                            Proses Import Laporan
-                        </button>
+                        @if(!empty($importPreviewRows))
+                            <button type="button" wire:click="processWeeklyImport"
+                                    class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition shadow-md shadow-blue-500/25 flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4 4V4"/></svg>
+                                Proses Import Laporan
+                            </button>
+                        @else
+                            <button type="submit"
+                                    class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition shadow-md shadow-blue-500/25 flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                Simpan Laporan
+                            </button>
+                        @endif
                     </div>
                 </div>
-            @endif
+                </form>
 
         </div>
     </div>
@@ -1100,7 +1051,7 @@
             </div>
 
             <form wire:submit.prevent="submitAddendumCost" class="px-6 py-5 space-y-4 text-xs text-slate-700">
-                {{-- CARD INFORMASI PROYEK & KONTRAK (OTOMATIS) --}}
+                {{-- CARD INFORMASI PROYEK & KONTRAK --}}
                 <div class="p-3.5 bg-gradient-to-br from-slate-50 to-amber-50/30 rounded-xl border border-slate-200/80 space-y-2.5">
                     <div>
                         <div class="flex items-center justify-between">
@@ -1108,7 +1059,6 @@
                                 <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                                 Nama Pekerjaan
                             </span>
-                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/60">Otomatis</span>
                         </div>
                         <div class="text-xs font-extrabold text-slate-900 mt-1 leading-snug">
                             {{ $project['project_name'] }}
@@ -1152,33 +1102,28 @@
                     </div>
                 </div>
 
-                {{-- JUDUL ADDENDUM (OTOMATIS) --}}
+                {{-- JUDUL ADDENDUM --}}
                 <div>
                     <div class="flex items-center justify-between mb-1">
                         <label class="block font-bold text-slate-800">Judul Addendum</label>
-                        <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/60">Otomatis</span>
                     </div>
-                    <div class="relative">
-                        <input type="text" wire:model="addendumTitle" readonly
-                               value="Add tambah kurang volume"
-                               class="w-full px-3 py-2 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-700 font-bold text-xs cursor-not-allowed select-all" />
-                        <div class="absolute right-3 top-2.5 text-slate-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        </div>
-                    </div>
+                    <input type="text" wire:model="addendumTitle" readonly
+                           value="Add tambah kurang volume"
+                           class="w-full px-3 py-2 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-700 font-bold text-xs cursor-not-allowed select-all" />
                     @error('addendumTitle') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
                 {{-- NILAI ADDENDUM (INPUTAN) --}}
                 <div>
-                    <label class="block font-bold text-slate-800 mb-1">Nilai Variasi Addendum (Rp) <span class="text-rose-500">*</span></label>
+                    <label class="block font-bold text-slate-800 mb-1">Nilai Perubahan Addendum (Rp) <span class="text-rose-500">*</span></label>
                     <input type="number" wire:model.live="addendumValue" required placeholder="Contoh: 150000000 (atau -50000000 jika pengurangan)"
                            class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition text-sm font-bold text-slate-900" />
                     <p class="text-[10px] text-slate-400 mt-1">Gunakan angka positif (+) untuk penambahan biaya, atau negatif (-) jika efisiensi / pengurangan volume.</p>
                     @error('addendumValue') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
-                {{-- TAMBAHAN: UPLOAD EXCEL RAB ADDENDUM --}}
+                {{-- TAMBAHAN: UPLOAD EXCEL RAB DAN TIME SCHEDULE ADDENDUM --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block font-bold text-slate-800 mb-1.5 flex items-center justify-between">
                         <span class="flex items-center gap-1.5">
@@ -1223,6 +1168,52 @@
                         Mengunggah file Excel...
                     </div>
                     @error('addendumRabFile') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-800 mb-1.5 flex items-center justify-between">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                            Upload Excel Time Schedule Addendum
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-normal">.xlsx, .xls, .csv (Maks. 10MB)</span>
+                    </label>
+
+                    @if(!$addendumTsFile)
+                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl p-4 bg-slate-50/50 hover:bg-blue-50/30 transition cursor-pointer group">
+                            <input type="file" wire:model="addendumTsFile" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" class="hidden" />
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center group-hover:scale-105 transition">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-xs font-bold text-slate-700 group-hover:text-blue-700 transition">Pilih file Time Schedule Addendum</div>
+                                    <div class="text-[10px] text-slate-400">Klik untuk menjelajah file dari komputer Anda</div>
+                                </div>
+                            </div>
+                        </label>
+                    @else
+                        <div class="flex items-center justify-between p-3 bg-blue-50/80 border border-blue-200 rounded-xl">
+                            <div class="flex items-center gap-2.5 overflow-hidden">
+                                <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <div class="truncate">
+                                    <div class="text-xs font-bold text-blue-950 truncate">{{ $addendumTsFile->getClientOriginalName() }}</div>
+                                    <div class="text-[10px] text-blue-700">{{ number_format($addendumTsFile->getSize() / 1024, 1) }} KB • Siap dilampirkan</div>
+                                </div>
+                            </div>
+                            <button type="button" wire:click="removeAddendumTsFile" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition" title="Hapus file">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1 1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    @endif
+
+                    <div wire:loading wire:target="addendumTsFile" class="text-xs text-blue-600 font-semibold mt-1.5 flex items-center gap-1.5">
+                        Mengunggah file Time Schedule...
+                    </div>
+                    @error('addendumTsFile') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                </div>
                 </div>
 
                 <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
