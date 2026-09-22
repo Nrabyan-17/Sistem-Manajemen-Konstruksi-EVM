@@ -1,4 +1,11 @@
-<div class="space-y-6">
+<div class="space-y-6" x-data="{
+    selectAllUsers: $wire.entangle('selectAll').live,
+    selectedUsers: $wire.entangle('selectedUserIds').live,
+    addUserModal: $wire.entangle('showAddUserModal').live,
+    detailModal: $wire.entangle('showDetailModal').live,
+    editUserModal: $wire.entangle('showEditUserModal').live,
+    deleteUserModal: $wire.entangle('showDeleteUserModal').live
+}">
 
     {{-- Page Header --}}
     <div class="flex items-start gap-4">
@@ -78,12 +85,12 @@
         </select>
 
         <button type="button"
-                wire:click="openAddUserModal"
+            @click="addUserModal = true; $wire.openAddUserModal()"
                 class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition shadow-sm shadow-blue-500/30 shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
             </svg>
-            + Add User
+            Add User
         </button>
     </div>
 
@@ -95,18 +102,30 @@
                 <h2 class="text-base font-semibold text-slate-900">All Users</h2>
                 <p class="text-xs text-slate-500 mt-0.5">Showing {{ count($filteredUsers) }} of {{ $totalUsers }} registered accounts</p>
             </div>
-            @if(count($selectedUserIds) > 0)
-                <div class="flex items-center gap-2">
+              <div x-show="selectedUsers.length > 0"
+                  x-cloak
+                  x-transition:enter="transition ease-out duration-500"
+                  x-transition:enter-start="opacity-0 -translate-y-2"
+                  x-transition:enter-end="opacity-100 translate-y-0"
+                  x-transition:leave="transition ease-in duration-500"
+                  x-transition:leave-start="opacity-100 translate-y-0"
+                  x-transition:leave-end="opacity-0 -translate-y-2"
+                  class="flex items-center gap-2">
                     <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-semibold">
-                        {{ count($selectedUserIds) }} user dipilih
+                        @if(count($selectedUserIds) > 0)
+                            {{ count($selectedUserIds) }} user dipilih
+                        @else
+                            <span x-text="selectedUsers.length"></span>
+                            <span x-text="selectedUsers.length ? ['user', 'dipilih'].join(' ') : ''"></span>
+                        @endif
                     </span>
                     <button type="button" 
+                            @click="selectedUsers = []; selectAllUsers = false"
                             wire:click="$set('selectedUserIds', [])" 
                             class="text-xs text-slate-500 hover:text-rose-600 font-medium transition">
                         Batal Pilih
                     </button>
-                </div>
-            @endif
+            </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -116,6 +135,8 @@
                         <th class="w-10 px-5 py-3 text-left">
                             <input type="checkbox" 
                                    id="selectAllUsers"
+                                x-model="selectAllUsers"
+                                   @change="if (!$event.target.checked) selectedUsers = []"
                                    wire:model.live="selectAll"
                                    class="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer focus:ring-blue-500">
                         </th>
@@ -139,6 +160,7 @@
                         {{-- Checkbox --}}
                         <td class="px-5 py-4">
                             <input type="checkbox" 
+                                   x-bind:checked="selectAllUsers || selectedUsers.includes('{{ $user['id'] }}')"
                                    wire:model.live="selectedUserIds"
                                    value="{{ $user['id'] }}"
                                    class="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer focus:ring-blue-500">
@@ -301,15 +323,15 @@
         </div>
     </div>
 
-    @if($showAddUserModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-            <div @click.outside="$wire.closeUserModals()" class="w-full max-w-xl rounded-2xl bg-white shadow-2xl border border-slate-200">
+    <template x-teleport="body">
+    <div x-show="addUserModal" x-cloak x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex h-screen min-h-screen w-screen items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div @click.outside="$wire.closeUserModals()" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="w-full max-w-xl rounded-2xl bg-white shadow-2xl border border-slate-200">
                 <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
                     <div>
                         <h3 class="text-xl font-bold text-slate-900">Add New User</h3>
                         <p class="text-xs text-slate-500 mt-1">Create a new account and assign access.</p>
                     </div>
-                    <button type="button" wire:click="closeUserModals" class="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">
+                    <button type="button" @click="addUserModal = false; $wire.closeUserModals()" class="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -362,7 +384,7 @@
                     </div>
 
                     <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-100">
-                        <button type="button" wire:click="closeUserModals" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                        <button type="button" @click="addUserModal = false; $wire.closeUserModals()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
                             Cancel
                         </button>
                         <button type="submit" class="px-4 py-2.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition shadow-sm shadow-blue-500/25">
@@ -372,11 +394,11 @@
                 </form>
             </div>
         </div>
-    @endif
+        </template>
 
-    @if($showDetailModal && $selectedUser)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-            <div @click.outside="$wire.closeUserModals()" class="w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
+    <div x-show="detailModal" x-cloak x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div @click.outside="$wire.closeUserModals()" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
+            @if($selectedUser)
                 <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                     <div>
                         <h3 class="text-xl font-bold text-slate-900">User Details</h3>
@@ -419,13 +441,13 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
         </div>
-    @endif
+    </div>
 
-    @if($showEditUserModal && $selectedUser)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-            <div @click.outside="$wire.closeUserModals()" class="w-full max-w-xl rounded-2xl bg-white shadow-2xl border border-slate-200">
+    <div x-show="editUserModal" x-cloak x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div @click.outside="$wire.closeUserModals()" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="w-full max-w-xl rounded-2xl bg-white shadow-2xl border border-slate-200">
+            @if($selectedUser)
                 <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
                     <div>
                         <h3 class="text-xl font-bold text-slate-900">Edit User</h3>
@@ -492,13 +514,13 @@
                         </button>
                     </div>
                 </form>
-            </div>
+            @endif
         </div>
-    @endif
+    </div>
 
-    @if($showDeleteUserModal && $selectedUser)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-            <div @click.outside="$wire.closeUserModals()" class="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
+    <div x-show="deleteUserModal" x-cloak x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div @click.outside="$wire.closeUserModals()" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
+            @if($selectedUser)
                 <div class="px-6 py-4 border-b border-slate-100">
                     <h3 class="text-xl font-bold text-slate-900">Delete User</h3>
                     <p class="text-xs text-slate-500 mt-1">This action cannot be undone.</p>
@@ -526,8 +548,8 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            @endif
         </div>
-    @endif
+    </div>
 
 </div>

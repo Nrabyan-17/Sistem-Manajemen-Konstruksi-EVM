@@ -116,13 +116,6 @@
                     </div>
                 </div>
 
-                <!-- Remember me -->
-                <div class="flex items-center">
-                    <input type="checkbox" id="remember" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                    <label for="remember" class="ml-2.5 text-sm text-gray-700 cursor-pointer">
-                        Remember me
-                    </label>
-                </div>
 
                 <!-- Submit -->
                 <button type="submit"

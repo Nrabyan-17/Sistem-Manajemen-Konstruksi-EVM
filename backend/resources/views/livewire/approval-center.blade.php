@@ -44,59 +44,6 @@
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Approval Center</h1>
             <p class="text-slate-500 text-xs mt-0.5">Review and validate submitted data before it affects EVM calculations</p>
         </div>
-        <div class="flex items-center gap-2.5 flex-wrap">
-            {{-- Search Bar --}}
-            <div class="relative min-w-[200px] sm:min-w-[220px]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-                </svg>
-                <input wire:model.live.debounce.300ms="search" type="text" id="approval-search" placeholder="Search queue..."
-                       class="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200/90 bg-white text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition shadow-xs"/>
-            </div>
-
-            {{-- Status Filter --}}
-            <div class="relative">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                </svg>
-                <select wire:model.live="statusFilter" id="approval-status-filter"
-                        class="appearance-none pl-8 pr-8 py-2 rounded-xl border border-slate-200/90 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition shadow-xs cursor-pointer">
-                    <option value="all">Semua Status</option>
-                    <option value="PENDING">Menunggu Approval</option>
-                    <option value="APPROVED">Approved</option>
-                    <option value="REJECTED">Rejected</option>
-                </select>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </div>
-
-            {{-- Category Filter --}}
-            <div class="relative">
-                <select wire:model.live="categoryFilter" id="approval-category-filter"
-                        class="appearance-none pl-3.5 pr-8 py-2 rounded-xl border border-slate-200/90 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition shadow-xs cursor-pointer">
-                    <option value="all">Semua Kategori</option>
-                    <option value="Progress Payment">Progress Payment</option>
-                    <option value="Financial Addendum">Financial Addendum</option>
-                    <option value="Scope Change">Scope Change</option>
-                    <option value="Weekly Progress">Weekly Progress</option>
-                </select>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </div>
-
-            {{-- Reset Filter Button in Header --}}
-            @if($search !== '' || $statusFilter !== 'all' || $categoryFilter !== 'all')
-                <button wire:click="handleClearFilters" title="Reset Semua Filter"
-                        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition shadow-xs cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    Reset Filter
-                </button>
-            @endif
-        </div>
     </div>
 
     {{-- KPI Summary Cards --}}
@@ -136,6 +83,60 @@
             </div>
             <div class="w-1 h-7 bg-orange-100/60 rounded-full shrink-0"></div>
         </div>
+    </div>
+
+    {{-- Search & Filters --}}
+    <div class="flex items-center gap-2.5 flex-wrap">
+        {{-- Search Bar --}}
+        <div class="relative min-w-[200px] sm:min-w-[220px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+            </svg>
+            <input wire:model.live.debounce.300ms="search" type="text" id="approval-search" placeholder="Search queue..."
+                   class="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200/90 bg-white text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition shadow-xs"/>
+        </div>
+
+        {{-- Status Filter --}}
+        <div class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+            </svg>
+            <select wire:model.live="statusFilter" id="approval-status-filter"
+                    class="appearance-none pl-8 pr-8 py-2 rounded-xl border border-slate-200/90 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition shadow-xs cursor-pointer">
+                <option value="all">Semua Status</option>
+                <option value="PENDING">Menunggu Approval</option>
+                <option value="APPROVED">Approved</option>
+                <option value="REJECTED">Rejected</option>
+            </select>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </div>
+
+        {{-- Category Filter --}}
+        <div class="relative">
+            <select wire:model.live="categoryFilter" id="approval-category-filter"
+                    class="appearance-none pl-3.5 pr-8 py-2 rounded-xl border border-slate-200/90 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition shadow-xs cursor-pointer">
+                <option value="all">Semua Kategori</option>
+                <option value="Progress Payment">Progress Payment</option>
+                <option value="Financial Addendum">Financial Addendum</option>
+                <option value="Scope Change">Scope Change</option>
+                <option value="Weekly Progress">Weekly Progress</option>
+            </select>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </div>
+
+        @if($search !== '' || $statusFilter !== 'all' || $categoryFilter !== 'all')
+            <button wire:click="handleClearFilters" title="Reset Semua Filter"
+                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition shadow-xs cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Reset Filter
+            </button>
+        @endif
     </div>
 
     {{-- Active Approval Queue Table Card (Compact & Clean) --}}
@@ -225,9 +226,6 @@
                                             </svg>
                                             Rejected
                                         </span>
-                                        @if($sub['reject_reason'])
-                                            <p class="text-[9px] text-rose-500 mt-0.5 max-w-[140px] mx-auto truncate" title="{{ $sub['reject_reason'] }}">{{ $sub['reject_reason'] }}</p>
-                                        @endif
                                     </div>
                                 @else
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border border-amber-300 text-amber-700 bg-amber-50/50 whitespace-nowrap">
@@ -243,14 +241,14 @@
                             <td class="px-6 py-3.5 text-center whitespace-nowrap align-middle">
                                 @if($sub['status'] === 'PENDING')
                                     <div class="flex items-center justify-center gap-2">
-                                        <button wire:click="showDetail('{{ $sub['submission_id'] }}')" title="Lihat Detail"
+                                        <button wire:click="showDetail('{{ $sub['submission_id'] }}')" @click="isDetailModalOpen = true" title="Lihat Detail"
                                                 class="text-slate-400 hover:text-blue-600 transition p-1 hover:bg-slate-100 rounded-md cursor-pointer">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                             </svg>
                                         </button>
-                                        <button wire:click="showApproveConfirm('{{ $sub['submission_id'] }}')" title="Approve"
+                                        <button wire:click="showApproveConfirm('{{ $sub['submission_id'] }}')" @click="isApproveModalOpen = true" title="Approve"
                                                 class="text-slate-400 hover:text-emerald-600 transition p-1 hover:bg-emerald-50 rounded-md cursor-pointer">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
@@ -265,7 +263,7 @@
                                     </div>
                                 @else
                                     <div class="flex items-center justify-center">
-                                        <button wire:click="showDetail('{{ $sub['submission_id'] }}')" title="Lihat Detail"
+                                        <button wire:click="showDetail('{{ $sub['submission_id'] }}')" @click="isDetailModalOpen = true" title="Lihat Detail"
                                                 class="text-slate-400 hover:text-blue-600 transition p-1 hover:bg-slate-100 rounded-md cursor-pointer">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
@@ -311,13 +309,14 @@
     </div>
 
     {{-- DETAIL MODAL --}}
-    <div x-show="isDetailModalOpen"
-         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
-         style="display: none;">
+        <template x-teleport="body">
+        <div x-show="isDetailModalOpen" x-cloak
+            x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 flex h-screen min-h-screen w-screen items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
         <div @click.outside="isDetailModalOpen = false; $wire.closeDetail()"
-             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+               x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
              class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-100">
             @if($selectedSubmission)
             <div class="px-6 py-4 border-b border-slate-100 flex items-start justify-between">
@@ -453,15 +452,17 @@
             @endif
         </div>
     </div>
+        </template>
 
     {{-- APPROVE CONFIRMATION MODAL --}}
-    <div x-show="isApproveModalOpen"
-         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
-         style="display: none;">
+        <template x-teleport="body">
+        <div x-show="isApproveModalOpen" x-cloak
+            x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 flex h-screen min-h-screen w-screen items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
         <div @click.outside="isApproveModalOpen = false; $wire.closeApproveConfirm()"
-             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+               x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
              class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 border border-slate-100">
             @if($confirmApproveData)
             <div class="flex items-center gap-3 mb-3.5">
@@ -508,6 +509,7 @@
             @endif
         </div>
     </div>
+    </template>
 
     {{-- REJECT REASON MODAL --}}
     <div x-show="isRejectModalOpen"

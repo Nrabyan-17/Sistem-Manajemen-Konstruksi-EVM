@@ -28,6 +28,7 @@
       x-data="{ 
           isSidebarOpen: true, 
           showLogoutModal: false,
+          isLoggingOut: false,
           isProjectDetail: @json($isProjectDetail),
           activeTab: '{{ $initialTab }}',
           switchTab(tabName, targetUrl) {
@@ -338,10 +339,16 @@
                         class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer">
                     Batal
                 </button>
-                <a href="/login"
-                   class="flex-1 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition shadow-sm flex items-center justify-center cursor-pointer">
-                    Ya, Sign Out
-                </a>
+                <button type="button"
+                        @click="if (!isLoggingOut) { isLoggingOut = true; setTimeout(() => window.location.href = '/login', 500); }"
+                        :disabled="isLoggingOut"
+                        class="flex-1 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white text-xs font-semibold transition shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:cursor-wait">
+                    <svg x-show="isLoggingOut" x-cloak class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    <span x-text="isLoggingOut ? 'Signing Out...' : 'Ya, Sign Out'"></span>
+                </button>
             </div>
         </div>
     </div>

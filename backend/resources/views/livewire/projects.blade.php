@@ -1,6 +1,10 @@
 <div x-data="{ 
     isNewModalOpen: false, 
     isHistoryModalOpen: false,
+    viewMode: @js($viewMode),
+    tablePage: $wire.entangle('currentPage'),
+    tablePageSize: @js($pageSize),
+    tableTotalPages: @js($totalPages),
     toastMessage: '',
     showToast: false
 }"
@@ -129,16 +133,16 @@
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-base font-bold text-slate-900">Project Portfolio</h2>
             <div class="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
-                <button wire:click="setViewMode('cards')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ $viewMode === 'cards' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                <button type="button" @click="viewMode = 'cards'" :class="viewMode === 'cards' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition">
                     Cards
                 </button>
-                <button wire:click="setViewMode('table')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ $viewMode === 'table' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                <button type="button" @click="viewMode = 'table'" :class="viewMode === 'table' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition">
                     Table
                 </button>
             </div>
         </div>
 
-        @if($viewMode === 'cards')
+        <div x-show="viewMode === 'cards'">
             <!-- Card View Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($filteredProjects as $p)
@@ -247,7 +251,9 @@
                     </div>
                 @endforeach
             </div>
-        @else
+        </div>
+
+        <div x-show="viewMode === 'table'">
             <!-- Table View -->
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
@@ -271,8 +277,8 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            @foreach($paginatedProjects as $p)
-                                <tr class="hover:bg-slate-50/50 transition">
+                            @foreach($filteredProjects as $p)
+                                <tr x-show="Math.ceil({{ $loop->iteration }} / tablePageSize) === tablePage" class="hover:bg-slate-50/50 transition">
                                     <td class="p-4">
                                         <p class="font-bold text-slate-900">{{ $p['project_name'] }}</p>
                                         <p class="text-[10px] text-slate-400 mt-0.5">{{ $p['project_manager'] }} · {{ $p['client'] }}</p>
@@ -322,16 +328,16 @@
                 @if($totalPages > 1)
                     <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
                         <p class="text-xs text-slate-500">
-                            Showing page <span class="font-bold text-slate-800">{{ $currentPage }}</span> of <span class="font-bold text-slate-800">{{ $totalPages }}</span>
+                            Showing page <span class="font-bold text-slate-800" x-text="tablePage"></span> of <span class="font-bold text-slate-800" x-text="tableTotalPages"></span>
                         </p>
                         <div class="flex items-center gap-1.5">
-                            <button @if($currentPage == 1) disabled @endif 
-                                    wire:click="$set('currentPage', {{ max(1, $currentPage - 1) }})"
+                            <button type="button" x-bind:disabled="tablePage <= 1"
+                                    @click="tablePage = Math.max(1, tablePage - 1)"
                                     class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:pointer-events-none transition">
                                 Previous
                             </button>
-                            <button @if($currentPage == $totalPages) disabled @endif 
-                                    wire:click="$set('currentPage', {{ min($totalPages, $currentPage + 1) }})"
+                            <button type="button" x-bind:disabled="tablePage >= tableTotalPages"
+                                    @click="tablePage = Math.min(tableTotalPages, tablePage + 1)"
                                     class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:pointer-events-none transition">
                                 Next
                             </button>
@@ -339,7 +345,7 @@
                     </div>
                 @endif
             </div>
-        @endif
+        </div>
     </div>
 
     <!-- CREATE NEW PROJECT MODAL -->
