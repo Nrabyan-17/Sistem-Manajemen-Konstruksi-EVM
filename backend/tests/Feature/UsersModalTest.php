@@ -15,7 +15,9 @@ class UsersModalTest extends TestCase
             ->assertSet('showAddUserModal', true)
             ->assertSee('Add New User')
             ->assertSee('Full Name')
-            ->assertSee('Email Address');
+            ->assertSee('Email Address')
+            ->assertSee('Password')
+            ->assertDontSee('All Departments');
     }
 
     public function test_detail_modal_can_open_for_selected_user(): void
