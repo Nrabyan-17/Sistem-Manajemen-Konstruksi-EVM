@@ -201,8 +201,10 @@
                 </div>
             </div>
 
-            <div class="relative w-full mt-4" style="height:320px;">
-                <canvas id="sCurveChart"></canvas>
+            <div class="relative w-full mt-4" style="height:320px;" wire:ignore
+                 x-data="sCurveDetailChart"
+                 @weekly-progress-saved.window="$nextTick(() => renderChart())">
+                <canvas x-ref="sCurveCanvas" id="sCurveChart"></canvas>
             </div>
         </div>
 
@@ -1377,54 +1379,80 @@
 
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+@endpush
+
+@script
 <script>
-document.addEventListener('livewire:navigated', initSCurveChart);
-document.addEventListener('DOMContentLoaded', initSCurveChart);
-
-function initSCurveChart() {
-    const canvas = document.getElementById('sCurveChart');
-    if (!canvas || canvas.dataset.rendered) return;
-    canvas.dataset.rendered = '1';
-
-    new Chart(canvas, {
-        type: 'line',
-        data: {
-            labels: @json($sCurveWeeks),
-            datasets: [
-                { label: 'BCWS (Planned)', data: @json($sCurveBcws), borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2 },
-                { label: 'BCWP (Earned)', data: @json($sCurveBcwp), borderColor: '#16A34A', backgroundColor: 'rgba(22,163,74,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, spanGaps: false },
-                { label: 'ACWP (Actual)', data: @json($sCurveAcwp), borderColor: '#F97316', backgroundColor: 'rgba(249,115,22,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, borderDash: [5,3], spanGaps: false },
-                { label: 'Deviasi', data: @json($sCurveDeviasi), borderColor: '#E11D48', backgroundColor: 'rgba(225,29,72,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: false, pointRadius: 3, borderWidth: 2, borderDash: [3,3], spanGaps: false }
-            ]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 18 } },
-                tooltip: { 
-                    backgroundColor: '#0f172a', 
-                    padding: 10,
-                    callbacks: {
-                        label: (ctx) => {
-                            if (ctx.parsed.y === null || ctx.parsed.y === undefined) return '';
-                            const val = ctx.parsed.y;
-                            const formatted = Math.abs(val).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                            if (ctx.dataset.label.toLowerCase().includes('deviasi')) {
-                                const sign = val > 0 ? '+' : (val < 0 ? '-' : '');
-                                return ctx.dataset.label + ': ' + (val === 0 ? '' : sign) + 'Rp ' + formatted + ' Miliar';
-                            }
-                            return ctx.dataset.label + ': Rp ' + formatted + ' Miliar';
+    Alpine.data('sCurveDetailChart', () => ({
+        chartInstance: null,
+        init() {
+            this.$nextTick(() => this.renderChart());
+            this.$watch('tab', (v) => {
+                if (v === 'evm') {
+                    this.$nextTick(() => {
+                        if (this.chartInstance) {
+                            this.chartInstance.resize();
+                        } else {
+                            this.renderChart();
                         }
+                    });
+                }
+            });
+        },
+        renderChart() {
+            const canvas = this.$refs.sCurveCanvas;
+            if (!canvas) return;
+            if (typeof Chart === 'undefined') {
+                setTimeout(() => this.renderChart(), 80);
+                return;
+            }
+            const existing = Chart.getChart(canvas);
+            if (existing) existing.destroy();
+            if (this.chartInstance) {
+                this.chartInstance.destroy();
+                this.chartInstance = null;
+            }
+            this.chartInstance = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: @json($sCurveWeeks),
+                    datasets: [
+                        { label: 'BCWS (Planned)', data: @json($sCurveBcws), borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2 },
+                        { label: 'BCWP (Earned)', data: @json($sCurveBcwp), borderColor: '#16A34A', backgroundColor: 'rgba(22,163,74,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, spanGaps: false },
+                        { label: 'ACWP (Actual)', data: @json($sCurveAcwp), borderColor: '#F97316', backgroundColor: 'rgba(249,115,22,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, borderDash: [5,3], spanGaps: false },
+                        { label: 'Deviasi', data: @json($sCurveDeviasi), borderColor: '#E11D48', backgroundColor: 'rgba(225,29,72,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: false, pointRadius: 3, borderWidth: 2, borderDash: [3,3], spanGaps: false }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 18 } },
+                        tooltip: { 
+                            backgroundColor: '#0f172a', 
+                            padding: 10,
+                            callbacks: {
+                                label: (ctx) => {
+                                    if (ctx.parsed.y === null || ctx.parsed.y === undefined) return '';
+                                    const val = ctx.parsed.y;
+                                    const formatted = Math.abs(val).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                    if (ctx.dataset.label.toLowerCase().includes('deviasi')) {
+                                        const sign = val > 0 ? '+' : (val < 0 ? '-' : '');
+                                        return ctx.dataset.label + ': ' + (val === 0 ? '' : sign) + 'Rp ' + formatted + ' Miliar';
+                                    }
+                                    return ctx.dataset.label + ': Rp ' + formatted + ' Miliar';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: '#f1f5f9' }, ticks: { callback: (v) => 'Rp ' + v.toLocaleString('id-ID') + ' Miliar' } }
                     }
                 }
-            },
-            scales: {
-                x: { grid: { display: false } },
-                y: { grid: { color: '#f1f5f9' }, ticks: { callback: (v) => 'Rp ' + v.toLocaleString('id-ID') + ' Miliar' } }
-            }
+            });
         }
-    });
-}
+    }));
 </script>
-@endpush
+@endscript

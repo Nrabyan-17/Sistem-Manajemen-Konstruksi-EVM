@@ -2,8 +2,22 @@
     isDetailModalOpen: false,
     isApproveModalOpen: false,
     isRejectModalOpen: false,
+    selectedSubmissionData: {},
+    confirmApproveData: {},
+    rejectSubmissionData: {},
     toastMessage: '',
-    showToast: false
+    showToast: false,
+    formatRupiah(val) {
+        if (!val) return 'Rp 0';
+        return 'Rp ' + Number(val).toLocaleString('id-ID');
+    },
+    formatDate(val) {
+        if (!val) return '';
+        const d = new Date(val);
+        if (isNaN(d.getTime())) return val;
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        return String(d.getDate()).padStart(2, '0') + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+    }
 }"
 @open-detail-modal.window="isDetailModalOpen = true"
 @open-approve-modal.window="isApproveModalOpen = true"
@@ -129,9 +143,9 @@
         </div>
 
         @if($search !== '' || $statusFilter !== 'all' || $categoryFilter !== 'all')
-            <button wire:click="handleClearFilters" title="Reset Semua Filter"
+            <button wire:click="handleClearFilters" wire:target="handleClearFilters" wire:loading.attr="disabled" wire:loading.class="opacity-75 cursor-wait" title="Reset Semua Filter"
                     class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition shadow-xs cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg wire:loading.class="animate-spin text-blue-500" wire:target="handleClearFilters" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 Reset Filter
@@ -181,7 +195,8 @@
                                 default              => 'bg-slate-100 text-slate-600 border border-slate-200',
                             };
                         @endphp
-                        <tr class="hover:bg-slate-50/60 transition">
+                        <tr @click="selectedSubmissionData = @js($sub); isDetailModalOpen = true; $wire.showDetail('{{ $sub['submission_id'] }}')"
+                            class="hover:bg-slate-50/80 transition group cursor-pointer">
                             {{-- Submission Date --}}
                             <td class="px-6 py-3.5 whitespace-nowrap align-middle">
                                 <p class="text-xs font-bold text-slate-900 leading-tight whitespace-nowrap">{{ \Carbon\Carbon::parse($sub['submission_date'])->format('d M Y') }}</p>
@@ -190,7 +205,7 @@
 
                             {{-- Project Name --}}
                             <td class="px-6 py-3.5 whitespace-nowrap align-middle">
-                                <p class="text-xs font-bold text-slate-900 leading-tight whitespace-nowrap">{{ $sub['project_name'] }}</p>
+                                <p class="text-xs font-bold text-slate-900 leading-tight whitespace-nowrap group-hover:text-blue-600 transition-colors">{{ $sub['project_name'] }}</p>
                                 <p class="text-[10px] text-slate-400 font-mono mt-0.5 whitespace-nowrap">{{ $sub['project_id'] }}</p>
                             </td>
 
@@ -201,7 +216,7 @@
                                 </span>
                             </td>
 
-                            {{-- Submitted By (Clean, No Avatar, Compact) --}}
+                            {{-- Submitted By --}}
                             <td class="px-6 py-3.5 whitespace-nowrap align-middle">
                                 <div>
                                     <p class="text-xs font-bold text-slate-900 leading-tight whitespace-nowrap">{{ $sub['submitted_by_name'] }}</p>
@@ -238,23 +253,20 @@
                             </td>
 
                             {{-- Actions --}}
-                            <td class="px-6 py-3.5 text-center whitespace-nowrap align-middle">
+                            <td class="px-6 py-3.5 text-center whitespace-nowrap align-middle" @click.stop>
                                 @if($sub['status'] === 'PENDING')
                                     <div class="flex items-center justify-center gap-2">
-                                        <button wire:click="showDetail('{{ $sub['submission_id'] }}')" @click="isDetailModalOpen = true" title="Lihat Detail"
-                                                class="text-slate-400 hover:text-blue-600 transition p-1 hover:bg-slate-100 rounded-md cursor-pointer">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            </svg>
-                                        </button>
-                                        <button wire:click="showApproveConfirm('{{ $sub['submission_id'] }}')" @click="isApproveModalOpen = true" title="Approve"
+                                        <button type="button"
+                                                @click.stop="confirmApproveData = @js($sub); isApproveModalOpen = true; $wire.showApproveConfirm('{{ $sub['submission_id'] }}')"
+                                                title="Approve"
                                                 class="text-slate-400 hover:text-emerald-600 transition p-1 hover:bg-emerald-50 rounded-md cursor-pointer">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
                                             </svg>
                                         </button>
-                                        <button wire:click="showRejectModal('{{ $sub['submission_id'] }}')" title="Reject"
+                                        <button type="button"
+                                                @click.stop="rejectSubmissionData = @js($sub); isRejectModalOpen = true; $wire.showRejectModal('{{ $sub['submission_id'] }}')"
+                                                title="Reject"
                                                 class="text-slate-400 hover:text-rose-600 transition p-1 hover:bg-rose-50 rounded-md cursor-pointer">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -262,15 +274,7 @@
                                         </button>
                                     </div>
                                 @else
-                                    <div class="flex items-center justify-center">
-                                        <button wire:click="showDetail('{{ $sub['submission_id'] }}')" @click="isDetailModalOpen = true" title="Lihat Detail"
-                                                class="text-slate-400 hover:text-blue-600 transition p-1 hover:bg-slate-100 rounded-md cursor-pointer">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            </svg>
-                                        </button>
-                                    </div>
+                                    <span class="text-xs text-slate-300">-</span>
                                 @endif
                             </td>
                         </tr>
@@ -285,8 +289,15 @@
                                     </div>
                                     <p class="text-xs font-bold text-slate-500">No submissions found</p>
                                     <p class="text-[11px] text-slate-400">Tidak ada submission yang cocok dengan filter yang dipilih.</p>
-                                    <button wire:click="handleClearFilters" class="mt-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold transition shadow-sm cursor-pointer">
-                                        Reset Filter
+                                    <button wire:click="handleClearFilters" wire:target="handleClearFilters" wire:loading.attr="disabled" wire:loading.class="opacity-75 cursor-wait" class="mt-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold transition shadow-sm cursor-pointer">
+                                        <span wire:loading.remove wire:target="handleClearFilters">Reset Filter</span>
+                                        <span wire:loading wire:target="handleClearFilters" class="flex items-center gap-1.5">
+                                            <svg class="animate-spin w-3 h-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Resetting...
+                                        </span>
                                     </button>
                                 </div>
                             </td>
@@ -299,8 +310,8 @@
         {{-- Card Footer --}}
         <div class="px-6 py-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 bg-slate-50/40">
             <p>Showing <span class="font-bold text-slate-800">{{ count($filteredSubmissions) }}</span> of <span class="font-bold text-slate-800">{{ $totalAll }}</span> submissions</p>
-            <button wire:click="handleClearFilters" class="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-semibold cursor-pointer transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <button wire:click="handleClearFilters" wire:target="handleClearFilters" wire:loading.attr="disabled" wire:loading.class="opacity-50 cursor-wait" class="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-semibold cursor-pointer transition">
+                <svg wire:loading.class="animate-spin" wire:target="handleClearFilters" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 Reset Filter
@@ -309,107 +320,110 @@
     </div>
 
     {{-- DETAIL MODAL --}}
-        <template x-teleport="body">
+    <template x-teleport="body">
         <div x-show="isDetailModalOpen" x-cloak
             x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
             class="fixed inset-0 z-50 flex h-screen min-h-screen w-screen items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-        <div @click.outside="isDetailModalOpen = false; $wire.closeDetail()"
-               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-               x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
-             class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-100">
-            @if($selectedSubmission)
-            <div class="px-6 py-4 border-b border-slate-100 flex items-start justify-between">
-                <div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Detail Submission</p>
-                    <h3 class="text-sm font-extrabold text-slate-900 mt-0.5">{{ $selectedSubmission['submission_id'] }}</h3>
-                </div>
-                <button @click="isDetailModalOpen = false; $wire.closeDetail()" class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 transition shrink-0 cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div class="px-6 py-4 space-y-3.5 max-h-[65vh] overflow-y-auto">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-slate-50 rounded-xl p-3">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Proyek</p>
-                        <p class="text-xs font-bold text-slate-900 mt-0.5 leading-snug">{{ $selectedSubmission['project_name'] }}</p>
-                        <p class="text-[10px] text-slate-400 font-mono mt-0.5">{{ $selectedSubmission['project_id'] }}</p>
+            <div @click.outside="isDetailModalOpen = false; $wire.closeDetail()"
+                 x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                 class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-100">
+                
+                <div class="px-6 py-4 border-b border-slate-100 flex items-start justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Detail Submission</p>
+                        <h3 class="text-sm font-extrabold text-slate-900 mt-0.5" x-text="selectedSubmissionData.submission_id || ''"></h3>
                     </div>
-                    <div class="bg-slate-50 rounded-xl p-3">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Diajukan Oleh</p>
-                        <p class="text-xs font-bold text-slate-900 mt-0.5 leading-snug">{{ $selectedSubmission['submitted_by_name'] }}</p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">{{ $selectedSubmission['submitted_by_role'] }}</p>
-                    </div>
+                    <button type="button" @click="isDetailModalOpen = false; $wire.closeDetail()" class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 transition shrink-0 cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
                 </div>
 
-                @if(in_array($selectedSubmission['category'], ['Progress Payment', 'Weekly Progress']))
-                    <div class="bg-blue-50/70 rounded-xl p-3.5 space-y-2.5 border border-blue-100/60">
-                        <p class="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Laporan Progres — Minggu ke-{{ $selectedSubmission['detail']['week'] }}</p>
+                <div class="px-6 py-4 space-y-3.5 max-h-[65vh] overflow-y-auto">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-50 rounded-xl p-3">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Proyek</p>
+                            <p class="text-xs font-bold text-slate-900 mt-0.5 leading-snug" x-text="selectedSubmissionData.project_name || ''"></p>
+                            <p class="text-[10px] text-slate-400 font-mono mt-0.5" x-text="selectedSubmissionData.project_id || ''"></p>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl p-3">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Diajukan Oleh</p>
+                            <p class="text-xs font-bold text-slate-900 mt-0.5 leading-snug" x-text="selectedSubmissionData.submitted_by_name || ''"></p>
+                            <p class="text-[10px] text-slate-400 mt-0.5" x-text="selectedSubmissionData.submitted_by_role || ''"></p>
+                        </div>
+                    </div>
+
+                    {{-- Category: Progress Payment / Weekly Progress --}}
+                    <div x-show="['Progress Payment', 'Weekly Progress'].includes(selectedSubmissionData.category)"
+                         class="bg-blue-50/70 rounded-xl p-3.5 space-y-2.5 border border-blue-100/60">
+                        <p class="text-[10px] font-bold text-blue-700 uppercase tracking-wider" x-text="'Laporan Progres — Minggu ke-' + (selectedSubmissionData.detail?.week || '')"></p>
                         <div class="grid grid-cols-2 gap-2.5">
                             <div class="bg-white/80 rounded-lg p-2.5">
                                 <p class="text-[10px] text-slate-500 font-semibold">Rencana (BCWS)</p>
-                                <p class="text-base font-bold text-blue-700 mt-0.5">{{ number_format($selectedSubmission['detail']['plan_pct'], 2) }}%</p>
+                                <p class="text-base font-bold text-blue-700 mt-0.5" x-text="Number(selectedSubmissionData.detail?.plan_pct || 0).toFixed(2) + '%'"></p>
                             </div>
                             <div class="bg-white/80 rounded-lg p-2.5">
-                                @php $diff = $selectedSubmission['detail']['actual_pct'] - $selectedSubmission['detail']['plan_pct']; @endphp
                                 <p class="text-[10px] text-slate-500 font-semibold">Realisasi (BCWP)</p>
-                                <p class="text-base font-bold {{ $diff >= 0 ? 'text-emerald-600' : 'text-rose-600' }} mt-0.5">{{ number_format($selectedSubmission['detail']['actual_pct'], 2) }}%</p>
+                                <p class="text-base font-bold mt-0.5"
+                                   :class="((selectedSubmissionData.detail?.actual_pct || 0) - (selectedSubmissionData.detail?.plan_pct || 0)) >= 0 ? 'text-emerald-600' : 'text-rose-600'"
+                                   x-text="Number(selectedSubmissionData.detail?.actual_pct || 0).toFixed(2) + '%'"></p>
                             </div>
                         </div>
                         <div class="text-[11px] text-slate-600">
-                            <span class="font-semibold text-slate-500">Pelaksana:</span> {{ $selectedSubmission['detail']['executor'] }}
+                            <span class="font-semibold text-slate-500">Pelaksana:</span> <span x-text="selectedSubmissionData.detail?.executor || ''"></span>
                         </div>
-                        @if($selectedSubmission['detail']['note'])
-                        <div class="bg-amber-50 border border-amber-200/80 rounded-lg p-2.5">
+                        <div x-show="selectedSubmissionData.detail?.note" class="bg-amber-50 border border-amber-200/80 rounded-lg p-2.5">
                             <p class="text-[10px] font-bold text-amber-700 uppercase mb-0.5">Catatan</p>
-                            <p class="text-[11px] text-amber-800 leading-relaxed">{{ $selectedSubmission['detail']['note'] }}</p>
+                            <p class="text-[11px] text-amber-800 leading-relaxed" x-text="selectedSubmissionData.detail?.note || ''"></p>
                         </div>
-                        @endif
                     </div>
-                @elseif($selectedSubmission['category'] === 'Financial Addendum')
-                    <div class="bg-emerald-50/70 rounded-xl p-3.5 space-y-2.5 border border-emerald-100/60">
+
+                    {{-- Category: Financial Addendum --}}
+                    <div x-show="selectedSubmissionData.category === 'Financial Addendum'"
+                         class="bg-emerald-50/70 rounded-xl p-3.5 space-y-2.5 border border-emerald-100/60">
                         <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Detail Pengeluaran</p>
                         <div class="bg-white/80 rounded-lg p-2.5">
                             <p class="text-[10px] text-slate-500 font-semibold">Jenis Pengeluaran</p>
-                            <p class="text-xs font-bold text-slate-900 mt-0.5">{{ $selectedSubmission['detail']['expense_type'] }}</p>
+                            <p class="text-xs font-bold text-slate-900 mt-0.5" x-text="selectedSubmissionData.detail?.expense_type || ''"></p>
                         </div>
                         <div class="grid grid-cols-2 gap-2.5">
                             <div class="bg-white/80 rounded-lg p-2.5">
                                 <p class="text-[10px] text-slate-500 font-semibold">Nominal</p>
-                                <p class="text-sm font-bold text-emerald-700 mt-0.5">Rp {{ number_format($selectedSubmission['detail']['amount'], 0, ',', '.') }}</p>
+                                <p class="text-sm font-bold text-emerald-700 mt-0.5" x-text="formatRupiah(selectedSubmissionData.detail?.amount)"></p>
                             </div>
                             <div class="bg-white/80 rounded-lg p-2.5">
                                 <p class="text-[10px] text-slate-500 font-semibold">Tanggal</p>
-                                <p class="text-xs font-bold text-slate-900 mt-0.5">{{ \Carbon\Carbon::parse($selectedSubmission['detail']['date'])->format('d M Y') }}</p>
+                                <p class="text-xs font-bold text-slate-900 mt-0.5" x-text="formatDate(selectedSubmissionData.detail?.date)"></p>
                             </div>
                         </div>
-                        @if($selectedSubmission['detail']['note'])
-                        <div class="bg-white border border-emerald-200/80 rounded-lg p-2.5">
+                        <div x-show="selectedSubmissionData.detail?.note" class="bg-white border border-emerald-200/80 rounded-lg p-2.5">
                             <p class="text-[10px] font-bold text-slate-500 uppercase mb-0.5">Catatan</p>
-                            <p class="text-[11px] text-slate-700 leading-relaxed">{{ $selectedSubmission['detail']['note'] }}</p>
+                            <p class="text-[11px] text-slate-700 leading-relaxed" x-text="selectedSubmissionData.detail?.note || ''"></p>
                         </div>
-                        @endif
                     </div>
-                @elseif($selectedSubmission['category'] === 'Scope Change')
-                    <div class="bg-orange-50/70 rounded-xl p-3.5 space-y-2.5 border border-orange-100/60">
+
+                    {{-- Category: Scope Change --}}
+                    <div x-show="selectedSubmissionData.category === 'Scope Change'"
+                         class="bg-orange-50/70 rounded-xl p-3.5 space-y-2.5 border border-orange-100/60">
                         <p class="text-[10px] font-bold text-orange-700 uppercase tracking-wider">Perubahan Scope</p>
                         <div class="bg-white/80 rounded-lg p-2.5">
                             <p class="text-[10px] text-slate-500 font-semibold">Item Yang Diubah</p>
-                            <p class="text-xs font-bold text-slate-900 mt-0.5">{{ $selectedSubmission['detail']['item'] }}</p>
+                            <p class="text-xs font-bold text-slate-900 mt-0.5" x-text="selectedSubmissionData.detail?.item || ''"></p>
                         </div>
                         <div class="grid grid-cols-2 gap-2.5">
                             <div class="bg-rose-50/80 border border-rose-100 rounded-lg p-2.5">
                                 <p class="text-[10px] font-bold text-rose-600 uppercase mb-0.5">Nilai Lama</p>
-                                <p class="text-xs font-bold text-rose-700 line-through">{{ $selectedSubmission['detail']['old_value'] }}</p>
+                                <p class="text-xs font-bold text-rose-700 line-through" x-text="selectedSubmissionData.detail?.old_value || ''"></p>
                             </div>
                             <div class="bg-emerald-50/80 border border-emerald-100 rounded-lg p-2.5">
                                 <p class="text-[10px] font-bold text-emerald-600 uppercase mb-0.5">Nilai Baru</p>
-                                <p class="text-xs font-bold text-emerald-700">{{ $selectedSubmission['detail']['new_value'] }}</p>
+                                <p class="text-xs font-bold text-emerald-700" x-text="selectedSubmissionData.detail?.new_value || ''"></p>
                             </div>
                         </div>
                         <div>
                             <p class="text-[10px] text-slate-500 font-semibold">Alasan Perubahan</p>
-                            <p class="text-[11px] text-slate-700 leading-relaxed mt-0.5">{{ $selectedSubmission['detail']['reason'] }}</p>
+                            <p class="text-[11px] text-slate-700 leading-relaxed mt-0.5" x-text="selectedSubmissionData.detail?.reason || ''"></p>
                         </div>
                         <div class="bg-amber-50 border border-amber-200/80 rounded-lg p-2.5 flex items-start gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -418,146 +432,160 @@
                             <p class="text-[10px] text-amber-800 font-medium">Menyetujui perubahan ini akan otomatis menghitung ulang bobot dan BCWS proyek.</p>
                         </div>
                     </div>
-                @endif
 
-                @if($selectedSubmission['status'] === 'REJECTED' && $selectedSubmission['reject_reason'])
-                <div class="bg-rose-50 border border-rose-200 rounded-xl p-3">
-                    <p class="text-[10px] font-bold text-rose-700 uppercase tracking-wider mb-0.5">Alasan Penolakan</p>
-                    <p class="text-[11px] text-rose-800 leading-relaxed">{{ $selectedSubmission['reject_reason'] }}</p>
+                    {{-- Reject Reason (if REJECTED) --}}
+                    <div x-show="selectedSubmissionData.status === 'REJECTED' && selectedSubmissionData.reject_reason"
+                         class="bg-rose-50 border border-rose-200 rounded-xl p-3">
+                        <p class="text-[10px] font-bold text-rose-700 uppercase tracking-wider mb-0.5">Alasan Penolakan</p>
+                        <p class="text-[11px] text-rose-800 leading-relaxed" x-text="selectedSubmissionData.reject_reason || ''"></p>
+                    </div>
                 </div>
-                @endif
-            </div>
-            <div class="px-6 py-3.5 border-t border-slate-100 flex items-center justify-end gap-2.5 bg-slate-50/50">
-                <button @click="isDetailModalOpen = false; $wire.closeDetail()"
-                        class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition shadow-xs cursor-pointer">
-                    Tutup
-                </button>
-                @if($selectedSubmission['status'] === 'PENDING')
-                    <button wire:click="showRejectModal('{{ $selectedSubmission['submission_id'] }}')"
-                            x-on:click="isDetailModalOpen = false"
-                            class="px-4 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100 transition cursor-pointer">
-                        Reject
+
+                <div class="px-6 py-3.5 border-t border-slate-100 flex items-center justify-end gap-2.5 bg-slate-50/50">
+                    <button type="button" @click="isDetailModalOpen = false; $wire.closeDetail()"
+                            class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition shadow-xs cursor-pointer">
+                        Tutup
                     </button>
-                    <button wire:click="showApproveConfirm('{{ $selectedSubmission['submission_id'] }}')"
-                            x-on:click="isDetailModalOpen = false"
+                    <div x-show="selectedSubmissionData.status === 'PENDING'" class="flex items-center gap-2.5">
+                        <button type="button" @click="rejectSubmissionData = selectedSubmissionData; isDetailModalOpen = false; isRejectModalOpen = true; $wire.showRejectModal(selectedSubmissionData.submission_id)"
+                                class="px-4 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100 transition cursor-pointer">
+                            Reject
+                        </button>
+                        <button type="button" @click="confirmApproveData = selectedSubmissionData; isDetailModalOpen = false; isApproveModalOpen = true; $wire.showApproveConfirm(selectedSubmissionData.submission_id)"
+                                style="background-color: #16a34a !important; color: #ffffff !important;"
+                                class="px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm hover:opacity-90 flex items-center gap-1.5 cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Setuju
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    {{-- APPROVE CONFIRMATION MODAL --}}
+    <template x-teleport="body">
+        <div x-show="isApproveModalOpen" x-cloak
+            x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 flex h-screen min-h-screen w-screen items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div @click.outside="isApproveModalOpen = false; $wire.closeApproveConfirm()"
+                 x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                 class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 border border-slate-100">
+                
+                <div class="flex items-center gap-3 mb-3.5">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-900">Konfirmasi Approve</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Tindakan ini bersifat final dan tidak dapat dibatalkan.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-xl p-3 space-y-1.5 mb-3.5">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-500 font-semibold">Proyek</span>
+                        <span class="font-bold text-slate-900 text-right max-w-[55%] truncate" x-text="confirmApproveData.project_name || ''"></span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-500 font-semibold">Kategori</span>
+                        <span class="font-bold text-slate-900" x-text="confirmApproveData.category || ''"></span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-500 font-semibold">Diajukan Oleh</span>
+                        <span class="font-bold text-slate-900" x-text="confirmApproveData.submitted_by_name || ''"></span>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200/80 rounded-xl p-2.5 flex items-start gap-2 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <p class="text-[10px] text-amber-800 font-medium"
+                       x-text="['Progress Payment', 'Weekly Progress'].includes(confirmApproveData.category)
+                         ? 'Menyetujui ini akan memperbarui nilai BCWP dan memicu perhitungan ulang EVM (CPI & SPI) untuk proyek ini.'
+                         : (confirmApproveData.category === 'Financial Addendum'
+                           ? 'Menyetujui ini akan memperbarui nilai ACWP aktual dan memicu perhitungan ulang EAC proyek.'
+                           : (confirmApproveData.category === 'Scope Change'
+                             ? 'Menyetujui ini akan mengubah bobot RAB dan menghitung ulang BCWS seluruh periode proyek.'
+                             : 'Submission ini akan disetujui dan data proyek akan diperbarui.'))">
+                    </p>
+                </div>
+
+                <div class="flex items-center justify-end gap-2">
+                    <button type="button" @click="isApproveModalOpen = false; $wire.closeApproveConfirm()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition cursor-pointer">Batal</button>
+                    <button type="button" wire:click="confirmApprove"
                             style="background-color: #16a34a !important; color: #ffffff !important;"
                             class="px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm hover:opacity-90 flex items-center gap-1.5 cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                         </svg>
-                        Setuju
+                        Confirm Approve
                     </button>
-                @endif
-            </div>
-            @endif
-        </div>
-    </div>
-        </template>
-
-    {{-- APPROVE CONFIRMATION MODAL --}}
-        <template x-teleport="body">
-        <div x-show="isApproveModalOpen" x-cloak
-            x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-            x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 flex h-screen min-h-screen w-screen items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-        <div @click.outside="isApproveModalOpen = false; $wire.closeApproveConfirm()"
-               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-               x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
-             class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 border border-slate-100">
-            @if($confirmApproveData)
-            <div class="flex items-center gap-3 mb-3.5">
-                <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-sm font-extrabold text-slate-900">Konfirmasi Approve</h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Tindakan ini bersifat final dan tidak dapat dibatalkan.</p>
                 </div>
             </div>
-            <div class="bg-slate-50 rounded-xl p-3 space-y-1.5 mb-3.5">
-                <div class="flex justify-between text-xs"><span class="text-slate-500 font-semibold">Proyek</span><span class="font-bold text-slate-900 text-right max-w-[55%] truncate">{{ $confirmApproveData['project_name'] }}</span></div>
-                <div class="flex justify-between text-xs"><span class="text-slate-500 font-semibold">Kategori</span><span class="font-bold text-slate-900">{{ $confirmApproveData['category'] }}</span></div>
-                <div class="flex justify-between text-xs"><span class="text-slate-500 font-semibold">Diajukan Oleh</span><span class="font-bold text-slate-900">{{ $confirmApproveData['submitted_by_name'] }}</span></div>
-            </div>
-            @php
-                $approveWarning = match($confirmApproveData['category']) {
-                    'Progress Payment', 'Weekly Progress' => 'Menyetujui ini akan memperbarui nilai BCWP dan memicu perhitungan ulang EVM (CPI & SPI) untuk proyek ini.',
-                    'Financial Addendum' => 'Menyetujui ini akan memperbarui nilai ACWP aktual dan memicu perhitungan ulang EAC proyek.',
-                    'Scope Change' => 'Menyetujui ini akan mengubah bobot RAB dan menghitung ulang BCWS seluruh periode proyek.',
-                    default => 'Submission ini akan disetujui dan data proyek akan diperbarui.'
-                };
-            @endphp
-            <div class="bg-amber-50 border border-amber-200/80 rounded-xl p-2.5 flex items-start gap-2 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-                <p class="text-[10px] text-amber-800 font-medium">{{ $approveWarning }}</p>
-            </div>
-            <div class="flex items-center justify-end gap-2">
-                <button @click="isApproveModalOpen = false; $wire.closeApproveConfirm()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition cursor-pointer">Batal</button>
-                <button wire:click="confirmApprove"
-                        style="background-color: #16a34a !important; color: #ffffff !important;"
-                        class="px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm hover:opacity-90 flex items-center gap-1.5 cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    Confirm Approve
-                </button>
-            </div>
-            @endif
         </div>
-    </div>
     </template>
 
     {{-- REJECT REASON MODAL --}}
-    <div x-show="isRejectModalOpen"
-         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
-         style="display: none;">
-        <div @click.outside="isRejectModalOpen = false; $wire.closeRejectModal()"
-             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-             class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 border border-slate-100">
-            <div class="flex items-center gap-3 mb-3.5">
-                <div class="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+    <template x-teleport="body">
+        <div x-show="isRejectModalOpen" x-cloak
+             x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-50 flex h-screen min-h-screen w-screen items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div @click.outside="isRejectModalOpen = false; $wire.closeRejectModal()"
+                 x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                 class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 border border-slate-100">
+                
+                <div class="flex items-center gap-3 mb-3.5">
+                    <div class="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-900">Reject Submission</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5"
+                           x-text="(rejectSubmissionData.submission_id || '') + (rejectSubmissionData.project_name ? ' — ' + rejectSubmissionData.project_name : '')">
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-sm font-extrabold text-slate-900">Reject Submission</h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5">
-                        @if($rejectSubmissionData){{ $rejectSubmissionData['submission_id'] }} — {{ $rejectSubmissionData['project_name'] }}@endif
-                    </p>
+
+                <div class="mb-3.5">
+                    <label for="reject-reason-textarea" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                        Keterangan Alasan Penolakan <span class="text-rose-500">*</span>
+                    </label>
+                    <textarea id="reject-reason-textarea"
+                              wire:model.live="rejectReason"
+                              rows="3"
+                              placeholder="Tuliskan alasan penolakan secara jelas dan spesifik..."
+                              class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition resize-none"></textarea>
+                    @error('rejectReason')
+                        <p class="text-[10px] text-rose-600 mt-0.5 font-semibold">{{ $message }}</p>
+                    @enderror
+                    <p class="text-[10px] text-slate-400 mt-0.5" x-text="($wire.rejectReason ? $wire.rejectReason.length : 0) + ' karakter (minimal 10)'"></p>
                 </div>
-            </div>
-            <div class="mb-3.5">
-                <label for="reject-reason-textarea" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                    Keterangan Alasan Penolakan <span class="text-rose-500">*</span>
-                </label>
-                <textarea id="reject-reason-textarea"
-                          wire:model.live="rejectReason"
-                          rows="3"
-                          placeholder="Tuliskan alasan penolakan secara jelas dan spesifik..."
-                          class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition resize-none"></textarea>
-                @error('rejectReason')
-                    <p class="text-[10px] text-rose-600 mt-0.5 font-semibold">{{ $message }}</p>
-                @enderror
-                <p class="text-[10px] text-slate-400 mt-0.5" x-text="($wire.rejectReason ? $wire.rejectReason.length : 0) + ' karakter (minimal 10)'">{{ strlen($rejectReason) }} karakter (minimal 10)</p>
-            </div>
-            <div class="flex items-center justify-end gap-2">
-                <button @click="isRejectModalOpen = false; $wire.closeRejectModal()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition cursor-pointer">Batal</button>
-                <button wire:click="confirmReject"
-                        :disabled="(!$wire.rejectReason || $wire.rejectReason.length < 10)"
-                        :style="($wire.rejectReason && $wire.rejectReason.length >= 10)
-                            ? 'background-color: #dc2626 !important; color: #ffffff !important; cursor: pointer;'
-                            : 'background-color: #e2e8f0 !important; color: #94a3b8 !important; cursor: not-allowed;'"
-                        style="background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed;"
-                        class="px-4 py-2 rounded-xl text-xs font-bold transition shadow-xs">
-                    Confirm Reject
-                </button>
+
+                <div class="flex items-center justify-end gap-2">
+                    <button type="button" @click="isRejectModalOpen = false; $wire.closeRejectModal()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition cursor-pointer">Batal</button>
+                    <button type="button" wire:click="confirmReject"
+                            :disabled="(!$wire.rejectReason || $wire.rejectReason.length < 10)"
+                            :style="($wire.rejectReason && $wire.rejectReason.length >= 10)
+                                ? 'background-color: #dc2626 !important; color: #ffffff !important; cursor: pointer;'
+                                : 'background-color: #e2e8f0 !important; color: #94a3b8 !important; cursor: not-allowed;'"
+                            style="background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed;"
+                            class="px-4 py-2 rounded-xl text-xs font-bold transition shadow-xs">
+                        Confirm Reject
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    </template>
 
 </div>
+

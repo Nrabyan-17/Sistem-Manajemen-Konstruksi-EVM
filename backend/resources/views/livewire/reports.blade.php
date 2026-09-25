@@ -119,17 +119,7 @@
                     <option value="COMPLETED">Completed</option>
                 </select>
             </div>
-            <div>
-                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Project Manager</label>
-                <select wire:model.live="pmFilter" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                    <option value="all">All Managers</option>
-                    <option value="Andi Pratama">Andi Pratama</option>
-                    <option value="Budi Santoso">Budi Santoso</option>
-                    <option value="Dimas Wijaya">Dimas Wijaya</option>
-                    <option value="Rizky Ramadhan">Rizky Ramadhan</option>
-                    <option value="Fajar Nugroho">Fajar Nugroho</option>
-                </select>
-            </div>
+
             <div>
                 <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Report Type</label>
                 <select wire:model.live="reportType" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">

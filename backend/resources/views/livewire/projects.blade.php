@@ -101,14 +101,7 @@
                 <option value="COMPLETED">Completed</option>
             </select>
 
-            <select wire:model.live="pmFilter" class="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                <option value="all">All Managers</option>
-                <option value="Andi Pratama">Andi Pratama</option>
-                <option value="Budi Santoso">Budi Santoso</option>
-                <option value="Dimas Wijaya">Dimas Wijaya</option>
-                <option value="Rizky Ramadhan">Rizky Ramadhan</option>
-                <option value="Fajar Nugroho">Fajar Nugroho</option>
-            </select>
+
 
             <select wire:model.live="periodFilter" class="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                 <option value="all">All Period</option>
