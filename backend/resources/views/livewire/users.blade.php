@@ -10,49 +10,57 @@
 }">
 
     {{-- Page Header --}}
-    <div class="flex items-start gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Users</h1>
-            <p class="mt-1 text-sm text-slate-500">Manage users, roles, and access permissions across the EVM Dashboard.</p>
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">Users</h1>
+            <p class="text-slate-500 text-xs sm:text-sm mt-0.5 sm:mt-1">Manage users, roles, and access permissions across the EVM Dashboard.</p>
         </div>
     </div>
 
     {{-- KPI Cards --}}
-    <div class="flex gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
 
         {{-- Total Users --}}
-        <div class="flex-1 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <p class="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Total Users</p>
-            <p class="mt-2 text-3xl font-bold text-slate-900">{{ $totalUsers }}</p>
-            <p class="mt-1 text-xs text-slate-500">Directory size</p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+                <p class="text-[10px] sm:text-xs font-bold tracking-wider text-slate-400 uppercase truncate">Total Users</p>
+                <p class="mt-1.5 sm:mt-2 text-2xl sm:text-3xl font-extrabold text-slate-900 truncate">{{ $totalUsers }}</p>
+            </div>
+            <p class="mt-1 text-[11px] sm:text-xs text-slate-400 truncate">Directory size</p>
         </div>
 
         {{-- Active Users --}}
-        <div class="flex-1 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <p class="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Active Users</p>
-            <p class="mt-2 text-3xl font-bold text-emerald-600">{{ $activeUsers }}</p>
-            <p class="mt-1 text-xs text-slate-500">Authenticated</p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+                <p class="text-[10px] sm:text-xs font-bold tracking-wider text-slate-400 uppercase truncate">Active Users</p>
+                <p class="mt-1.5 sm:mt-2 text-2xl sm:text-3xl font-extrabold text-emerald-600 truncate">{{ $activeUsers }}</p>
+            </div>
+            <p class="mt-1 text-[11px] sm:text-xs text-slate-400 truncate">Authenticated</p>
         </div>
 
         {{-- Pending Invitations --}}
-        <div class="flex-1 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <p class="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Pending Invitations</p>
-            <p class="mt-2 text-3xl font-bold text-amber-500">{{ $pendingUsers }}</p>
-            <p class="mt-1 text-xs text-slate-500">Awaiting acceptance</p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+                <p class="text-[10px] sm:text-xs font-bold tracking-wider text-slate-400 uppercase truncate">Pending Invitations</p>
+                <p class="mt-1.5 sm:mt-2 text-2xl sm:text-3xl font-extrabold text-amber-500 truncate">{{ $pendingUsers }}</p>
+            </div>
+            <p class="mt-1 text-[11px] sm:text-xs text-slate-400 truncate">Awaiting acceptance</p>
         </div>
 
         {{-- Inactive Users --}}
-        <div class="flex-1 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <p class="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Inactive Users</p>
-            <p class="mt-2 text-3xl font-bold text-slate-400">{{ $inactiveUsers }}</p>
-            <p class="mt-1 text-xs text-slate-500">Access revoked</p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+                <p class="text-[10px] sm:text-xs font-bold tracking-wider text-slate-400 uppercase truncate">Inactive Users</p>
+                <p class="mt-1.5 sm:mt-2 text-2xl sm:text-3xl font-extrabold text-slate-400 truncate">{{ $inactiveUsers }}</p>
+            </div>
+            <p class="mt-1 text-[11px] sm:text-xs text-slate-400 truncate">Access revoked</p>
         </div>
 
     </div>
 
     {{-- Search & Filters --}}
-    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-wrap items-center gap-3">
-        <div class="relative flex-1 min-w-[220px]">
+    <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3">
+        <div class="relative flex-1 min-w-[200px]">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5A6.5 6.5 0 114 10.5a6.5 6.5 0 0113 0z" />
             </svg>
@@ -62,30 +70,32 @@
                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
         </div>
 
-        <select wire:model.live="roleFilter"
-                class="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition cursor-pointer">
-            <option value="">All Roles</option>
-            @foreach($roles as $role)
-                <option value="{{ $role }}">{{ $role }}</option>
-            @endforeach
-        </select>
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3">
+            <select wire:model.live="roleFilter"
+                    class="w-full sm:w-auto px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                <option value="">All Roles</option>
+                @foreach($roles as $role)
+                    <option value="{{ $role }}">{{ $role }}</option>
+                @endforeach
+            </select>
 
-        <select wire:model.live="statusFilter"
-                class="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition cursor-pointer">
-            <option value="">All Status</option>
-            <option value="Active">Active</option>
-            <option value="Pending">Pending</option>
-            <option value="Inactive">Inactive</option>
-        </select>
+            <select wire:model.live="statusFilter"
+                    class="w-full sm:w-auto px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
+                <option value="Inactive">Inactive</option>
+            </select>
 
-        <button type="button"
-            @click="addUserModal = true; $wire.openAddUserModal()"
-                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition shadow-sm shadow-blue-500/30 shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Add User
-        </button>
+            <button type="button"
+                @click="addUserModal = true; $wire.openAddUserModal()"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition shadow-md shadow-blue-500/20 shrink-0 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Add User
+            </button>
+        </div>
     </div>
 
     {{-- Users Table --}}

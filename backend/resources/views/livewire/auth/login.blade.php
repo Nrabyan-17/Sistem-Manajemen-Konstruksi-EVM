@@ -1,6 +1,6 @@
 <div class="min-h-screen flex flex-col md:flex-row font-sans antialiased bg-white">
-    <!-- ============ LEFT PANEL — HERO ============ -->
-    <div class="relative w-full md:w-1/2 min-h-[420px] md:min-h-screen flex flex-col justify-between overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-300">
+    <!-- ============ LEFT PANEL — HERO (Hidden on mobile) ============ -->
+    <div class="hidden md:flex relative w-full md:w-1/2 min-h-screen flex-col justify-between overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-300">
         <!-- subtle building/window texture overlay -->
         <div class="absolute inset-0 opacity-20"
              style="background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.25) 0 2px, transparent 2px 34px), repeating-linear-gradient(90deg, rgba(255,255,255,0.25) 0 2px, transparent 2px 34px);"></div>
@@ -45,7 +45,7 @@
     </div>
 
     <!-- ============ RIGHT PANEL — FORM ============ -->
-    <div class="relative w-full md:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 py-12 bg-white">
+    <div class="relative w-full md:w-1/2 min-h-screen flex flex-col justify-center px-6 sm:px-12 md:px-16 lg:px-24 py-10 sm:py-12 bg-white">
         <div class="w-full max-w-md mx-auto">
             <!-- logo / brand -->
             <div class="flex items-center gap-3 mb-10">

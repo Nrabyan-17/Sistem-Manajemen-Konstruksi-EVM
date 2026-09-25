@@ -31,59 +31,52 @@
     </div>
 
     <!-- Title & Action Bar -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Projects</h1>
-            <p class="text-slate-500 text-sm mt-1">Manage and monitor all construction projects</p>
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">Projects</h1>
+            <p class="text-slate-500 text-xs sm:text-sm mt-0.5 sm:mt-1">Manage and monitor all construction projects</p>
         </div>
-        <button @click="isNewModalOpen = true"
-                class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition shadow-sm shrink-0">
-            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" stroke="currentColor" stroke-width="1.8"/>
-                <path d="M12 8.2V15.8M8.2 12H15.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            New Project
-        </button>
     </div>
 
     <!-- KPI Dashboard Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mt-6">
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <p class="text-xs text-slate-500 font-semibold">Total Projects</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-1">{{ $kpiTotal }}</p>
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mt-4 sm:mt-6">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition">
+            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide truncate">Total Projects</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5 sm:mt-1">{{ $kpiTotal }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <p class="text-xs text-slate-500 font-semibold">Completed</p>
-            <p class="text-2xl font-extrabold text-blue-600 mt-1">{{ $kpiCompleted }}</p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition">
+            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide truncate">Completed</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-blue-600 mt-0.5 sm:mt-1">{{ $kpiCompleted }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <p class="text-xs text-slate-500 font-semibold">On Track</p>
-            <p class="text-2xl font-extrabold text-emerald-600 mt-1">{{ $kpiOnTrack }}</p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition">
+            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide truncate">On Track</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-0.5 sm:mt-1">{{ $kpiOnTrack }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <p class="text-xs text-slate-500 font-semibold">At Risk</p>
-            <p class="text-2xl font-extrabold text-orange-600 mt-1">{{ $kpiAtRisk }}</p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition">
+            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide truncate">At Risk</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-orange-600 mt-0.5 sm:mt-1">{{ $kpiAtRisk }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <p class="text-xs text-slate-500 font-semibold">Critical</p>
-            <p class="text-2xl font-extrabold text-red-600 mt-1">{{ $kpiCritical }}</p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition">
+            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide truncate">Critical</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-red-600 mt-0.5 sm:mt-1">{{ $kpiCritical }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-            <p class="text-xs text-slate-500 font-semibold">Total Contract Value</p>
-            <p class="text-xl font-extrabold text-slate-900 mt-1" title="{{ \App\Support\CurrencyHelper::formatFull($kpiTotalContract) }}">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition">
+            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide truncate">Total Contract Value</p>
+            <p class="text-lg xs:text-xl font-extrabold text-slate-900 mt-0.5 sm:mt-1 truncate" title="{{ \App\Support\CurrencyHelper::formatFull($kpiTotalContract) }}">
                 {{ \App\Support\CurrencyHelper::format($kpiTotalContract) }}
             </p>
         </div>
     </div>
 
-    <!-- Filtering Section -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 mt-6">
-        <div class="flex flex-col lg:flex-row gap-3">
+    <!-- Filtering & Action Section -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 mt-4 sm:mt-6">
+        <div class="flex flex-col xl:flex-row gap-3 items-stretch xl:items-center">
+            <!-- Search Input -->
             <div class="relative flex-1">
                 <svg viewBox="0 0 24 24" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <circle cx="10.5" cy="10.5" r="5.5" stroke="currentColor" stroke-width="1.8"/>
@@ -93,31 +86,41 @@
                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
             </div>
 
-            <select wire:model.live="statusFilter" class="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                <option value="all">All Status</option>
-                <option value="ON TRACK">On Track</option>
-                <option value="AT RISK">At Risk</option>
-                <option value="CRITICAL">Critical</option>
-                <option value="COMPLETED">Completed</option>
-            </select>
+            <!-- Filters & Buttons Wrapper -->
+            <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+                <select wire:model.live="statusFilter" class="w-full sm:w-auto px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition shrink-0 cursor-pointer">
+                    <option value="all">All Status</option>
+                    <option value="ON TRACK">On Track</option>
+                    <option value="AT RISK">At Risk</option>
+                    <option value="CRITICAL">Critical</option>
+                    <option value="COMPLETED">Completed</option>
+                </select>
 
+                <select wire:model.live="periodFilter" class="w-full sm:w-auto px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition shrink-0 cursor-pointer">
+                    <option value="all">All Period</option>
+                    <option value="month">This Month</option>
+                    <option value="quarter">This Quarter</option>
+                    <option value="year">This Year</option>
+                </select>
 
+                <button wire:click="handleClearFilters"
+                        class="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition shadow-2xs shrink-0 cursor-pointer">
+                    <svg viewBox="0 0 24 24" class="w-4 h-4 text-slate-400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/>
+                        <path d="M9.1 14.9L14.9 9.1M14.9 14.9L9.1 9.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Clear Filters
+                </button>
 
-            <select wire:model.live="periodFilter" class="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                <option value="all">All Period</option>
-                <option value="month">This Month</option>
-                <option value="quarter">This Quarter</option>
-                <option value="year">This Year</option>
-            </select>
-
-            <button wire:click="handleClearFilters"
-                    class="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition shrink-0">
-                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/>
-                    <path d="M9.1 14.9L14.9 9.1M14.9 14.9L9.1 9.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Clear Filters
-            </button>
+                <button @click="isNewModalOpen = true"
+                        class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition shadow-md shadow-blue-500/20 shrink-0 cursor-pointer">
+                    <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" stroke="currentColor" stroke-width="1.8"/>
+                        <path d="M12 8.2V15.8M8.2 12H15.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    New Project
+                </button>
+            </div>
         </div>
     </div>
 
