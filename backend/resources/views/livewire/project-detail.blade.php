@@ -257,7 +257,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            @foreach($weeklyProgress as $wp)
+                            @foreach(collect($weeklyProgress)->sortByDesc('week') as $wp)
                                 @php
                                     $dev = $wp['deviasi'] ?? round(($wp['plan_pct'] ?? 0) - ($wp['actual_pct'] ?? 0), 2);
                                 @endphp
@@ -727,7 +727,7 @@
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                 <div>
                     <h3 class="text-base font-extrabold text-slate-900">Input Laporan Mingguan</h3>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Perbarui data progres mingguan secara manual atau melalui file Excel/CSV</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Perbarui data progres mingguan secara manual atau melalui file PDF</p>
                 </div>
                 <button type="button" @click="showWeeklyModal = false; $wire.closeWeeklyModal()" class="text-slate-400 hover:text-slate-600 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -826,37 +826,19 @@
                         </div>
                     </div>
 
-                    {{-- Upload Excel/CSV dan preview berada dalam form yang sama dengan input manual --}}
+                    {{-- Upload PDF dan preview berada dalam form yang sama dengan input manual --}}
                 <div class="space-y-4 text-xs text-slate-700">
-                    {{-- Template Download Bar --}}
-                    <div class="p-3 bg-blue-50/70 rounded-xl border border-blue-100 flex items-center justify-between gap-3">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            </div>
-                            <div>
-                                <p class="font-bold text-slate-900 text-xs">Download Format Template</p>
-                                <p class="text-[10px] text-slate-500">Kolom: Minggu, Tanggal Mulai, Selesai, Rencana (%), Realisasi (%)</p>
-                            </div>
-                        </div>
-                        <button type="button" wire:click="downloadWeeklyTemplate"
-                                class="px-3 py-1.5 bg-white border border-blue-200 hover:bg-blue-50 text-blue-700 rounded-lg font-bold text-xs transition shadow-2xs shrink-0 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                            Unduh CSV
-                        </button>
-                    </div>
-
                     {{-- Upload Dropzone --}}
                     <div>
-                        <label class="block font-bold text-slate-800 mb-1.5">Unggah File Laporan (.xlsx, .xls, .csv)</label>
+                        <label class="block font-bold text-slate-800 mb-1.5">Unggah File Laporan (.pdf)</label>
                         <div class="relative border-2 border-dashed border-slate-200 hover:border-blue-400 bg-slate-50/60 rounded-xl p-5 text-center transition cursor-pointer">
-                            <input type="file" wire:model="weeklyImportFile" accept=".xlsx,.xls,.csv,.txt" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                            <input type="file" wire:model="weeklyImportFile" accept=".pdf,application/pdf" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
                             <div class="flex flex-col items-center justify-center pointer-events-none">
                                 <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-2">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                                 </div>
-                                <p class="font-bold text-slate-700 text-xs">Klik atau seret file laporan Excel/CSV ke sini</p>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Format file: .xlsx, .xls, .csv (Maks 10MB)</p>
+                                <p class="font-bold text-slate-700 text-xs">Klik atau seret file laporan PDF ke sini</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Format file: .pdf (Maks 10MB)</p>
                             </div>
                         </div>
                         @error('weeklyImportFile') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
@@ -872,7 +854,7 @@
                     <div wire:loading wire:target="weeklyImportFile" class="text-center py-2">
                         <span class="inline-flex items-center gap-2 text-xs font-semibold text-blue-600">
                             <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            Membaca dan memvalidasi file Excel...
+                            Membaca dan memvalidasi file PDF...
                         </span>
                     </div>
 
@@ -1070,7 +1052,7 @@
                             :class="addendumModalTab === 'rab' ? 'border-emerald-500 text-emerald-800 bg-white font-bold shadow-2xs' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium'"
                             class="px-3 py-2 text-xs rounded-t-xl border-b-2 transition flex items-center gap-1.5 shrink-0">
                         <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
-                        <span>Upload Excel RAB Addendum</span>
+                        <span>Upload PDF RAB Addendum</span>
                         @if($addendumRabFile)
                             <span class="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"></span>
                         @endif
@@ -1081,7 +1063,7 @@
                             :class="addendumModalTab === 'time_schedule' ? 'border-blue-500 text-blue-800 bg-white font-bold shadow-2xs' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium'"
                             class="px-3 py-2 text-xs rounded-t-xl border-b-2 transition flex items-center gap-1.5 shrink-0">
                         <svg class="w-3.5 h-3.5 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
-                        <span>Upload Excel Time Schedule Addendum</span>
+                        <span>Upload PDF Time Schedule Addendum</span>
                         @if($addendumTsFile)
                             <span class="w-2 h-2 rounded-full bg-blue-500 ring-2 ring-white"></span>
                         @endif
@@ -1166,40 +1148,40 @@
                     {{-- Status Lampiran File --}}
                     <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2">
-                            <span class="text-slate-500 font-semibold text-[11px]">Lampiran:</span>
+                            <span class="text-slate-500 font-semibold text-[11px]">Lampiran PDF:</span>
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $addendumRabFile ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500' }}">
-                                RAB: {{ $addendumRabFile ? '✓ Terlampir' : 'Kosong' }}
+                                RAB: {{ $addendumRabFile ? '✓ PDF Terlampir' : 'Kosong' }}
                             </span>
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $addendumTsFile ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-500' }}">
-                                TS: {{ $addendumTsFile ? '✓ Terlampir' : 'Kosong' }}
+                                TS: {{ $addendumTsFile ? '✓ PDF Terlampir' : 'Kosong' }}
                             </span>
                         </div>
                         <button type="button" @click="addendumModalTab = 'rab'" class="text-[11px] font-bold text-amber-600 hover:text-amber-700 hover:underline">
-                            Kelola Lampiran →
+                            Kelola Lampiran PDF →
                         </button>
                     </div>
                 </div>
 
-                {{-- TAB 2: UPLOAD EXCEL RAB ADDENDUM --}}
+                {{-- TAB 2: UPLOAD PDF RAB ADDENDUM --}}
                 <div x-show="addendumModalTab === 'rab'" class="space-y-4 py-1">
                     <div class="p-3.5 bg-emerald-50/70 rounded-xl border border-emerald-200/80 flex items-start gap-3">
                         <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                         </div>
                         <div>
-                            <h4 class="text-xs font-bold text-emerald-950">Upload Excel RAB Addendum</h4>
-                            <p class="text-[11px] text-emerald-700 mt-0.5">Unggah rincian item pekerjaan tambah/kurang beserta volume & harga satuan dalam format file Excel (.xlsx, .xls, .csv Maks. 10MB).</p>
+                            <h4 class="text-xs font-bold text-emerald-950">Upload PDF RAB Addendum</h4>
+                            <p class="text-[11px] text-emerald-700 mt-0.5">Unggah rincian item pekerjaan tambah/kurang beserta volume & harga satuan dalam format dokumen PDF (.pdf Maks. 10MB).</p>
                         </div>
                     </div>
 
                     @if(!$addendumRabFile)
                         <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-emerald-400 rounded-2xl p-8 bg-slate-50/50 hover:bg-emerald-50/30 transition cursor-pointer group text-center">
-                            <input type="file" wire:model="addendumRabFile" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" class="hidden" />
+                            <input type="file" wire:model="addendumRabFile" accept=".pdf,application/pdf" class="hidden" />
                             <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center group-hover:scale-110 transition shadow-2xs mb-3">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                             </div>
-                            <p class="text-xs font-bold text-slate-800 group-hover:text-emerald-700 transition">Pilih file Excel RAB Addendum</p>
-                            <p class="text-[10px] text-slate-400 mt-1">Klik untuk menjelajah file dari komputer Anda (.xlsx, .xls, .csv)</p>
+                            <p class="text-xs font-bold text-slate-800 group-hover:text-emerald-700 transition">Pilih file PDF RAB Addendum</p>
+                            <p class="text-[10px] text-slate-400 mt-1">Klik untuk menjelajah file dari komputer Anda (.pdf)</p>
                         </label>
                     @else
                         <div class="p-4 bg-emerald-50/80 border border-emerald-200 rounded-2xl flex items-center justify-between">
@@ -1209,10 +1191,10 @@
                                 </div>
                                 <div class="truncate">
                                     <p class="text-xs font-bold text-emerald-950 truncate">{{ $addendumRabFile->getClientOriginalName() }}</p>
-                                    <p class="text-[10px] text-emerald-700 mt-0.5">{{ number_format($addendumRabFile->getSize() / 1024, 1) }} KB • Siap dilampirkan</p>
+                                    <p class="text-[10px] text-emerald-700 mt-0.5">{{ number_format($addendumRabFile->getSize() / 1024, 1) }} KB • Dokumen PDF siap dilampirkan</p>
                                 </div>
                             </div>
-                            <button type="button" wire:click="removeAddendumRabFile" class="text-slate-400 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition" title="Hapus file">
+                            <button type="button" wire:click="removeAddendumRabFile" class="text-slate-400 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition cursor-pointer" title="Hapus file">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </div>
@@ -1220,31 +1202,31 @@
 
                     <div wire:loading wire:target="addendumRabFile" class="text-xs text-emerald-600 font-semibold flex items-center gap-1.5">
                         <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        Mengunggah file Excel RAB...
+                        Mengunggah file PDF RAB...
                     </div>
                     @error('addendumRabFile') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
-                {{-- TAB 3: UPLOAD EXCEL TIME SCHEDULE ADDENDUM --}}
+                {{-- TAB 3: UPLOAD PDF TIME SCHEDULE ADDENDUM --}}
                 <div x-show="addendumModalTab === 'time_schedule'" class="space-y-4 py-1">
                     <div class="p-3.5 bg-blue-50/70 rounded-xl border border-blue-200/80 flex items-start gap-3">
                         <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                         </div>
                         <div>
-                            <h4 class="text-xs font-bold text-blue-950">Upload Excel Time Schedule Addendum</h4>
-                            <p class="text-[11px] text-blue-700 mt-0.5">Unggah penyesuaian jadwal Kurva S / Time Schedule addendum dalam format spreadsheet (.xlsx, .xls, .csv Maks. 10MB).</p>
+                            <h4 class="text-xs font-bold text-blue-950">Upload PDF Time Schedule Addendum</h4>
+                            <p class="text-[11px] text-blue-700 mt-0.5">Unggah dokumen penyesuaian jadwal Kurva S / Time Schedule addendum dalam format PDF (.pdf Maks. 10MB).</p>
                         </div>
                     </div>
 
                     @if(!$addendumTsFile)
                         <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-2xl p-8 bg-slate-50/50 hover:bg-blue-50/30 transition cursor-pointer group text-center">
-                            <input type="file" wire:model="addendumTsFile" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" class="hidden" />
+                            <input type="file" wire:model="addendumTsFile" accept=".pdf,application/pdf" class="hidden" />
                             <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center group-hover:scale-110 transition shadow-2xs mb-3">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                             </div>
-                            <p class="text-xs font-bold text-slate-800 group-hover:text-blue-700 transition">Pilih file Time Schedule Addendum</p>
-                            <p class="text-[10px] text-slate-400 mt-1">Klik untuk menjelajah file dari komputer Anda (.xlsx, .xls, .csv)</p>
+                            <p class="text-xs font-bold text-slate-800 group-hover:text-blue-700 transition">Pilih file PDF Time Schedule Addendum</p>
+                            <p class="text-[10px] text-slate-400 mt-1">Klik untuk menjelajah file dari komputer Anda (.pdf)</p>
                         </label>
                     @else
                         <div class="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl flex items-center justify-between">
@@ -1254,10 +1236,10 @@
                                 </div>
                                 <div class="truncate">
                                     <p class="text-xs font-bold text-blue-950 truncate">{{ $addendumTsFile->getClientOriginalName() }}</p>
-                                    <p class="text-[10px] text-blue-700 mt-0.5">{{ number_format($addendumTsFile->getSize() / 1024, 1) }} KB • Siap dilampirkan</p>
+                                    <p class="text-[10px] text-blue-700 mt-0.5">{{ number_format($addendumTsFile->getSize() / 1024, 1) }} KB • Dokumen PDF siap dilampirkan</p>
                                 </div>
                             </div>
-                            <button type="button" wire:click="removeAddendumTsFile" class="text-slate-400 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition" title="Hapus file">
+                            <button type="button" wire:click="removeAddendumTsFile" class="text-slate-400 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition cursor-pointer" title="Hapus file">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </div>
@@ -1265,7 +1247,7 @@
 
                     <div wire:loading wire:target="addendumTsFile" class="text-xs text-blue-600 font-semibold flex items-center gap-1.5">
                         <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        Mengunggah file Time Schedule...
+                        Mengunggah file PDF Time Schedule...
                     </div>
                     @error('addendumTsFile') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                 </div>
@@ -1361,14 +1343,56 @@
                     @error('timeReason') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
+                {{-- Upload Dokumen Justifikasi / Surat Addendum Waktu (PDF) --}}
+                <div>
+                    <label class="block font-bold text-slate-800 mb-1.5">Unggah Dokumen Pendukung Addendum Waktu (.pdf)</label>
+                    
+                    @if(!$addendumTimePdfFile)
+                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl p-4 bg-slate-50/50 hover:bg-indigo-50/30 transition cursor-pointer group text-center">
+                            <input type="file" wire:model="addendumTimePdfFile" accept=".pdf,application/pdf" class="hidden" />
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center group-hover:scale-105 transition shadow-2xs mb-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                            </div>
+                            <p class="text-xs font-bold text-slate-800 group-hover:text-indigo-700 transition">Pilih file PDF Surat / Dokumen Pendukung</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Format file: .pdf (Maks. 10MB) • Opsional</p>
+                        </label>
+                    @else
+                        <div class="p-3.5 bg-indigo-50/80 border border-indigo-200 rounded-2xl flex items-center justify-between">
+                            <div class="flex items-center gap-3 overflow-hidden">
+                                <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                </div>
+                                <div class="truncate">
+                                    <p class="text-xs font-bold text-indigo-950 truncate">{{ $addendumTimePdfFile->getClientOriginalName() }}</p>
+                                    <p class="text-[10px] text-indigo-700 mt-0.5">{{ number_format($addendumTimePdfFile->getSize() / 1024, 1) }} KB • Siap dilampirkan</p>
+                                </div>
+                            </div>
+                            <button type="button" wire:click="removeAddendumTimePdfFile" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-xl hover:bg-rose-50 transition" title="Hapus file">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    @endif
+
+                    <div wire:loading wire:target="addendumTimePdfFile" class="text-xs text-indigo-600 font-semibold flex items-center gap-1.5 mt-1.5">
+                        <svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Mengunggah dokumen PDF...
+                    </div>
+                    @error('addendumTimePdfFile') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                </div>
+
                 <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                     <button type="button" @click="showAddendumTimeModal = false" 
                             class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
                         Batal
                     </button>
                     <button type="submit" 
-                            class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition shadow-md shadow-indigo-500/25">
-                        Simpan Addendum Waktu
+                            wire:loading.attr="disabled"
+                            class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition shadow-md shadow-indigo-500/25 flex items-center gap-1.5">
+                        <span wire:loading.remove wire:target="submitAddendumTime">Simpan Addendum Waktu</span>
+                        <span wire:loading wire:target="submitAddendumTime" class="flex items-center gap-1">
+                            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Menyimpan...
+                        </span>
                     </button>
                 </div>
             </form>
@@ -1420,7 +1444,7 @@
                         { label: 'BCWS (Planned)', data: @json($sCurveBcws), borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2 },
                         { label: 'BCWP (Earned)', data: @json($sCurveBcwp), borderColor: '#16A34A', backgroundColor: 'rgba(22,163,74,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, spanGaps: false },
                         { label: 'ACWP (Actual)', data: @json($sCurveAcwp), borderColor: '#F97316', backgroundColor: 'rgba(249,115,22,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, borderDash: [5,3], spanGaps: false },
-                        { label: 'Deviasi', data: @json($sCurveDeviasi), borderColor: '#E11D48', backgroundColor: 'rgba(225,29,72,0.08)', cubicInterpolationMode: 'monotone', tension: 0.4, fill: false, pointRadius: 3, borderWidth: 2, borderDash: [3,3], spanGaps: false }
+                        { label: 'Deviasi', data: @json($sCurveDeviasi), borderColor: '#E11D48', backgroundColor: 'rgba(225,29,72,0.8)', showLine: false, pointRadius: 0, pointHoverRadius: 0, pointHitRadius: 0, borderWidth: 0, fill: false, spanGaps: false }
                     ]
                 },
                 options: {
@@ -1428,7 +1452,15 @@
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
                     plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 18 } },
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { 
+                                usePointStyle: true, 
+                                boxWidth: 8, 
+                                padding: 18,
+                                filter: (item) => item.text !== 'Deviasi'
+                            } 
+                        },
                         tooltip: { 
                             backgroundColor: '#0f172a', 
                             padding: 10,

@@ -19,6 +19,84 @@ class Reports extends Component
     public $toastMessage = '';
     public $showToast = false;
 
+    // Pop form / project detail modal state
+    public bool $showProjectModal = false;
+    public ?array $selectedProjectData = null;
+
+    public function openProjectModal(string $projectId)
+    {
+        $allProjects = ProjectMockData::all();
+        foreach ($allProjects as $p) {
+            if ($p['project_id'] === $projectId) {
+                $bac = (float) $p['contract_value'];
+                $progress = (float) $p['progress'];
+                $cpi = (float) ($p['cpi'] ?? 1);
+                $spi = (float) ($p['spi'] ?? 1);
+                $bcwp = $bac * ($progress / 100);
+                $acwp = $cpi > 0 ? $bcwp / $cpi : $bcwp;
+                $bcws = $spi > 0 ? $bcwp / $spi : $bcwp;
+                $cv = $bcwp - $acwp;
+                $sv = $bcwp - $bcws;
+                $eac = (float) ($p['eac'] ?? ($cpi > 0 ? $bac / $cpi : $bac));
+                $vac = $bac - $eac;
+
+                $plannedProgress = $bac > 0 ? min(100, round(($bcws / $bac) * 100, 1)) : 0;
+
+                // Evaluasi status
+                $costStatus = $cpi >= 1.0 ? 'Under Budget' : 'Over Budget';
+                $costDesc = $cpi >= 1.0 ? 'Pengeluaran biaya lebih hemat dari nilai progres' : 'Pengeluaran biaya aktual melebihi nilai progres terpasang';
+                
+                $schedStatus = $spi >= 1.0 ? 'On Schedule' : 'Behind Schedule';
+                $schedDesc = $spi >= 1.0 ? 'Progres fisik di lapangan sesuai/lebih cepat dari rencana' : 'Progres fisik di lapangan mengalami keterlambatan';
+
+                if ($cpi < 1.0 && $spi < 1.0) {
+                    $diagnosticType = 'critical';
+                    $diagnosticTitle = 'Kondisi Kritis (Over Budget & Terlambat)';
+                    $diagnosticMessage = 'Proyek mengalami keterlambatan progres sekaligus pembengkakan biaya riil. Diperlukan mitigasi percepatan dan audit pengeluaran.';
+                } elseif ($cpi < 1.0) {
+                    $diagnosticType = 'warning';
+                    $diagnosticTitle = 'Peringatan Biaya (Over Budget)';
+                    $diagnosticMessage = 'Progres fisik berjalan sesuai target, namun pengeluaran aktual melebihi anggaran rencana.';
+                } elseif ($spi < 1.0) {
+                    $diagnosticType = 'warning';
+                    $diagnosticTitle = 'Peringatan Jadwal (Terlambat)';
+                    $diagnosticMessage = 'Biaya proyek terkendali dengan baik, namun progres fisik di lapangan tertinggal dari target rencana mingguan.';
+                } else {
+                    $diagnosticType = 'success';
+                    $diagnosticTitle = 'Performa Sangat Baik (On Track)';
+                    $diagnosticMessage = 'Proyek berjalan tepat waktu dengan efisiensi biaya yang sangat baik di bawah pagu anggaran.';
+                }
+
+                $this->selectedProjectData = array_merge($p, [
+                    'bac' => $bac,
+                    'bcwp' => $bcwp,
+                    'acwp' => $acwp,
+                    'bcws' => $bcws,
+                    'cv' => $cv,
+                    'sv' => $sv,
+                    'eac' => $eac,
+                    'vac' => $vac,
+                    'planned_progress' => $plannedProgress,
+                    'cost_status' => $costStatus,
+                    'cost_desc' => $costDesc,
+                    'sched_status' => $schedStatus,
+                    'sched_desc' => $schedDesc,
+                    'diagnostic_type' => $diagnosticType,
+                    'diagnostic_title' => $diagnosticTitle,
+                    'diagnostic_message' => $diagnosticMessage,
+                ]);
+                $this->showProjectModal = true;
+                break;
+            }
+        }
+    }
+
+    public function closeProjectModal()
+    {
+        $this->showProjectModal = false;
+        $this->selectedProjectData = null;
+    }
+
     public function handleClearFilters()
     {
         $this->selectedProject = '';

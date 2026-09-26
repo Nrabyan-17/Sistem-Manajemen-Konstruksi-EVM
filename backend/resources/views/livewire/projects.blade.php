@@ -38,37 +38,44 @@
         </div>
     </div>
 
-    <!-- KPI Dashboard Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mt-4 sm:mt-6">
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition">
-            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide truncate">Total Projects</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5 sm:mt-1">{{ $kpiTotal }}</p>
+    <!-- KPI Dashboard Grid (Sejajar 1 Baris Samping-sampingan) -->
+    <div class="grid gap-2.5 sm:gap-3 mt-4 sm:mt-6" style="grid-template-columns: repeat(7, minmax(0, 1fr));">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-sm hover:shadow-md transition min-w-0">
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate" title="Total Projects">Total Projects</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">{{ $kpiTotal }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition">
-            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide truncate">Completed</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-blue-600 mt-0.5 sm:mt-1">{{ $kpiCompleted }}</p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-sm hover:shadow-md transition min-w-0">
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate" title="Completed">Completed</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-blue-600 mt-1">{{ $kpiCompleted }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition">
-            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide truncate">On Track</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-0.5 sm:mt-1">{{ $kpiOnTrack }}</p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-sm hover:shadow-md transition min-w-0">
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate" title="On Track">On Track</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-1">{{ $kpiOnTrack }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition">
-            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide truncate">At Risk</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-orange-600 mt-0.5 sm:mt-1">{{ $kpiAtRisk }}</p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-sm hover:shadow-md transition min-w-0">
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate" title="At Risk">At Risk</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-orange-600 mt-1">{{ $kpiAtRisk }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition">
-            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide truncate">Critical</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-red-600 mt-0.5 sm:mt-1">{{ $kpiCritical }}</p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-sm hover:shadow-md transition min-w-0">
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate" title="Critical">Critical</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-red-600 mt-1">{{ $kpiCritical }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition">
-            <p class="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide truncate">Total Contract Value</p>
-            <p class="text-lg xs:text-xl font-extrabold text-slate-900 mt-0.5 sm:mt-1 truncate" title="{{ \App\Support\CurrencyHelper::formatFull($kpiTotalContract) }}">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-sm hover:shadow-md transition min-w-0">
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate" title="Total Contract Value">Total Contract</p>
+            <p class="text-sm sm:text-base xl:text-lg font-extrabold text-slate-900 mt-1 truncate" title="{{ \App\Support\CurrencyHelper::formatFull($kpiTotalContract) }}">
                 {{ \App\Support\CurrencyHelper::format($kpiTotalContract) }}
+            </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-sm hover:shadow-md transition min-w-0">
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate" title="Real Cost (ACWP)">Real Cost</p>
+            <p class="text-sm sm:text-base xl:text-lg font-extrabold text-slate-900 mt-1 truncate" title="{{ \App\Support\CurrencyHelper::formatFull($kpiTotalRealCost) }}">
+                {{ \App\Support\CurrencyHelper::format($kpiTotalRealCost) }}
             </p>
         </div>
     </div>

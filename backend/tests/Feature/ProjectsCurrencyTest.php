@@ -13,6 +13,7 @@ class ProjectsCurrencyTest extends TestCase
     {
         Livewire::test(Projects::class)
             ->assertStatus(200)
+            ->assertSee('Real Cost (ACWP)')
             ->assertSee('Rp 82,7 Miliar') // Total contract KPI
             ->assertSee('Rp 12,5 Miliar') // PRJ-001 Contract Value
             ->assertSee('Rp 18 Miliar')   // PRJ-002 Contract Value

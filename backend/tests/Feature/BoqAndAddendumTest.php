@@ -47,7 +47,7 @@ class BoqAndAddendumTest extends TestCase
             ->assertSee('BIAYA (COST)');
     }
 
-    public function test_addendum_cost_modal_has_automatic_fields_and_supports_excel_upload(): void
+    public function test_addendum_cost_modal_has_automatic_fields_and_supports_pdf_upload(): void
     {
         $component = Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001']);
 
@@ -55,16 +55,16 @@ class BoqAndAddendumTest extends TestCase
         $component->call('openAddendumCostModal')
             ->assertSet('addendumTitle', 'Add tambah kurang volume')
             ->assertSee('Add tambah kurang volume')
-            ->assertSee('Upload Excel RAB Addendum')
-            ->assertSee('Upload Excel Time Schedule Addendum')
+            ->assertSee('Upload PDF RAB Addendum')
+            ->assertSee('Upload PDF Time Schedule Addendum')
             ->assertSee('Grand Horizon Tower')
             ->assertSee('Tgl Kontrak')
             ->assertSee('Tgl BAST')
             ->assertSee('Nilai Kontrak');
 
-        // Create a fake excel upload
-        $file = \Illuminate\Http\UploadedFile::fake()->create('rab_addendum_v1.xlsx', 150, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        $timeScheduleFile = \Illuminate\Http\UploadedFile::fake()->create('ts_addendum_v1.xlsx', 120, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        // Create a fake PDF upload
+        $file = \Illuminate\Http\UploadedFile::fake()->create('rab_addendum_v1.pdf', 150, 'application/pdf');
+        $timeScheduleFile = \Illuminate\Http\UploadedFile::fake()->create('ts_addendum_v1.pdf', 120, 'application/pdf');
         $component->set('addendumRabFile', $file)
             ->set('addendumTsFile', $timeScheduleFile)
             ->set('addendumValue', 750000000)
@@ -76,16 +76,21 @@ class BoqAndAddendumTest extends TestCase
         $lastAddendum = end($addendums);
         $this->assertEquals('Add tambah kurang volume', $lastAddendum['title']);
         $this->assertEquals(750000000, $lastAddendum['value']);
-        $this->assertEquals('rab_addendum_v1.xlsx', $lastAddendum['attachment']);
-        $this->assertEquals('ts_addendum_v1.xlsx', $lastAddendum['time_schedule_attachment']);
+        $this->assertEquals('rab_addendum_v1.pdf', $lastAddendum['attachment']);
+        $this->assertEquals('ts_addendum_v1.pdf', $lastAddendum['time_schedule_attachment']);
     }
 
     public function test_input_addendum_time_updates_bast_date_and_remaining_days(): void
     {
+        $pdfFile = \Illuminate\Http\UploadedFile::fake()->create('surat_permohonan_eot.pdf', 80, 'application/pdf');
+
         $component = Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
+            ->call('openAddendumTimeModal')
+            ->assertSee('Unggah Dokumen Pendukung Addendum Waktu (.pdf)')
             ->set('addDays', 45)
             ->set('timeTitle', 'EOT Cuaca Ekstrem')
             ->set('timeReason', 'Hujan ekstrem berkepanjangan menghambat pekerjaan struktur')
+            ->set('addendumTimePdfFile', $pdfFile)
             ->call('submitAddendumTime')
             ->assertDispatched('addendum-time-saved')
             ->assertSee('+45 Hari')
@@ -94,6 +99,10 @@ class BoqAndAddendumTest extends TestCase
 
         $this->assertEquals(45, $component->get('totalDaysAdded'));
         $this->assertNotEmpty($component->get('effectiveBastDate'));
+
+        $addendums = $component->get('addendums');
+        $last = end($addendums);
+        $this->assertEquals('surat_permohonan_eot.pdf', $last['attachment'] ?? null);
     }
 
     public function test_only_pending_addendum_can_be_edited(): void
@@ -147,15 +156,37 @@ class BoqAndAddendumTest extends TestCase
         $this->assertEquals('2.50', $component->get('inputPlanPct'));
     }
 
-    public function test_weekly_modal_supports_excel_import_and_template_download(): void
+    public function test_weekly_modal_supports_pdf_upload(): void
     {
-        Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
+        $file = \Illuminate\Http\UploadedFile::fake()->create('laporan_mingguan.pdf', 50, 'application/pdf');
+
+        $component = Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
             ->call('openWeeklyModal')
-            ->call('setWeeklyModalMode', 'import')
-            ->assertSet('weeklyModalMode', 'import')
-            ->assertSee('Download Format Template')
-            ->assertSee('Unggah File Laporan (.xlsx, .xls, .csv)')
-            ->call('downloadWeeklyTemplate')
-            ->assertFileDownloaded();
+            ->assertSee('Unggah File Laporan (.pdf)')
+            ->assertSee('Klik atau seret file laporan PDF ke sini')
+            ->assertDontSee('Download Format Template')
+            ->assertDontSee('Unduh CSV')
+            ->set('weeklyImportFile', $file)
+            ->assertSet('importError', '');
+
+        $this->assertNotEmpty($component->get('importPreviewRows'));
+
+        $component->call('processWeeklyImport')
+            ->assertDispatched('weekly-progress-saved');
+    }
+
+    public function test_weekly_progress_table_is_sorted_descending_by_week(): void
+    {
+        $component = Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001']);
+        $html = $component->html();
+
+        // Check that W25 appears before W1 in the rendered table
+        $posW25 = strpos($html, 'W25');
+        $posW1 = strpos($html, 'W1</td>');
+
+        $this->assertNotFalse($posW25);
+        $this->assertNotFalse($posW1);
+        $this->assertLessThan($posW1, $posW25, 'Week 25 should appear before Week 1 in the table');
     }
 }
+

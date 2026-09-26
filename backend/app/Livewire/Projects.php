@@ -237,6 +237,14 @@ class Projects extends Component
         $kpiAtRisk = count(array_filter($this->projects, fn($p) => $p['status'] === 'AT RISK'));
         $kpiCritical = count(array_filter($this->projects, fn($p) => $p['status'] === 'CRITICAL'));
         $kpiTotalContract = array_reduce($this->projects, fn($acc, $p) => $acc + $p['contract_value'], 0);
+        $kpiTotalRealCost = array_reduce($this->projects, function ($acc, $p) {
+            $bac = (float) ($p['contract_value'] ?? 0);
+            $progress = (float) ($p['progress'] ?? 0);
+            $bcwp = $bac * ($progress / 100);
+            $cpi = (float) ($p['cpi'] ?? 1);
+            $acwp = $cpi > 0 ? $bcwp / $cpi : 0;
+            return $acc + $acwp;
+        }, 0);
 
         return view('livewire.projects', [
             'filteredProjects' => $filtered,
@@ -248,6 +256,7 @@ class Projects extends Component
             'kpiAtRisk' => $kpiAtRisk,
             'kpiCritical' => $kpiCritical,
             'kpiTotalContract' => $kpiTotalContract,
+            'kpiTotalRealCost' => $kpiTotalRealCost,
         ])->layout('components.layouts.app');
     }
 }
