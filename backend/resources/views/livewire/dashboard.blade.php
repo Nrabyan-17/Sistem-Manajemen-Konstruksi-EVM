@@ -380,17 +380,20 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     animation: {
-                        duration: 500,
-                        easing: 'easeOutQuart'
+                        duration: (ctx) => (ctx.chart && ctx.chart._initialAnimDone ? 0 : 1500),
+                        easing: 'easeOutQuart',
+                        onComplete: (anim) => {
+                            if (anim.chart) anim.chart._initialAnimDone = true;
+                        }
                     },
                     animations: {
                         y: {
                             type: 'number',
                             easing: 'easeOutQuart',
-                            duration: 500,
+                            duration: (ctx) => (ctx.chart && ctx.chart._initialAnimDone ? 0 : 1500),
                             from: (ctx) => {
-                                if (ctx.type === 'data') {
-                                    return ctx.chart.scales.y.getPixelForValue(0);
+                                if (ctx.type === 'data' && (!ctx.chart || !ctx.chart._initialAnimDone)) {
+                                    return ctx.chart && ctx.chart.scales && ctx.chart.scales.y ? ctx.chart.scales.y.getPixelForValue(0) : undefined;
                                 }
                             }
                         }
@@ -523,8 +526,23 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     animation: {
-                        duration: 500,
-                        easing: 'easeOutQuart'
+                        duration: (ctx) => (ctx.chart && ctx.chart._initialAnimDone ? 0 : 1500),
+                        easing: 'easeOutQuart',
+                        onComplete: (anim) => {
+                            if (anim.chart) anim.chart._initialAnimDone = true;
+                        }
+                    },
+                    animations: {
+                        x: {
+                            type: 'number',
+                            easing: 'easeOutQuart',
+                            duration: (ctx) => (ctx.chart && ctx.chart._initialAnimDone ? 0 : 1500),
+                            from: (ctx) => {
+                                if (ctx.type === 'data' && (!ctx.chart || !ctx.chart._initialAnimDone)) {
+                                    return ctx.chart && ctx.chart.scales && ctx.chart.scales.x ? ctx.chart.scales.x.getPixelForValue(0) : undefined;
+                                }
+                            }
+                        }
                     },
                     plugins: {
                         legend: { display: false },
