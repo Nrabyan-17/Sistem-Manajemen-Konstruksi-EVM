@@ -69,7 +69,7 @@
             </div>
 
             <!-- Alpine Chart Wrapper -->
-            <div x-data="sCurveChart"
+            <div x-data="sCurveChart" wire:ignore
                  class="relative h-[240px] xs:h-[280px] sm:h-[320px] w-full overflow-hidden">
                 <canvas x-ref="sCurveCanvas" class="w-full h-full"></canvas>
             </div>
@@ -114,7 +114,7 @@
             </div>
 
             <!-- Finance Bar Chart -->
-            <div x-data="financeChart"
+            <div x-data="financeChart" wire:ignore
                  class="relative h-[200px] sm:h-[240px] w-full overflow-hidden mt-4 sm:mt-6">
                 <canvas x-ref="financeCanvas" class="w-full h-full"></canvas>
             </div>
@@ -250,17 +250,21 @@
 
 @script
 <script>
+    const __dashboardProjectData = @json($projectData);
+    const __dashboardWeeks = @json($weeks);
+    const __dashboardInitialKey = @json($projectKey);
+
     Alpine.data('sCurveChart', () => ({
         chart: null,
+        chartInitialized: false,
         dashboardActivatedHandler: null,
         resizeHandler: null,
         init() {
             this.dashboardActivatedHandler = () => {
-                requestAnimationFrame(() => requestAnimationFrame(() => {
-                    if (this.$el.offsetParent !== null) {
-                        this.renderChart(this.$wire.projectKey);
-                    }
-                }));
+                if (this.$el.offsetParent !== null) {
+                    this.chartInitialized = true;
+                    this.renderChart(this.$wire.projectKey || __dashboardInitialKey);
+                }
             };
             this.resizeHandler = () => {
                 if (this.chart && this.$el.offsetParent !== null) {
@@ -270,6 +274,14 @@
             window.addEventListener('dashboard-activated', this.dashboardActivatedHandler);
             window.addEventListener('sidebar-toggled', this.resizeHandler);
             window.addEventListener('resize', this.resizeHandler);
+            // Fallback: render if dashboard-activated microtask didn't fire first
+            // setTimeout(0) = macrotask, fires AFTER $nextTick microtasks
+            setTimeout(() => {
+                if (this.$el.offsetParent !== null && !this.chartInitialized) {
+                    this.chartInitialized = true;
+                    this.renderChart(__dashboardInitialKey);
+                }
+            }, 0);
             this.$wire.on('project-changed', (event) => {
                 setTimeout(() => this.renderChart(event.projectKey), 50);
             });
@@ -302,8 +314,9 @@
             }
 
             const ctx = this.$refs.sCurveCanvas.getContext('2d');
-            const data = this.$wire.projectData[key];
-            const weeks = this.$wire.weeks;
+            const allData = __dashboardProjectData;
+            const data = allData[key] || allData[__dashboardInitialKey];
+            const weeks = __dashboardWeeks;
             
             const blueGradient = ctx.createLinearGradient(0, 0, 0, 320);
             blueGradient.addColorStop(0, 'rgba(37, 99, 235, 0.25)');
@@ -367,8 +380,20 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     animation: {
-                        duration: 800,
-                        easing: 'easeInOutQuart'
+                        duration: 500,
+                        easing: 'easeOutQuart'
+                    },
+                    animations: {
+                        y: {
+                            type: 'number',
+                            easing: 'easeOutQuart',
+                            duration: 500,
+                            from: (ctx) => {
+                                if (ctx.type === 'data') {
+                                    return ctx.chart.scales.y.getPixelForValue(0);
+                                }
+                            }
+                        }
                     },
                     interaction: {
                         mode: 'index',
@@ -420,15 +445,15 @@
 
     Alpine.data('financeChart', () => ({
         chart: null,
+        chartInitialized: false,
         dashboardActivatedHandler: null,
         resizeHandler: null,
         init() {
             this.dashboardActivatedHandler = () => {
-                requestAnimationFrame(() => requestAnimationFrame(() => {
-                    if (this.$el.offsetParent !== null) {
-                        this.renderFinanceChart();
-                    }
-                }));
+                if (this.$el.offsetParent !== null) {
+                    this.chartInitialized = true;
+                    this.renderFinanceChart();
+                }
             };
             this.resizeHandler = () => {
                 if (this.chart && this.$el.offsetParent !== null) {
@@ -438,6 +463,13 @@
             window.addEventListener('dashboard-activated', this.dashboardActivatedHandler);
             window.addEventListener('sidebar-toggled', this.resizeHandler);
             window.addEventListener('resize', this.resizeHandler);
+            // Fallback: render if dashboard-activated microtask didn't fire first
+            setTimeout(() => {
+                if (this.$el.offsetParent !== null && !this.chartInitialized) {
+                    this.chartInitialized = true;
+                    this.renderFinanceChart();
+                }
+            }, 0);
         },
         destroy() {
             if (this.dashboardActivatedHandler) {
@@ -491,8 +523,8 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     animation: {
-                        duration: 800,
-                        easing: 'easeInOutQuart'
+                        duration: 500,
+                        easing: 'easeOutQuart'
                     },
                     plugins: {
                         legend: { display: false },

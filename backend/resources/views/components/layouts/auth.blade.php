@@ -12,10 +12,12 @@
     
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body class="h-full font-sans antialiased bg-white text-slate-800">
 
     {{ $slot }}
 
+    @livewireScripts
 </body>
 </html>

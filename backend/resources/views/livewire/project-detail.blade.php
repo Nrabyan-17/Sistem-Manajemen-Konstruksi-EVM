@@ -4,6 +4,7 @@
     showRabModal: false,
     showAddendumCostModal: false,
     showAddendumTimeModal: false,
+    showEditProjectModal: @entangle('showEditProjectModal'),
     addendumModalTab: 'detail',
     toastMessage: '',
     showToast: false
@@ -112,7 +113,7 @@
             <button @click="tab = 'activity'" :class="tab === 'activity' ? 'bg-blue-600 text-white' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Activity</button>
         </div>
         <div class="flex items-center gap-2 ml-auto">
-            <button wire:click="openEditProjectModal"
+            <button @click="showEditProjectModal = true; $wire.openEditProjectModal()"
                     class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M4 20h4l10.768-10.768a2.5 2.5 0 00-3.536-3.536L4.464 16.464A2 2 0 004 17.878V20z" />
@@ -550,20 +551,36 @@
     </div>
 
     {{-- MODAL: EDIT PROJECT MASTER DATA --}}
-    @if($showEditProjectModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-            <div wire:click.outside="closeEditProjectModal" class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-slate-200">
-                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-900">Edit Project</h3>
-                        <p class="text-xs text-slate-500 mt-1">Update project master data without changing project history.</p>
-                    </div>
-                    <button type="button" wire:click="closeEditProjectModal" class="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+    <div x-show="showEditProjectModal"
+         x-transition:enter="transition ease-out duration-500"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-500"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4"
+         style="display: none;"
+         x-cloak>
+        <div @click.outside="showEditProjectModal = false; $wire.closeEditProjectModal()"
+             x-show="showEditProjectModal"
+             x-transition:enter="transition ease-out duration-500"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-500"
+             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+             x-transition:leave-end="opacity-0 scale-95 translate-y-4"
+             class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900">Edit Project</h3>
+                    <p class="text-xs text-slate-500 mt-1">Update project master data without changing project history.</p>
                 </div>
+                <button type="button" @click="showEditProjectModal = false; $wire.closeEditProjectModal()" class="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
 
                 <form wire:submit.prevent="updateProject" class="p-6 space-y-5">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -574,11 +591,13 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">SPK Number</label>
-                            <input type="text" wire:model="editSpkNumber" readonly class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-sm text-slate-500 cursor-not-allowed focus:outline-none" />
+                            <input type="text" wire:model="editSpkNumber" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            @error('editSpkNumber') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Client</label>
-                            <input type="text" wire:model="editClient" readonly class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-sm text-slate-500 cursor-not-allowed focus:outline-none" />
+                            <input type="text" wire:model="editClient" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            @error('editClient') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Project Manager</label>
@@ -587,7 +606,8 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Location</label>
-                            <input type="text" wire:model="editLocation" readonly class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-sm text-slate-500 cursor-not-allowed focus:outline-none" />
+                            <input type="text" wire:model="editLocation" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            @error('editLocation') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold tracking-wider uppercase text-slate-400 mb-1.5">Contract Value (Rp)</label>
@@ -632,7 +652,7 @@
                                     <path d="M15.8 8.5H18.5V11.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                                     <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/>
                                 </svg>
-                                <p class="text-[10px] font-bold text-slate-600 mt-2">Import Kurva S</p>
+                                <p class="text-[10px] font-bold text-slate-600 mt-2">Upload/Import Time-Schedule via Excel</p>
                                 <p class="text-[9px] text-slate-400 mt-0.5">Mg ke, Tgl Awal, Tgl Akhir, Rencana, Kumulatif</p>
                                 @if($editSCurveImport)
                                     <p class="text-[9px] text-blue-600 font-semibold mt-2 truncate">{{ $editSCurveImport->getClientOriginalName() }}</p>
@@ -643,13 +663,12 @@
                     </div>
 
                     <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-                        <button type="button" wire:click="closeEditProjectModal" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
+                        <button type="button" @click="showEditProjectModal = false; $wire.closeEditProjectModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
                         <button type="submit" class="px-4 py-2.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition shadow-sm shadow-blue-500/25">Save Changes</button>
                     </div>
                 </form>
             </div>
         </div>
-    @endif
 
     {{-- MODAL: EDIT PENDING ADDENDUM --}}
     <div x-data="{ show: @entangle('showEditAddendumModal') }"

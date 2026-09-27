@@ -220,6 +220,16 @@ class ProjectDetail extends Component
         $preview = clone $baseBast;
         $preview->modify("+30 days");
         $this->previewBastDate = $preview->format('d M Y');
+
+        // Populate edit modal fields immediately
+        $this->editProjectName = $project['project_name'];
+        $this->editSpkNumber = $project['spk_number'];
+        $this->editClient = $project['client'];
+        $this->editProjectManager = $project['project_manager'];
+        $this->editLocation = $project['location'];
+        $this->editContractValue = (string) $project['contract_value'];
+        $this->editStartDate = $project['start_date'];
+        $this->editBastDate = $project['bast_date'];
     }
 
     public function updatedAddDays($val)
@@ -232,14 +242,6 @@ class ProjectDetail extends Component
 
     public function openEditProjectModal(): void
     {
-        $this->editProjectName = $this->project['project_name'];
-        $this->editSpkNumber = $this->project['spk_number'];
-        $this->editClient = $this->project['client'];
-        $this->editProjectManager = $this->project['project_manager'];
-        $this->editLocation = $this->project['location'];
-        $this->editContractValue = (string) $this->project['contract_value'];
-        $this->editStartDate = $this->project['start_date'];
-        $this->editBastDate = $this->project['bast_date'];
         $this->showEditProjectModal = true;
     }
 

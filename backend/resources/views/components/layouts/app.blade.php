@@ -17,6 +17,7 @@
     
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 
     <link rel="prefetch" href="{{ route('dashboard') }}">
     <link rel="prefetch" href="{{ route('projects') }}">
@@ -26,7 +27,7 @@
 </head>
 <body class="h-full overflow-hidden text-slate-800 antialiased font-sans no-scrollbar" 
       x-data="{ 
-          isSidebarOpen: window.innerWidth >= 1280, 
+          isSidebarOpen: true, 
           isMobileSidebarOpen: false,
           showLogoutModal: false,
           isLoggingOut: false,
@@ -136,13 +137,8 @@
         <!-- Mobile Brand Header -->
         <div class="h-16 border-b border-slate-200 flex items-center justify-between px-5 shrink-0">
             <div class="flex items-center gap-3 min-w-0">
-                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
-                    <svg viewBox="0 0 24 24" class="w-5 h-5 text-white" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <rect x="3.4" y="3.4" width="6.8" height="6.8" rx="1.8" stroke="currentColor" stroke-width="1.8"/>
-                        <rect x="13.8" y="3.4" width="6.8" height="6.8" rx="1.8" stroke="currentColor" stroke-width="1.8"/>
-                        <rect x="3.4" y="13.8" width="6.8" height="6.8" rx="1.8" stroke="currentColor" stroke-width="1.8"/>
-                        <rect x="13.8" y="13.8" width="6.8" height="6.8" rx="1.8" stroke="currentColor" stroke-width="1.8"/>
-                    </svg>
+                <div class="w-9 h-9 flex items-center justify-center shrink-0">
+                    <img src="/images/logo-bintang-gandari.jpg" alt="Logo PT Bintang Gandari" class="w-full h-full object-contain rounded-md" />
                 </div>
                 <div class="leading-tight overflow-hidden">
                     <p class="text-xs font-bold text-slate-900 truncate">Sistem Manajemen Konstruksi</p>
@@ -246,19 +242,14 @@
     <div class="flex h-screen overflow-hidden bg-slate-50">
 
         <!-- Desktop Sidebar -->
-        <aside :style="isSidebarOpen ? 'width: 256px; min-width: 256px;' : 'width: 84px; min-width: 84px;'"
+        <aside :style="isSidebarOpen ? 'width: 256px; min-width: 256px;' : 'width: 72px; min-width: 72px;'"
                class="hidden lg:flex flex-none bg-white border-r border-slate-200 flex-col transition-all duration-300 ease-in-out overflow-hidden">
             
             <!-- Brand -->
             <div class="h-16 border-b border-slate-200 flex items-center px-5 shrink-0">
                 <div class="flex items-center min-w-0">
-                    <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
-                        <svg viewBox="0 0 24 24" class="w-5 h-5 text-white" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <rect x="3.4" y="3.4" width="6.8" height="6.8" rx="1.8" stroke="currentColor" stroke-width="1.8"/>
-                            <rect x="13.8" y="3.4" width="6.8" height="6.8" rx="1.8" stroke="currentColor" stroke-width="1.8"/>
-                            <rect x="3.4" y="13.8" width="6.8" height="6.8" rx="1.8" stroke="currentColor" stroke-width="1.8"/>
-                            <rect x="13.8" y="13.8" width="6.8" height="6.8" rx="1.8" stroke="currentColor" stroke-width="1.8"/>
-                        </svg>
+                    <div class="w-9 h-9 flex items-center justify-center shrink-0">
+                        <img src="/images/logo-bintang-gandari.jpg" alt="Logo PT Bintang Gandari" class="w-full h-full object-contain rounded-md" />
                     </div>
                     <div class="leading-tight whitespace-nowrap overflow-hidden shrink-0" style="margin-left: 11px;" x-show="isSidebarOpen" x-transition.opacity.duration.200ms>
                         <p class="text-xs font-bold text-slate-900 whitespace-nowrap">Sistem Manajemen Konstruksi</p>
@@ -370,7 +361,6 @@
                     </button>
                     <div class="leading-tight min-w-0 pl-0.5">
                         <h2 class="text-sm sm:text-base md:text-lg font-extrabold text-slate-900 tracking-tight truncate">Selamat datang kembali, Admin!</h2>
-                        <p class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase tracking-wider hidden sm:block">PT Bintang Gandari • Executive Portal</p>
                     </div>
                 </div>
 
@@ -426,31 +416,32 @@
             </header>
 
             <!-- Scrollable Content -->
-            <main class="flex-1 overflow-y-auto p-3.5 sm:p-5 lg:p-7 space-y-4 sm:space-y-6 no-scrollbar">
+            <main class="flex-1 overflow-y-auto no-scrollbar flex flex-col">
+                <div class="flex-1 flex flex-col p-3.5 sm:p-5 lg:p-7 space-y-4 sm:space-y-6">
                 @if($isProjectDetail)
                     {{ $slot }}
                 @else
-                    <div x-show="activeTab === 'dashboard'">
+                    <div x-show="activeTab === 'dashboard'" class="flex-1">
                         @livewire('dashboard')
                     </div>
-                    <div x-show="activeTab === 'projects'" style="display: none;">
+                    <div x-show="activeTab === 'projects'" style="display: none;" class="flex-1">
                         @livewire('projects')
                     </div>
-                    <div x-show="activeTab === 'evm'" style="display: none;">
+                    <div x-show="activeTab === 'evm'" style="display: none;" class="flex-1">
                         @livewire('reports')
                     </div>
-                    <div x-show="activeTab === 'reports'" style="display: none;">
+                    <div x-show="activeTab === 'reports'" style="display: none;" class="flex-1">
                         @livewire('reporting-center')
                     </div>
-                    <div x-show="activeTab === 'approvals'" style="display: none;">
+                    <div x-show="activeTab === 'approvals'" style="display: none;" class="flex-1">
                         @livewire('approval-center')
                     </div>
-                    <div x-show="activeTab === 'users'" style="display: none;">
+                    <div x-show="activeTab === 'users'" style="display: none;" class="flex-1">
                         @livewire('users')
                     </div>
                 @endif
+                </div>
             </main>
-
         </div>
     </div>
 

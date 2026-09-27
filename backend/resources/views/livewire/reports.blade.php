@@ -1,4 +1,4 @@
-<div x-data="{ showToast: @entangle('showToast'), toastMessage: @entangle('toastMessage') }"
+<div x-data="{ showToast: @entangle('showToast'), toastMessage: @entangle('toastMessage'), openModalId: null }"
      x-effect="if (showToast) { setTimeout(() => showToast = false, 3000) }">
     
     <!-- Toast Notification -->
@@ -137,7 +137,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
                     @forelse($projects as $p)
-                        <tr wire:click="openProjectModal('{{ $p['project_id'] }}')" 
+                        <tr @click="openModalId = '{{ $p['project_id'] }}'" 
                             class="hover:bg-blue-50/60 cursor-pointer transition group"
                             title="Klik untuk melihat pop form & analisis EVM proyek {{ $p['project_name'] }}">
                             <td class="p-4">
@@ -206,8 +206,12 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center p-8 text-slate-400 font-medium">
-                                No projects found matching the selected filters.
+                            <td colspan="10" class="py-20 text-center">
+                                <div class="w-full flex items-center justify-center text-center">
+                                    <p class="text-sm sm:text-base font-medium text-slate-400 text-center">
+                                        No projects found matching the selected filters.
+                                    </p>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -266,22 +270,43 @@
     </div>
 
     {{-- MODAL / POP FORM DETAIL PROYEK EVM --}}
-    @if($showProjectModal && $selectedProjectData)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm print:hidden">
-            <div wire:click.outside="closeProjectModal"
-                 class="bg-white w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    @foreach($projects as $selectedProjectData)
+        <div x-show="openModalId === '{{ $selectedProjectData['project_id'] }}'"
+             x-transition:enter="transition ease-out duration-500"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-500"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm print:hidden"
+             style="display: none;"
+             x-cloak>
+            <div @click.outside="openModalId = null"
+                 x-show="openModalId === '{{ $selectedProjectData['project_id'] }}'"
+                 x-transition:enter="transition ease-out duration-500"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-500"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="bg-white w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
                 
                 {{-- Modal Header --}}
-                <div class="px-6 py-4.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm shadow-blue-500/20">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="relative px-6 py-5 border-b border-slate-100 bg-slate-50/60 rounded-t-2xl">
+                    <button type="button" @click="openModalId = null" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition cursor-pointer z-10">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                    <div class="flex items-start gap-4 pr-10 relative">
+                        <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shrink-0 shadow-md shadow-blue-500/20">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                             </svg>
                         </div>
-                        <div class="truncate">
-                            <div class="flex items-center gap-2">
-                                <h3 class="text-base font-extrabold text-slate-900 truncate">{{ $selectedProjectData['project_name'] }}</h3>
+                        <div class="min-w-0 pt-0.5">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h3 class="text-lg font-extrabold text-slate-900 truncate">{{ $selectedProjectData['project_name'] }}</h3>
                                 <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shrink-0 tracking-wide
                                     {{ $selectedProjectData['status'] === 'ON TRACK' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : '' }}
                                     {{ $selectedProjectData['status'] === 'AT RISK' ? 'bg-amber-50 text-amber-700 border border-amber-200' : '' }}
@@ -291,25 +316,26 @@
                                     {{ $selectedProjectData['status'] }}
                                 </span>
                             </div>
-                            <p class="text-[11px] text-slate-400 mt-0.5">
-                                ID: <span class="font-semibold text-slate-600">{{ $selectedProjectData['project_id'] }}</span> • 
-                                SPK: <span class="font-semibold text-slate-600">{{ $selectedProjectData['spk_number'] }}</span> • 
-                                Lokasi: <span class="font-semibold text-slate-600">{{ $selectedProjectData['location'] }}</span>
-                            </p>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] font-semibold text-slate-600 shadow-sm">
+                                    <span class="text-slate-400 font-medium">ID:</span> {{ $selectedProjectData['project_id'] }}
+                                </div>
+                                <div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] font-semibold text-slate-600 shadow-sm">
+                                    <span class="text-slate-400 font-medium">SPK:</span> {{ $selectedProjectData['spk_number'] }}
+                                </div>
+                                <div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] font-semibold text-slate-600 shadow-sm">
+                                    <span class="text-slate-400 font-medium">Lokasi:</span> {{ $selectedProjectData['location'] }}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <button type="button" wire:click="closeProjectModal" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
                 </div>
 
                 {{-- Modal Body Scrollable --}}
-                <div class="p-6 space-y-5 overflow-y-auto max-h-[calc(90vh-140px)] text-xs text-slate-700">
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)] text-xs text-slate-700">
                     
                     {{-- 1. General Project Information Box --}}
-                    <div class="grid grid-cols-2 gap-y-3.5 gap-x-4 bg-slate-50/80 p-4 rounded-xl border border-slate-200/70">
+                    <div class="grid grid-cols-2 gap-y-5 gap-x-6 bg-slate-50/50 p-5 rounded-2xl shadow-2xs border border-slate-200">
                         <div>
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Client / Pemberi Tugas</span>
                             <span class="font-bold text-slate-800 text-xs mt-0.5 block truncate">{{ $selectedProjectData['client'] }}</span>
@@ -334,12 +360,12 @@
                     </div>
 
                     {{-- 2. Parameter Utama EVM (2x2 Grid of 4 Cards) --}}
-                    <div>
-                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                    <div class="mt-12">
+                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-blue-600"></span>
                             Parameter Utama EVM (Earned Value Management)
                         </h4>
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-2 gap-4">
                             {{-- BAC --}}
                             <div class="p-3.5 bg-white rounded-xl border border-slate-200 shadow-2xs">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">BAC (Kontrak)</span>
@@ -365,7 +391,7 @@
                             </div>
 
                             {{-- ACWP --}}
-                            <div class="p-3.5 bg-orange-50/30 rounded-xl border border-orange-100 shadow-2xs">
+                            <div class="p-3.5 bg-orange-50/30 rounded-xl shadow-2xs border border-slate-200">
                                 <span class="text-[10px] font-bold text-orange-600 uppercase tracking-wider block">ACWP (Real Cost)</span>
                                 <span class="text-sm sm:text-base font-extrabold text-orange-700 mt-1 block" title="{{ \App\Support\CurrencyHelper::formatFull($selectedProjectData['acwp']) }}">
                                     {{ \App\Support\CurrencyHelper::format($selectedProjectData['acwp']) }}
@@ -375,12 +401,12 @@
                     </div>
 
                     {{-- 3. Indeks Kinerja & Analisis Varians (3x2 Grid of 6 Cards) --}}
-                    <div>
-                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                    <div class="mt-12">
+                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
                             Indeks Kinerja &amp; Analisis Varians
                         </h4>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                             {{-- CPI --}}
                             <div class="p-3.5 bg-white rounded-xl border border-slate-200 shadow-2xs">
                                 <div class="flex items-center justify-between">
@@ -443,20 +469,15 @@
                 </div>
 
                 {{-- Modal Footer --}}
-                <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-                    <button type="button" wire:click="closeProjectModal" 
-                            class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-white transition cursor-pointer">
+                <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end bg-slate-50/50 rounded-b-2xl">
+                    <button type="button" @click="openModalId = null" 
+                            class="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 transition cursor-pointer shadow-sm">
                         Tutup
                     </button>
-                    <a href="/projects/{{ $selectedProjectData['project_id'] }}" 
-                       class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm shadow-blue-500/25 flex items-center gap-1.5">
-                        <span>Buka Detail Proyek Lengkap</span>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                    </a>
                 </div>
             </div>
         </div>
-    @endif
+    @endforeach
 
 </div>
 

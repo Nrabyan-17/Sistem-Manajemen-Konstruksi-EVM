@@ -148,7 +148,7 @@
         <div x-show="viewMode === 'cards'">
             <!-- Card View Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach($filteredProjects as $p)
+                @forelse($filteredProjects as $p)
                     <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between gap-3 mb-2">
@@ -252,7 +252,13 @@
                             </div>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="col-span-full w-full py-20 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-center text-center min-h-[220px]">
+                        <p class="text-sm sm:text-base font-medium text-slate-400 text-center w-full">
+                            No projects found matching the selected filters.
+                        </p>
+                    </div>
+                @endforelse
             </div>
         </div>
 
@@ -280,7 +286,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            @foreach($filteredProjects as $p)
+                            @forelse($filteredProjects as $p)
                                 <tr x-show="Math.ceil({{ $loop->iteration }} / tablePageSize) === tablePage" class="hover:bg-slate-50/50 transition">
                                     <td class="p-4">
                                         <p class="font-bold text-slate-900">{{ $p['project_name'] }}</p>
@@ -322,7 +328,17 @@
     </div>
 </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="14" class="py-20 text-center">
+                                        <div class="w-full flex items-center justify-center text-center">
+                                            <p class="text-sm sm:text-base font-medium text-slate-400 text-center">
+                                                No projects found matching the selected filters.
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -508,7 +524,7 @@
                                 <path d="M15.8 8.5H18.5V11.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                                 <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/>
                             </svg>
-                            <p class="text-[10px] font-bold text-slate-600 mt-2">Import Kurva S</p>
+                            <p class="text-[10px] font-bold text-slate-600 mt-2">Upload/Import Time-Schedule via Excel</p>
                             <p class="text-[9px] text-slate-400 mt-0.5">Mg ke, Tgl Awal, Tgl Akhir, Rencana, Kumulatif</p>
                         </div>
                     </div>

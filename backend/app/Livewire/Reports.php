@@ -165,6 +165,35 @@ class Reports extends Component
             $totalBcws += $bcws;
             $totalEac += $eac;
 
+            $cpi = (float) ($p['cpi'] ?? 1);
+            $spi = (float) ($p['spi'] ?? 1);
+            $plannedProgress = $bac > 0 ? min(100, round(($bcws / $bac) * 100, 1)) : 0;
+            
+            // Evaluasi status
+            $costStatus = $cpi >= 1.0 ? 'Under Budget' : 'Over Budget';
+            $costDesc = $cpi >= 1.0 ? 'Pengeluaran biaya lebih hemat dari nilai progres' : 'Pengeluaran biaya aktual melebihi nilai progres terpasang';
+            
+            $schedStatus = $spi >= 1.0 ? 'On Schedule' : 'Behind Schedule';
+            $schedDesc = $spi >= 1.0 ? 'Progres fisik di lapangan sesuai/lebih cepat dari rencana' : 'Progres fisik di lapangan mengalami keterlambatan';
+
+            if ($cpi < 1.0 && $spi < 1.0) {
+                $diagnosticType = 'critical';
+                $diagnosticTitle = 'Kondisi Kritis (Over Budget & Terlambat)';
+                $diagnosticMessage = 'Proyek mengalami keterlambatan progres sekaligus pembengkakan biaya riil. Diperlukan mitigasi percepatan dan audit pengeluaran.';
+            } elseif ($cpi < 1.0) {
+                $diagnosticType = 'warning';
+                $diagnosticTitle = 'Peringatan Biaya (Over Budget)';
+                $diagnosticMessage = 'Progres fisik berjalan sesuai target, namun pengeluaran aktual melebihi anggaran rencana.';
+            } elseif ($spi < 1.0) {
+                $diagnosticType = 'warning';
+                $diagnosticTitle = 'Peringatan Jadwal (Terlambat)';
+                $diagnosticMessage = 'Biaya proyek terkendali dengan baik, namun progres fisik di lapangan tertinggal dari target rencana mingguan.';
+            } else {
+                $diagnosticType = 'success';
+                $diagnosticTitle = 'Performa Sangat Baik (On Track)';
+                $diagnosticMessage = 'Proyek berjalan tepat waktu dengan efisiensi biaya yang sangat baik di bawah pagu anggaran.';
+            }
+
             $projectsData[] = array_merge($p, [
                 'bac' => $bac,
                 'bcwp' => $bcwp,
@@ -172,7 +201,15 @@ class Reports extends Component
                 'bcws' => $bcws,
                 'cv' => $cv,
                 'sv' => $sv,
-                'vac' => $vac
+                'vac' => $vac,
+                'planned_progress' => $plannedProgress,
+                'cost_status' => $costStatus,
+                'cost_desc' => $costDesc,
+                'sched_status' => $schedStatus,
+                'sched_desc' => $schedDesc,
+                'diagnostic_type' => $diagnosticType,
+                'diagnostic_title' => $diagnosticTitle,
+                'diagnostic_message' => $diagnosticMessage,
             ]);
         }
 
