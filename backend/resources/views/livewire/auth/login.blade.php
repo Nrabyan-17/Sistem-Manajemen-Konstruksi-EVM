@@ -48,14 +48,9 @@
     <div class="relative w-full md:w-1/2 min-h-screen flex flex-col justify-center px-6 sm:px-12 md:px-16 lg:px-24 py-10 sm:py-12 bg-white">
         <div class="w-full max-w-md mx-auto">
             <!-- logo / brand -->
-            <div class="flex items-center gap-3 mb-10">
-                <div class="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/30">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-                        <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-                        <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-                        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-                    </svg>
+            <div class="flex items-center gap-3.5 mb-10">
+                <div class="w-12 h-12 flex items-center justify-center shrink-0">
+                    <img src="/images/logo-bintang-gandari.jpg" alt="Logo PT Bintang Gandari" class="w-full h-full object-contain rounded-xl shadow-sm border border-slate-100" />
                 </div>
                 <div>
                     <p class="font-bold text-gray-900 leading-none">PT Bintang Gandari</p>
