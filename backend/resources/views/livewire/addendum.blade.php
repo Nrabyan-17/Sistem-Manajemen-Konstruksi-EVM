@@ -221,7 +221,7 @@
             </div>
 
             <!-- Form -->
-            <form wire:submit.prevent="createAddendum" class="flex-1 overflow-y-auto px-6 py-5 space-y-4 text-xs text-slate-700">
+            <form wire:submit.prevent="createAddendum" class="flex-1 overflow-y-auto px-6 py-6 space-y-6 text-xs text-slate-700">
                 
                 <div>
                     <label class="block font-bold text-slate-800 mb-1.5">Select Project</label>
@@ -239,7 +239,7 @@
                            class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-5">
                     <div>
                         <label class="block font-bold text-slate-800 mb-1.5">Cost Variance Value (Rupiah)</label>
                         <input type="number" wire:model="newValue" placeholder="e.g. 1200000000 (can be negative)" required

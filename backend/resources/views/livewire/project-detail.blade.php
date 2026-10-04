@@ -6,6 +6,7 @@
     showAddendumTimeModal: false,
     showEditProjectModal: @entangle('showEditProjectModal'),
     addendumModalTab: 'detail',
+    addendumTimeModalTab: 'detail',
     toastMessage: '',
     showToast: false
 }"
@@ -233,8 +234,11 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <button wire:click="openWeeklyModal" @click="showWeeklyModal = true"
-                            class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1.5">
-                        Input Laporan Mingguan
+                            class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span>Input Laporan Mingguan</span>
                     </button>
                 </div>
             </div>
@@ -441,7 +445,7 @@
                 <button @click="showAddendumCostModal = true; addendumModalTab = 'detail'; $wire.openAddendumCostModal()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1">
                     + Addendum Biaya
                 </button>
-                <button @click="showAddendumTimeModal = true" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1">
+                <button @click="showAddendumTimeModal = true; addendumTimeModalTab = 'detail'; $wire.openAddendumTimeModal()" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1">
                     + Addendum Waktu
                 </button>
             </div>
@@ -1166,7 +1170,7 @@
 
                     {{-- Status Lampiran File --}}
                     <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1">
                             <span class="text-slate-500 font-semibold text-[11px]">Lampiran PDF:</span>
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $addendumRabFile ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500' }}">
                                 RAB: {{ $addendumRabFile ? '✓ PDF Terlampir' : 'Kosong' }}
@@ -1322,84 +1326,131 @@
                 </button>
             </div>
 
-            <form wire:submit.prevent="submitAddendumTime" class="px-6 py-5 space-y-4 text-xs text-slate-700">
-                <div>
-                    <label class="block font-bold text-slate-800 mb-1.5">Judul / Referensi Addendum Waktu</label>
-                    <input type="text" wire:model="timeTitle" placeholder="Contoh: Addendum Waktu 01 - Dampak Curah Hujan Tinggi"
-                           class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition text-sm" />
-                    @error('timeTitle') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
-                </div>
+            {{-- Tab navigasi Addendum Waktu --}}
+            <div class="px-6 pt-3 bg-slate-50/80 border-b border-slate-200/80">
+                <div class="flex items-center gap-1.5 overflow-x-auto">
+                    <button type="button"
+                            @click="addendumTimeModalTab = 'detail'"
+                            :class="addendumTimeModalTab === 'detail' ? 'border-indigo-500 text-indigo-800 bg-white font-bold shadow-2xs' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium'"
+                            class="px-3 py-2 text-xs rounded-t-xl border-b-2 transition flex items-center gap-1.5 shrink-0">
+                        <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        <span>Data Addendum Waktu</span>
+                    </button>
 
-                <div>
-                    <label class="block font-bold text-slate-800 mb-1.5">Tambahan Waktu Pelaksanaan (Hari Kalender)</label>
-                    <input type="number" wire:model.live="addDays" min="1" step="1" required placeholder="Contoh: 30"
-                           class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition text-sm font-bold text-indigo-700" />
-                    @error('addDays') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                    <button type="button"
+                            @click="addendumTimeModalTab = 'dokumen'"
+                            :class="addendumTimeModalTab === 'dokumen' ? 'border-indigo-500 text-indigo-800 bg-white font-bold shadow-2xs' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium'"
+                            class="px-3 py-2 text-xs rounded-t-xl border-b-2 transition flex items-center gap-1.5 shrink-0">
+                        <svg class="w-3.5 h-3.5 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                        <span>Unggah Dokumen Pendukung</span>
+                        @if($addendumTimePdfFile)
+                            <span class="w-2 h-2 rounded-full bg-indigo-500 ring-2 ring-white"></span>
+                        @endif
+                    </button>
                 </div>
+            </div>
 
-                {{-- Live Preview Box --}}
-                <div class="p-3.5 bg-indigo-50/70 rounded-xl border border-indigo-100 space-y-2">
-                    <div class="flex items-center justify-between text-[11px]">
-                        <span class="text-slate-500">Target BAST Saat Ini:</span>
-                        <span class="font-bold text-slate-800">{{ date('d M Y', strtotime($effectiveBastDate ?: $project['bast_date'])) }}</span>
+            <form wire:submit.prevent="submitAddendumTime" class="px-6 py-7 text-xs text-slate-700 flex flex-col gap-8">
+                {{-- TAB 1: Data Addendum Waktu --}}
+                <div x-show="addendumTimeModalTab === 'detail'" class="flex flex-col gap-5">
+                    <div class="flex flex-col gap-1.5 mt-2">
+                        <label class="block font-bold text-slate-800">Judul / Referensi Addendum Waktu</label>
+                        <input type="text" wire:model="timeTitle" placeholder="Contoh: Addendum Waktu 01 - Dampak Curah Hujan Tinggi"
+                               class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition text-sm" />
+                        @error('timeTitle') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                     </div>
-                    <div class="flex items-center justify-between text-[11px]">
-                        <span class="text-slate-500">Penambahan:</span>
-                        <span class="font-extrabold text-indigo-700">+{{ max(1, (int)$addDays) }} Hari</span>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="block font-bold text-slate-800">Tambahan Waktu Pelaksanaan (Hari Kalender)</label>
+                        <input type="number" wire:model.live="addDays" min="1" step="1" required placeholder="Contoh: 30"
+                               class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition text-sm font-bold text-indigo-700" />
+                        @error('addDays') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+
+                        {{-- Live Preview Box --}}
+                        <div class="mt-2 p-4 bg-indigo-50/70 rounded-xl border border-indigo-100 space-y-2.5">
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span class="text-slate-500">Target BAST Saat Ini:</span>
+                                <span class="font-bold text-slate-800">{{ date('d M Y', strtotime($effectiveBastDate ?: $project['bast_date'])) }}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span class="text-slate-500">Penambahan:</span>
+                                <span class="font-extrabold text-indigo-700">+{{ max(1, (int)$addDays) }} Hari</span>
+                            </div>
+                            <div class="pt-1.5 border-t border-indigo-200/60 flex items-center justify-between">
+                                <span class="text-xs font-bold text-indigo-900">Estimasi BAST Baru:</span>
+                                <span class="text-xs font-black text-indigo-700 bg-white px-2.5 py-1 rounded-lg border border-indigo-200 shadow-xs">
+                                    {{ $previewBastDate }}
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="pt-1.5 border-t border-indigo-200/60 flex items-center justify-between">
-                        <span class="text-xs font-bold text-indigo-900">Estimasi BAST Baru:</span>
-                        <span class="text-xs font-black text-indigo-700 bg-white px-2.5 py-1 rounded-lg border border-indigo-200 shadow-xs">
-                            {{ $previewBastDate }}
-                        </span>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="block font-bold text-slate-800">Alasan / Justifikasi Perpanjangan Waktu</label>
+                        <textarea wire:model="timeReason" rows="3" required placeholder="Contoh: Keterlambatan pengiriman material impor dan cuaca buruk..."
+                                  class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition text-sm"></textarea>
+                        @error('timeReason') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="mt-2 p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500 font-semibold text-[11px]">Lampiran PDF:</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $addendumTimePdfFile ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-200 text-slate-500' }}">
+                                Dokumen: {{ $addendumTimePdfFile ? '✓ PDF Terlampir' : 'Kosong (Opsional)' }}
+                            </span>
+                        </div>
+                        <button type="button" @click="addendumTimeModalTab = 'dokumen'" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-700 hover:underline">
+                            Kelola Lampiran PDF →
+                        </button>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block font-bold text-slate-800 mb-1.5">Alasan / Justifikasi Perpanjangan Waktu</label>
-                    <textarea wire:model="timeReason" rows="3" required placeholder="Contoh: Keterlambatan pengiriman material impor dan cuaca buruk..."
-                              class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition text-sm"></textarea>
-                    @error('timeReason') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
-                </div>
+                {{-- TAB 2: Upload Dokumen Pendukung Addendum Waktu (PDF) --}}
+                <div x-show="addendumTimeModalTab === 'dokumen'" class="flex flex-col gap-5 py-1">
+                    <div class="p-3.5 bg-indigo-50/70 rounded-xl border border-indigo-200/80 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-indigo-950">Unggah Dokumen Pendukung Addendum Waktu (.pdf)</h4>
+                            <p class="text-[11px] text-indigo-700 mt-0.5">Unggah surat permohonan, justifikasi, atau dokumen pendukung perpanjangan waktu dalam format PDF (.pdf Maks. 10MB). Lampiran bersifat opsional.</p>
+                        </div>
+                    </div>
 
-                {{-- Upload Dokumen Justifikasi / Surat Addendum Waktu (PDF) --}}
-                <div>
-                    <label class="block font-bold text-slate-800 mb-1.5">Unggah Dokumen Pendukung Addendum Waktu (.pdf)</label>
-                    
                     @if(!$addendumTimePdfFile)
-                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl p-4 bg-slate-50/50 hover:bg-indigo-50/30 transition cursor-pointer group text-center">
+                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl p-8 bg-slate-50/50 hover:bg-indigo-50/30 transition cursor-pointer group text-center">
                             <input type="file" wire:model="addendumTimePdfFile" accept=".pdf,application/pdf" class="hidden" />
-                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center group-hover:scale-105 transition shadow-2xs mb-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center group-hover:scale-105 transition shadow-2xs mb-3">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                             </div>
                             <p class="text-xs font-bold text-slate-800 group-hover:text-indigo-700 transition">Pilih file PDF Surat / Dokumen Pendukung</p>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Format file: .pdf (Maks. 10MB) • Opsional</p>
+                            <p class="text-[10px] text-slate-400 mt-1">Klik untuk menjelajah file dari komputer Anda (.pdf)</p>
                         </label>
                     @else
-                        <div class="p-3.5 bg-indigo-50/80 border border-indigo-200 rounded-2xl flex items-center justify-between">
+                        <div class="p-4 bg-indigo-50/80 border border-indigo-200 rounded-2xl flex items-center justify-between">
                             <div class="flex items-center gap-3 overflow-hidden">
-                                <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </div>
                                 <div class="truncate">
                                     <p class="text-xs font-bold text-indigo-950 truncate">{{ $addendumTimePdfFile->getClientOriginalName() }}</p>
-                                    <p class="text-[10px] text-indigo-700 mt-0.5">{{ number_format($addendumTimePdfFile->getSize() / 1024, 1) }} KB • Siap dilampirkan</p>
+                                    <p class="text-[10px] text-indigo-700 mt-0.5">{{ number_format($addendumTimePdfFile->getSize() / 1024, 1) }} KB • Dokumen PDF siap dilampirkan</p>
                                 </div>
                             </div>
-                            <button type="button" wire:click="removeAddendumTimePdfFile" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-xl hover:bg-rose-50 transition" title="Hapus file">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            <button type="button" wire:click="removeAddendumTimePdfFile" class="text-slate-400 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition cursor-pointer" title="Hapus file">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </div>
                     @endif
 
-                    <div wire:loading wire:target="addendumTimePdfFile" class="text-xs text-indigo-600 font-semibold flex items-center gap-1.5 mt-1.5">
-                        <svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <div wire:loading wire:target="addendumTimePdfFile" class="text-xs text-indigo-600 font-semibold flex items-center gap-1.5">
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         Mengunggah dokumen PDF...
                     </div>
                     @error('addendumTimePdfFile') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
-                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                <div class="mt-4 py-4 border-t border-slate-100 flex items-center justify-end gap-4 shrink-0">
                     <button type="button" @click="showAddendumTimeModal = false" 
                             class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
                         Batal

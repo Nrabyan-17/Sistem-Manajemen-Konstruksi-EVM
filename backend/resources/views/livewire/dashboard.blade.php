@@ -268,6 +268,7 @@
             };
             this.resizeHandler = () => {
                 if (this.chart && this.$el.offsetParent !== null) {
+                    this.chart._initialAnimDone = true;
                     this.chart.resize();
                 }
             };
@@ -460,6 +461,7 @@
             };
             this.resizeHandler = () => {
                 if (this.chart && this.$el.offsetParent !== null) {
+                    this.chart._initialAnimDone = true;
                     this.chart.resize();
                 }
             };

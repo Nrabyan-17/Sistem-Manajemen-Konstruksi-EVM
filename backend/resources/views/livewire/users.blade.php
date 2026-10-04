@@ -468,33 +468,29 @@
 
     <template x-teleport="body">
     <div x-show="deleteUserModal" x-cloak x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-        <div @click.outside="deleteUserModal = false; $wire.closeUserModals()" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100">
-                <h3 class="text-xl font-bold text-slate-900">Delete User</h3>
-                <p class="text-xs text-slate-500 mt-1">This action cannot be undone.</p>
+        <div @click.outside="deleteUserModal = false; $wire.closeUserModals()" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden p-6 text-center space-y-4">
+            
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto shrink-0 border border-rose-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
             </div>
 
-            <div class="p-6">
-                <div class="flex items-start gap-4 rounded-2xl bg-red-50 border border-red-100 p-4 text-red-700">
-                    <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="font-bold">Delete <span x-text="selectedUserData.name"></span>?</p>
-                        <p class="text-sm mt-1">This will permanently remove the user account and all associated access for this record.</p>
-                    </div>
-                </div>
+            <div>
+                <h3 class="text-xl font-bold text-slate-900">Hapus Akun Pengguna</h3>
+                <p class="text-[14px] text-slate-500 mt-3 px-4 leading-relaxed">
+                    Apakah Anda yakin ingin menghapus akun <br>
+                    <span class="font-bold text-slate-800" x-text="selectedUserData.name"></span>? Tindakan ini tidak dapat dibatalkan.
+                </p>
+            </div>
 
-                <div class="flex items-center justify-end gap-3 mt-6">
-                    <button type="button" @click="deleteUserModal = false; $wire.closeUserModals()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
-                        Cancel
-                    </button>
-                    <button type="button" wire:click="deleteUser" class="px-4 py-2.5 rounded-xl bg-red-600 text-sm font-semibold text-white hover:bg-red-700 transition shadow-sm shadow-red-500/25">
-                        Delete User
-                    </button>
-                </div>
+            <div class="flex items-center gap-4 mt-6 pt-5 border-t border-slate-200">
+                <button type="button" @click="deleteUserModal = false; $wire.closeUserModals()" class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-sm font-bold transition cursor-pointer">
+                    Batal
+                </button>
+                <button type="button" wire:click="deleteUser" class="flex-1 px-4 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition shadow-sm cursor-pointer">
+                    Ya, Hapus
+                </button>
             </div>
         </div>
     </div>

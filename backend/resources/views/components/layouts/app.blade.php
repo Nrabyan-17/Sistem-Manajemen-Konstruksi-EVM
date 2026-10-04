@@ -332,8 +332,19 @@
                 </a>
             </nav>
 
+            <!-- User Info (above divider) -->
+            <div class="px-3.5 py-3 flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-blue-500/25 shrink-0">
+                    AD
+                </div>
+                <div x-show="isSidebarOpen" x-transition.opacity.duration.200ms class="leading-tight overflow-hidden">
+                    <p class="text-sm font-bold text-slate-900 whitespace-nowrap">Admin</p>
+                    <p class="text-[10px] font-semibold tracking-wider text-blue-600 uppercase whitespace-nowrap">Executive Director</p>
+                </div>
+            </div>
+
             <!-- Desktop Bottom Menu -->
-            <div class="px-3.5 py-4 border-t border-slate-200 space-y-1">
+            <div class="px-3.5 py-4 border-t border-slate-200">
                 <button type="button" @click="showLogoutModal = true" class="w-full flex items-center gap-4 px-3.5 py-2.5 rounded-xl text-red-600 hover:bg-red-50 text-sm font-semibold transition cursor-pointer" style="gap: 14px;">
                     <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M8.5 7.5V6.8C8.5 5.2 9.8 4 11.4 4H12.6C14.2 4 15.5 5.2 15.5 6.8V7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -361,6 +372,7 @@
                     </button>
                     <div class="leading-tight min-w-0 pl-0.5">
                         <h2 class="text-sm sm:text-base md:text-lg font-extrabold text-slate-900 tracking-tight truncate">Selamat datang kembali, Admin!</h2>
+                        <p class="text-[11px] sm:text-xs text-slate-500 font-medium truncate mt-0.5">Sistem Manajemen Konstruksi &amp; EVM PT Bintang Gandari</p>
                     </div>
                 </div>
 
@@ -400,18 +412,7 @@
                         </div>
                     </div>
 
-                    <div class="h-6 w-px bg-slate-200 hidden xl:block"></div>
 
-                    <!-- Account Profile -->
-                    <div class="flex items-center gap-2 sm:gap-3">
-                        <div class="text-right leading-tight hidden md:block">
-                            <p class="text-sm font-bold text-slate-900">Admin</p>
-                            <p class="text-[10px] font-semibold tracking-wider text-blue-600 uppercase">Executive Director</p>
-                        </div>
-                        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-blue-500/25 shrink-0">
-                            AD
-                        </div>
-                    </div>
                 </div>
             </header>
 
@@ -472,24 +473,24 @@
             </div>
 
             <div>
-                <h3 class="text-lg font-bold text-slate-900">Konfirmasi Sign Out</h3>
-                <p class="text-xs text-slate-500 mt-1">Apakah Anda yakin ingin keluar dari sistem dashboard PT Bintang Gandari?</p>
+                <h3 class="text-xl font-bold text-slate-900">Konfirmasi Keluar</h3>
+                <p class="text-[14px] text-slate-500 mt-3 px-4 leading-relaxed">Apakah Anda yakin ingin mengakhiri sesi<br>Anda saat ini?</p>
             </div>
 
-            <div class="flex items-center gap-3 pt-2">
+            <div class="flex items-center gap-4 mt-6 pt-5 border-t border-slate-200">
                 <button type="button" @click="showLogoutModal = false"
-                        class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer">
+                        class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-sm font-bold transition cursor-pointer">
                     Batal
                 </button>
                 <button type="button"
                         @click="if (!isLoggingOut) { isLoggingOut = true; setTimeout(() => window.location.href = '/login', 500); }"
                         :disabled="isLoggingOut"
-                        class="flex-1 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white text-xs font-semibold transition shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:cursor-wait">
+                        class="flex-1 px-4 py-3 rounded-2xl bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white text-sm font-bold transition shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:cursor-wait">
                     <svg x-show="isLoggingOut" x-cloak class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                     </svg>
-                    <span x-text="isLoggingOut ? 'Signing Out...' : 'Ya, Sign Out'"></span>
+                    <span x-text="isLoggingOut ? 'Keluar...' : 'Keluar'"></span>
                 </button>
             </div>
         </div>
