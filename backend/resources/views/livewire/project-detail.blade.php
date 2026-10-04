@@ -854,13 +854,13 @@
                     {{-- Upload Dropzone --}}
                     <div>
                         <label class="block font-bold text-slate-800 mb-1.5">Unggah File Laporan (.pdf)</label>
-                        <div class="relative border-2 border-dashed border-slate-200 hover:border-blue-400 bg-slate-50/60 rounded-xl p-5 text-center transition cursor-pointer">
-                            <input type="file" wire:model="weeklyImportFile" accept=".pdf,application/pdf" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                        <div class="relative border-2 border-dashed border-red-400 hover:border-red-600 bg-red-50/30 hover:bg-red-50/60 rounded-2xl p-5 text-center transition cursor-pointer group" style="border-color: #f87171;">
+                            <input type="file" wire:model="weeklyImportFile" accept=".pdf,application/pdf" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-10" />
                             <div class="flex flex-col items-center justify-center pointer-events-none">
-                                <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-2">
+                                <div class="w-11 h-11 rounded-2xl bg-red-100/90 text-red-600 border border-red-200 flex items-center justify-center mb-2.5 shadow-2xs group-hover:scale-105 transition">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                                 </div>
-                                <p class="font-bold text-slate-700 text-xs">Klik atau seret file laporan PDF ke sini</p>
+                                <p class="font-bold text-slate-800 text-xs group-hover:text-red-700 transition">Klik atau seret file laporan PDF ke sini</p>
                                 <p class="text-[10px] text-slate-400 mt-0.5">Format file: .pdf (Maks 10MB)</p>
                             </div>
                         </div>
@@ -1072,23 +1072,23 @@
 
                     <button type="button" 
                             @click="addendumModalTab = 'rab'"
-                            :class="addendumModalTab === 'rab' ? 'border-emerald-500 text-emerald-800 bg-white font-bold shadow-2xs' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium'"
+                            :class="addendumModalTab === 'rab' ? 'border-red-500 text-red-700 bg-white font-bold shadow-2xs' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium'"
                             class="px-3 py-2 text-xs rounded-t-xl border-b-2 transition flex items-center gap-1.5 shrink-0">
-                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                        <svg class="w-3.5 h-3.5 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                         <span>Upload PDF RAB Addendum</span>
                         @if($addendumRabFile)
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                            <span class="w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
                         @endif
                     </button>
 
                     <button type="button" 
                             @click="addendumModalTab = 'time_schedule'"
-                            :class="addendumModalTab === 'time_schedule' ? 'border-blue-500 text-blue-800 bg-white font-bold shadow-2xs' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium'"
+                            :class="addendumModalTab === 'time_schedule' ? 'border-red-500 text-red-700 bg-white font-bold shadow-2xs' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium'"
                             class="px-3 py-2 text-xs rounded-t-xl border-b-2 transition flex items-center gap-1.5 shrink-0">
-                        <svg class="w-3.5 h-3.5 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                        <svg class="w-3.5 h-3.5 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                         <span>Upload PDF Time Schedule Addendum</span>
                         @if($addendumTsFile)
-                            <span class="w-2 h-2 rounded-full bg-blue-500 ring-2 ring-white"></span>
+                            <span class="w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
                         @endif
                     </button>
                 </div>
@@ -1154,8 +1154,8 @@
                             <label class="block font-bold text-slate-800">Judul Addendum</label>
                         </div>
                         <input type="text" wire:model="addendumTitle" readonly
-                               value="Add tambah kurang volume"
-                               class="w-full px-3 py-2 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-700 font-bold text-xs cursor-not-allowed select-all" />
+                                value="Add tambah kurang volume"
+                                class="w-full px-3 py-2 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-700 font-bold text-xs cursor-not-allowed select-all" />
                         @error('addendumTitle') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
@@ -1172,10 +1172,10 @@
                     <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
                         <div class="flex items-center gap-1">
                             <span class="text-slate-500 font-semibold text-[11px]">Lampiran PDF:</span>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $addendumRabFile ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500' }}">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $addendumRabFile ? 'bg-red-100 text-red-800' : 'bg-slate-200 text-slate-500' }}">
                                 RAB: {{ $addendumRabFile ? '✓ PDF Terlampir' : 'Kosong' }}
                             </span>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $addendumTsFile ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-500' }}">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $addendumTsFile ? 'bg-red-100 text-red-800' : 'bg-slate-200 text-slate-500' }}">
                                 TS: {{ $addendumTsFile ? '✓ PDF Terlampir' : 'Kosong' }}
                             </span>
                         </div>
@@ -1187,34 +1187,34 @@
 
                 {{-- TAB 2: UPLOAD PDF RAB ADDENDUM --}}
                 <div x-show="addendumModalTab === 'rab'" class="space-y-4 py-1">
-                    <div class="p-3.5 bg-emerald-50/70 rounded-xl border border-emerald-200/80 flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <div class="p-3.5 bg-red-50/70 rounded-xl border border-red-200/80 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                         </div>
                         <div>
-                            <h4 class="text-xs font-bold text-emerald-950">Upload PDF RAB Addendum</h4>
-                            <p class="text-[11px] text-emerald-700 mt-0.5">Unggah rincian item pekerjaan tambah/kurang beserta volume & harga satuan dalam format dokumen PDF (.pdf Maks. 10MB).</p>
+                            <h4 class="text-xs font-bold text-red-950">Upload PDF RAB Addendum</h4>
+                            <p class="text-[11px] text-red-700 mt-0.5">Unggah rincian item pekerjaan tambah/kurang beserta volume & harga satuan dalam format dokumen PDF (.pdf Maks. 10MB).</p>
                         </div>
                     </div>
 
                     @if(!$addendumRabFile)
-                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-emerald-400 rounded-2xl p-8 bg-slate-50/50 hover:bg-emerald-50/30 transition cursor-pointer group text-center">
+                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-red-400 hover:border-red-600 rounded-2xl p-8 bg-red-50/30 hover:bg-red-50/60 transition cursor-pointer group text-center" style="border-color: #f87171;">
                             <input type="file" wire:model="addendumRabFile" accept=".pdf,application/pdf" class="hidden" />
-                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center group-hover:scale-110 transition shadow-2xs mb-3">
+                            <div class="w-12 h-12 rounded-2xl bg-red-100/90 text-red-600 border border-red-200 flex items-center justify-center group-hover:scale-110 transition shadow-2xs mb-3">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                             </div>
-                            <p class="text-xs font-bold text-slate-800 group-hover:text-emerald-700 transition">Pilih file PDF RAB Addendum</p>
+                            <p class="text-xs font-bold text-slate-800 group-hover:text-red-700 transition">Pilih file PDF RAB Addendum</p>
                             <p class="text-[10px] text-slate-400 mt-1">Klik untuk menjelajah file dari komputer Anda (.pdf)</p>
                         </label>
                     @else
-                        <div class="p-4 bg-emerald-50/80 border border-emerald-200 rounded-2xl flex items-center justify-between">
+                        <div class="p-4 bg-red-50/80 border border-red-200 rounded-2xl flex items-center justify-between">
                             <div class="flex items-center gap-3 overflow-hidden">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </div>
                                 <div class="truncate">
-                                    <p class="text-xs font-bold text-emerald-950 truncate">{{ $addendumRabFile->getClientOriginalName() }}</p>
-                                    <p class="text-[10px] text-emerald-700 mt-0.5">{{ number_format($addendumRabFile->getSize() / 1024, 1) }} KB • Dokumen PDF siap dilampirkan</p>
+                                    <p class="text-xs font-bold text-red-950 truncate">{{ $addendumRabFile->getClientOriginalName() }}</p>
+                                    <p class="text-[10px] text-red-700 mt-0.5">{{ number_format($addendumRabFile->getSize() / 1024, 1) }} KB • Dokumen PDF siap dilampirkan</p>
                                 </div>
                             </div>
                             <button type="button" wire:click="removeAddendumRabFile" class="text-slate-400 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition cursor-pointer" title="Hapus file">
@@ -1223,7 +1223,7 @@
                         </div>
                     @endif
 
-                    <div wire:loading wire:target="addendumRabFile" class="text-xs text-emerald-600 font-semibold flex items-center gap-1.5">
+                    <div wire:loading wire:target="addendumRabFile" class="text-xs text-red-600 font-semibold flex items-center gap-1.5">
                         <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         Mengunggah file PDF RAB...
                     </div>
@@ -1232,34 +1232,34 @@
 
                 {{-- TAB 3: UPLOAD PDF TIME SCHEDULE ADDENDUM --}}
                 <div x-show="addendumModalTab === 'time_schedule'" class="space-y-4 py-1">
-                    <div class="p-3.5 bg-blue-50/70 rounded-xl border border-blue-200/80 flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <div class="p-3.5 bg-red-50/70 rounded-xl border border-red-200/80 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                         </div>
                         <div>
-                            <h4 class="text-xs font-bold text-blue-950">Upload PDF Time Schedule Addendum</h4>
-                            <p class="text-[11px] text-blue-700 mt-0.5">Unggah dokumen penyesuaian jadwal Kurva S / Time Schedule addendum dalam format PDF (.pdf Maks. 10MB).</p>
+                            <h4 class="text-xs font-bold text-red-950">Upload PDF Time Schedule Addendum</h4>
+                            <p class="text-[11px] text-red-700 mt-0.5">Unggah dokumen penyesuaian jadwal Kurva S / Time Schedule addendum dalam format PDF (.pdf Maks. 10MB).</p>
                         </div>
                     </div>
 
                     @if(!$addendumTsFile)
-                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-2xl p-8 bg-slate-50/50 hover:bg-blue-50/30 transition cursor-pointer group text-center">
+                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-red-400 hover:border-red-600 rounded-2xl p-8 bg-red-50/30 hover:bg-red-50/60 transition cursor-pointer group text-center" style="border-color: #f87171;">
                             <input type="file" wire:model="addendumTsFile" accept=".pdf,application/pdf" class="hidden" />
-                            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center group-hover:scale-110 transition shadow-2xs mb-3">
+                            <div class="w-12 h-12 rounded-2xl bg-red-100/90 text-red-600 border border-red-200 flex items-center justify-center group-hover:scale-110 transition shadow-2xs mb-3">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                             </div>
-                            <p class="text-xs font-bold text-slate-800 group-hover:text-blue-700 transition">Pilih file PDF Time Schedule Addendum</p>
+                            <p class="text-xs font-bold text-slate-800 group-hover:text-red-700 transition">Pilih file PDF Time Schedule Addendum</p>
                             <p class="text-[10px] text-slate-400 mt-1">Klik untuk menjelajah file dari komputer Anda (.pdf)</p>
                         </label>
                     @else
-                        <div class="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl flex items-center justify-between">
+                        <div class="p-4 bg-red-50/80 border border-red-200 rounded-2xl flex items-center justify-between">
                             <div class="flex items-center gap-3 overflow-hidden">
-                                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </div>
                                 <div class="truncate">
-                                    <p class="text-xs font-bold text-blue-950 truncate">{{ $addendumTsFile->getClientOriginalName() }}</p>
-                                    <p class="text-[10px] text-blue-700 mt-0.5">{{ number_format($addendumTsFile->getSize() / 1024, 1) }} KB • Dokumen PDF siap dilampirkan</p>
+                                    <p class="text-xs font-bold text-red-950 truncate">{{ $addendumTsFile->getClientOriginalName() }}</p>
+                                    <p class="text-[10px] text-red-700 mt-0.5">{{ number_format($addendumTsFile->getSize() / 1024, 1) }} KB • Dokumen PDF siap dilampirkan</p>
                                 </div>
                             </div>
                             <button type="button" wire:click="removeAddendumTsFile" class="text-slate-400 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition cursor-pointer" title="Hapus file">
@@ -1268,7 +1268,7 @@
                         </div>
                     @endif
 
-                    <div wire:loading wire:target="addendumTsFile" class="text-xs text-blue-600 font-semibold flex items-center gap-1.5">
+                    <div wire:loading wire:target="addendumTsFile" class="text-xs text-red-600 font-semibold flex items-center gap-1.5">
                         <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         Mengunggah file PDF Time Schedule...
                     </div>
@@ -1418,13 +1418,13 @@
                     </div>
 
                     @if(!$addendumTimePdfFile)
-                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl p-8 bg-slate-50/50 hover:bg-indigo-50/30 transition cursor-pointer group text-center">
+                        <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl p-4 bg-slate-50/50 hover:bg-indigo-50/30 transition cursor-pointer group text-center">
                             <input type="file" wire:model="addendumTimePdfFile" accept=".pdf,application/pdf" class="hidden" />
-                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center group-hover:scale-105 transition shadow-2xs mb-3">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center group-hover:scale-105 transition shadow-2xs mb-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                             </div>
                             <p class="text-xs font-bold text-slate-800 group-hover:text-indigo-700 transition">Pilih file PDF Surat / Dokumen Pendukung</p>
-                            <p class="text-[10px] text-slate-400 mt-1">Klik untuk menjelajah file dari komputer Anda (.pdf)</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Format file: .pdf (Maks. 10MB) • Opsional</p>
                         </label>
                     @else
                         <div class="p-4 bg-indigo-50/80 border border-indigo-200 rounded-2xl flex items-center justify-between">
