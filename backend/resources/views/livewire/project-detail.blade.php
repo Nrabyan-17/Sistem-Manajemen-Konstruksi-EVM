@@ -1527,8 +1527,7 @@
                             labels: { 
                                 usePointStyle: true, 
                                 boxWidth: 8, 
-                                padding: 18,
-                                filter: (item) => item.text !== 'Deviasi'
+                                padding: 18
                             } 
                         },
                         tooltip: { 
