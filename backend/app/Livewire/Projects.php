@@ -2,12 +2,18 @@
 
 namespace App\Livewire;
 
+use App\Support\ProjectMockData;
 use Livewire\Component;
 use Livewire\Attributes\Title;
+use Livewire\WithFileUploads;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 #[Title('Projects - EVM Dashboard')]
 class Projects extends Component
 {
+    use WithFileUploads;
+
     // Projects data
     public $projects = [];
     public $projectHistory = [];
@@ -37,6 +43,10 @@ class Projects extends Component
     public $newBastDate = '';
     public $newStatus = 'ON TRACK';
     public $newLocation = 'Jakarta';
+
+    // File Uploads for new project
+    public $newRabImport;
+    public $newSCurveImport;
 
     public function mount()
     {
@@ -88,7 +98,11 @@ class Projects extends Component
             'newValue' => 'required|numeric',
             'newStartDate' => 'required|date',
             'newBastDate' => 'required|date',
+            'newRabImport' => 'nullable|file|mimes:xlsx,xls,csv|max:10240',
+            'newSCurveImport' => 'nullable|file|mimes:xlsx,xls,csv|max:10240',
         ]);
+
+        $projectId = $this->newProjId;
 
         // Calculate remaining days
         $bast = new \DateTime($this->newBastDate);
@@ -97,7 +111,7 @@ class Projects extends Component
         $remainingVal = $bast < $today ? 0 : (int)$interval->format('%a');
 
         $newProjectObj = [
-            'project_id' => $this->newProjId,
+            'project_id' => $projectId,
             'project_name' => $this->newProjName,
             'spk_number' => $this->newSpk,
             'client' => $this->newClient,
@@ -119,24 +133,188 @@ class Projects extends Component
         $this->projects[] = $newProjectObj;
 
         // Initialize history log
-        $this->projectHistory[$this->newProjId] = [
+        $this->projectHistory[$projectId] = [
             [
                 'date' => date('Y-m-d'),
                 'user' => 'System',
                 'action' => 'Project Created',
                 'old' => '—',
-                'new' => "{$this->newProjId} initialized"
+                'new' => "{$projectId} initialized"
             ]
         ];
+
+        // ===== Parse Excel RAB → BOQ Items =====
+        if ($this->newRabImport) {
+            $boqItems = $this->parseRabExcel($this->newRabImport);
+            if (!empty($boqItems)) {
+                ProjectMockData::updateBoqItems($projectId, $boqItems);
+            }
+        }
+
+        // ===== Parse Excel Time-Schedule → Weekly Progress =====
+        if ($this->newSCurveImport) {
+            $weeklyData = $this->parseTimeScheduleExcel($this->newSCurveImport);
+            if (!empty($weeklyData)) {
+                ProjectMockData::updateWeeklyProgress($projectId, $weeklyData);
+            }
+        }
 
         // Reset Form Fields
         $this->reset([
             'newProjName', 'newProjId', 'newSpk', 'newClient', 'newPm',
-            'newValue', 'newStartDate', 'newBastDate', 'newStatus', 'newLocation'
+            'newValue', 'newStartDate', 'newBastDate', 'newStatus', 'newLocation',
         ]);
+        $this->newRabImport = null;
+        $this->newSCurveImport = null;
 
         // Dispatch browser event to show toast and close modal
         $this->dispatch('project-created', message: 'Project created successfully!');
+    }
+
+    /**
+     * Parse an RAB Excel file into BOQ item rows.
+     * Expected columns: No, Item/Uraian, Satuan, Volume, Harga Satuan, Subtotal
+     */
+    private function parseRabExcel($file): array
+    {
+        try {
+            $path = $file->getRealPath();
+            $spreadsheet = IOFactory::load($path);
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray(null, true, true, false);
+
+            if (count($rows) < 2) return [];
+
+            $items = [];
+            $no = 1;
+
+            // Skip header row(s) — start from row index 1
+            for ($i = 1; $i < count($rows); $i++) {
+                $row = $rows[$i];
+                // Skip completely empty rows
+                if (empty(array_filter($row, fn($v) => $v !== null && $v !== ''))) continue;
+
+                // Flexible: try to extract columns
+                // Format: No | Item | Satuan | Volume | Harga Satuan | Subtotal
+                $itemName = trim((string)($row[1] ?? $row[0] ?? ''));
+                if (empty($itemName)) continue;
+
+                $satuan = trim((string)($row[2] ?? 'Ls'));
+                $volume = (float)($row[3] ?? 0);
+                $hargaSatuan = (float)($row[4] ?? 0);
+                $subtotal = (float)($row[5] ?? ($volume * $hargaSatuan));
+
+                $items[] = [
+                    'no' => $no++,
+                    'item' => $itemName,
+                    'satuan' => $satuan ?: 'Ls',
+                    'volume' => $volume,
+                    'harga_satuan' => $hargaSatuan,
+                    'subtotal' => $subtotal > 0 ? $subtotal : ($volume * $hargaSatuan),
+                ];
+            }
+
+            return $items;
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Parse a Time-Schedule Excel file into weekly progress rows.
+     * Expected columns: Mg ke | Tgl Awal | Tgl Akhir | Progres Rencana | Kumulatif Rencana
+     *                   (optional: Progres Realisasi | Kumulatif Realisasi | Deviasi | ACWP)
+     */
+    private function parseTimeScheduleExcel($file): array
+    {
+        try {
+            $path = $file->getRealPath();
+            $spreadsheet = IOFactory::load($path);
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray(null, true, true, false);
+
+            if (count($rows) < 2) return [];
+
+            $items = [];
+
+            for ($i = 1; $i < count($rows); $i++) {
+                $row = $rows[$i];
+                if (empty(array_filter($row, fn($v) => $v !== null && $v !== ''))) continue;
+
+                // Column 0: Mg ke (week number — strip non-numeric prefix like "MG")
+                $weekRaw = trim((string)($row[0] ?? ''));
+                $weekNum = (int) preg_replace('/[^0-9]/', '', $weekRaw);
+                if ($weekNum <= 0) continue;
+
+                // Columns 1,2: Start/end dates
+                $startDate = $this->parseExcelDate($row[1] ?? '', $sheet->getCell([2, $i + 1]));
+                $endDate = $this->parseExcelDate($row[2] ?? '', $sheet->getCell([3, $i + 1]));
+
+                // Columns 3,4: Plan %, Cumulative Plan %
+                $planPct = $this->parsePercentValue($row[3] ?? 0);
+                $cumPlanPct = $this->parsePercentValue($row[4] ?? 0);
+
+                // Columns 5,6: Actual %, Cumulative Actual % (optional)
+                $actualPct = $this->parsePercentValue($row[5] ?? 0);
+                $cumActualPct = $this->parsePercentValue($row[6] ?? 0);
+
+                $items[] = [
+                    'week' => $weekNum,
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                    'plan_pct' => $planPct,
+                    'cumulative_plan_pct' => $cumPlanPct,
+                    'actual_pct' => $actualPct,
+                    'cumulative_actual_pct' => $cumActualPct,
+                ];
+            }
+
+            return $items;
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Safely parse an Excel date value (could be a serial number or a string).
+     */
+    private function parseExcelDate($value, $cell = null): string
+    {
+        if (empty($value)) return '';
+
+        // If it's a numeric Excel serial date
+        if (is_numeric($value) && $value > 40000) {
+            try {
+                $dateTime = ExcelDate::excelToDateTimeObject((float)$value);
+                return $dateTime->format('Y-m-d');
+            } catch (\Throwable $e) {}
+        }
+
+        // Try parsing common date formats
+        $formats = ['d-M', 'd-M-y', 'd/m/Y', 'd-m-Y', 'Y-m-d', 'd M Y', 'd-M-Y'];
+        foreach ($formats as $fmt) {
+            $dt = \DateTime::createFromFormat($fmt, trim((string)$value));
+            if ($dt !== false) {
+                // If year was not in format, assume current year
+                if (!str_contains($fmt, 'Y') && !str_contains($fmt, 'y')) {
+                    $dt->setDate((int)date('Y'), (int)$dt->format('m'), (int)$dt->format('d'));
+                }
+                return $dt->format('Y-m-d');
+            }
+        }
+
+        return trim((string)$value);
+    }
+
+    /**
+     * Parse a percentage value — handles both 0.0532 (fraction) and 5.32 (already %) forms.
+     */
+    private function parsePercentValue($value): float
+    {
+        $v = (float) $value;
+        // If value looks like it's already a percentage (>= 0 and stated as-is), return as-is
+        // The Excel format shows 5,32 meaning 5.32%
+        return round($v, 2);
     }
 
     public function render()

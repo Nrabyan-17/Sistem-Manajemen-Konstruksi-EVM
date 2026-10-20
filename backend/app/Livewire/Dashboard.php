@@ -12,6 +12,14 @@ class Dashboard extends Component
 
     public $weeks = ['W1', 'W2', 'W4', 'W6', 'W8', 'W10', 'W12', 'W14', 'W16', 'W18', 'W20', 'W22', 'W24'];
 
+    public $monthlyTrend = [
+        'labels' => ['Jan 2026', 'Feb 2026', 'Mar 2026', 'Apr 2026', 'Mei 2026', 'Jun 2026'],
+        'activeProjects' => [34, 36, 39, 41, 42, 42],
+        'averageProgress' => [18, 27, 38, 49, 61, 72],
+        'budgetAbsorbed' => [185, 312, 498, 715, 980, 1240],
+        'delayedProjects' => [3, 4, 5, 6, 7, 7],
+    ];
+
     public $projectData = [
         'portfolio' => [
             'bcws' => [0.08, 0.25, 0.75, 1.60, 2.90, 4.60, 6.40, 8.25, 9.60, 10.40, 10.85, 11.10, 11.20],

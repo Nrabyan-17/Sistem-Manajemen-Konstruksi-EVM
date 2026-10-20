@@ -44,64 +44,46 @@
 
     <!-- Main Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mt-4 sm:mt-6">
-        <!-- S-Curve Graph Card -->
+        <!-- Monthly Portfolio Trend Card -->
         <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-6 flex flex-col justify-between">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
                 <div>
-                    <h2 class="text-base sm:text-lg font-bold text-slate-900">EVM Performance (S-Curve)</h2>
-                    <p class="text-[11px] sm:text-xs text-slate-500">Comparing BCWS, BCWP, and ACWP cumulative progress</p>
-                </div>
-                <!-- Project Selector Toggle -->
-                <div class="flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl overflow-x-auto max-w-full no-scrollbar shrink-0">
-                    <button wire:click="setProject('portfolio')" class="px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap {{ $projectKey === 'portfolio' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-800' }}">
-                        Portfolio
-                    </button>
-                    <button wire:click="setProject('horizon')" class="px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all {{ $projectKey === 'horizon' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-800' }}">
-                        Horizon
-                    </button>
-                    <button wire:click="setProject('metro')" class="px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all {{ $projectKey === 'metro' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-800' }}">
-                        Metro Line
-                    </button>
-                    <button wire:click="setProject('industrial')" class="px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all {{ $projectKey === 'industrial' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-800' }}">
-                        Industrial
-                    </button>
+                    <h2 class="text-base sm:text-lg font-bold text-slate-900">Monthly Portfolio Trend</h2>
+                    <p class="text-[11px] sm:text-xs text-slate-500">Monthly overview of project activity, progress, budget, and delays</p>
                 </div>
             </div>
 
             <!-- Alpine Chart Wrapper -->
-            <div x-data="sCurveChart" wire:ignore
+            <div x-data="monthlyTrendChart" wire:ignore
                  class="relative h-[240px] xs:h-[280px] sm:h-[320px] w-full overflow-hidden">
-                <canvas x-ref="sCurveCanvas" class="w-full h-full"></canvas>
+                <canvas x-ref="monthlyTrendCanvas" class="w-full h-full"></canvas>
             </div>
 
-            <!-- EVM Stats Footer -->
-            <div class="grid grid-cols-3 gap-2 sm:gap-4 border-t border-slate-100 pt-4 sm:pt-5 mt-4 sm:mt-5">
+            <!-- Trend Legend -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-slate-100 pt-4 sm:pt-5 mt-4 sm:mt-5">
                 <div class="min-w-0">
                     <div class="flex items-center gap-1.5 min-w-0">
                         <span class="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0"></span>
-                        <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
-                            <span class="hidden sm:inline">Planned </span>(BCWS)
-                        </p>
+                        <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Active Projects</p>
                     </div>
-                    <p class="text-xs sm:text-base font-extrabold text-slate-900 mt-1 truncate">{{ $currentProject['statBcws'] }}</p>
                 </div>
                 <div class="min-w-0">
                     <div class="flex items-center gap-1.5 min-w-0">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
-                        <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
-                            <span class="hidden sm:inline">Earned </span>(BCWP)
-                        </p>
+                        <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Avg Progress</p>
                     </div>
-                    <p class="text-xs sm:text-base font-extrabold text-slate-900 mt-1 truncate">{{ $currentProject['statBcwp'] }}</p>
                 </div>
                 <div class="min-w-0">
                     <div class="flex items-center gap-1.5 min-w-0">
                         <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
-                        <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
-                            <span class="hidden sm:inline">Actual </span>(ACWP)
-                        </p>
+                        <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Budget Absorbed</p>
                     </div>
-                    <p class="text-xs sm:text-base font-extrabold text-slate-900 mt-1 truncate">{{ $currentProject['statAcwp'] }}</p>
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
+                        <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Delayed Projects</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -250,11 +232,9 @@
 
 @script
 <script>
-    const __dashboardProjectData = @json($projectData);
-    const __dashboardWeeks = @json($weeks);
-    const __dashboardInitialKey = @json($projectKey);
+    const __dashboardMonthlyTrend = @json($monthlyTrend);
 
-    Alpine.data('sCurveChart', () => ({
+    Alpine.data('monthlyTrendChart', () => ({
         chart: null,
         chartInitialized: false,
         dashboardActivatedHandler: null,
@@ -263,7 +243,7 @@
             this.dashboardActivatedHandler = () => {
                 if (this.$el.offsetParent !== null) {
                     this.chartInitialized = true;
-                    this.renderChart(this.$wire.projectKey || __dashboardInitialKey);
+                    this.renderChart();
                 }
             };
             this.resizeHandler = () => {
@@ -280,12 +260,9 @@
             setTimeout(() => {
                 if (this.$el.offsetParent !== null && !this.chartInitialized) {
                     this.chartInitialized = true;
-                    this.renderChart(__dashboardInitialKey);
+                    this.renderChart();
                 }
             }, 0);
-            this.$wire.on('project-changed', (event) => {
-                setTimeout(() => this.renderChart(event.projectKey), 50);
-            });
         },
         destroy() {
             if (this.dashboardActivatedHandler) {
@@ -299,82 +276,79 @@
                 this.chart.destroy();
                 this.chart = null;
             }
-            if (this.$refs.sCurveCanvas) {
-                const existing = Chart.getChart(this.$refs.sCurveCanvas);
+            if (this.$refs.monthlyTrendCanvas) {
+                const existing = Chart.getChart(this.$refs.monthlyTrendCanvas);
                 if (existing) existing.destroy();
             }
         },
-        renderChart(key) {
-            if (!this.$refs.sCurveCanvas) return;
+        renderChart() {
+            if (!this.$refs.monthlyTrendCanvas) return;
             
-            const existing = Chart.getChart(this.$refs.sCurveCanvas);
+            const existing = Chart.getChart(this.$refs.monthlyTrendCanvas);
             if (existing) existing.destroy();
             if (this.chart) {
                 this.chart.destroy();
                 this.chart = null;
             }
 
-            const ctx = this.$refs.sCurveCanvas.getContext('2d');
-            const allData = __dashboardProjectData;
-            const data = allData[key] || allData[__dashboardInitialKey];
-            const weeks = __dashboardWeeks;
+            const ctx = this.$refs.monthlyTrendCanvas.getContext('2d');
+            const data = __dashboardMonthlyTrend;
             
-            const blueGradient = ctx.createLinearGradient(0, 0, 0, 320);
-            blueGradient.addColorStop(0, 'rgba(37, 99, 235, 0.25)');
-            blueGradient.addColorStop(1, 'rgba(37, 99, 235, 0.00)');
-
-            const greenGradient = ctx.createLinearGradient(0, 0, 0, 320);
-            greenGradient.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
-            greenGradient.addColorStop(1, 'rgba(16, 185, 129, 0.00)');
-
             this.chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: weeks,
+                    labels: data.labels,
                     datasets: [
                         {
-                            label: 'BCWS (Planned S-Curve)',
-                            data: data.bcws,
+                            label: 'Active Projects',
+                            data: data.activeProjects,
+                            yAxisID: 'y',
                             borderColor: '#2563eb',
-                            backgroundColor: blueGradient,
-                            fill: true,
-                            borderWidth: 2.5,
-                            tension: 0.4,
-                            pointRadius: 3,
+                            backgroundColor: '#2563eb',
+                            borderWidth: 2,
+                            tension: 0.35,
+                            pointRadius: 2,
                             pointHoverRadius: 6,
                             pointBackgroundColor: '#2563eb',
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 2,
                         },
                         {
-                            label: 'BCWP (Earned Value)',
+                            label: 'Average Progress (%)',
+                            data: data.averageProgress,
+                            yAxisID: 'y',
                             data: data.bcwp,
                             borderColor: '#10b981',
-                            backgroundColor: greenGradient,
-                            fill: true,
-                            borderWidth: 2.5,
-                            tension: 0.4,
-                            pointRadius: 3,
+                            backgroundColor: '#10b981',
+                            borderWidth: 2,
+                            tension: 0.35,
+                            pointRadius: 2,
                             pointHoverRadius: 6,
                             pointBackgroundColor: '#10b981',
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 2,
                         },
                         {
-                            label: 'ACWP (Actual Cost)',
+                            label: 'Budget Absorbed (Rp M)',
+                            data: data.budgetAbsorbed,
+                            yAxisID: 'yBudget',
                             data: data.acwp,
                             borderColor: '#f59e0b',
-                            backgroundColor: 'transparent',
-                            fill: false,
+                            backgroundColor: '#f59e0b',
                             borderWidth: 2,
-                            borderDash: [5, 4],
-                            tension: 0.4,
-                            pointRadius: 3,
+                            tension: 0.35,
+                            pointRadius: 2,
                             pointHoverRadius: 6,
                             pointBackgroundColor: '#f59e0b',
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 2,
-                        }
+                        },
+                        {
+                            label: 'Delayed Projects',
+                            data: data.delayedProjects,
+                            yAxisID: 'y',
+                            borderColor: '#f43f5e',
+                            backgroundColor: '#f43f5e',
+                            borderWidth: 2,
+                            tension: 0.35,
+                            pointRadius: 2,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#f43f5e',
+                        },
                     ]
                 },
                 options: {
@@ -414,10 +388,10 @@
                             boxPadding: 4,
                             usePointStyle: true,
                             callbacks: {
-                                title: (items) => 'Milestone: ' + items[0].label + ' (Cumulative)',
+                                title: (items) => 'Month: ' + items[0].label,
                                 label: (item) => {
-                                    if (item.raw === null || item.raw === undefined) return item.dataset.label + ': Not Reached Yet';
-                                    return ' ' + item.dataset.label + ': Rp ' + Number(item.raw).toFixed(2) + ' Milyar';
+                                    const suffix = item.dataset.label.includes('Progress') ? '%' : item.dataset.label.includes('Budget') ? ' M' : '';
+                                    return ' ' + item.dataset.label + ': ' + Number(item.raw).toLocaleString('id-ID') + suffix;
                                 },
                             },
                         },
@@ -434,9 +408,21 @@
                             },
                         },
                         y: {
+                            beginAtZero: true,
+                            suggestedMax: 100,
                             grid: { color: '#f1f5f9' },
                             ticks: {
                                 color: '#64748b',
+                                font: { family: 'Plus Jakarta Sans', size: 10 },
+                                callback: (val) => val,
+                            },
+                        },
+                        yBudget: {
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: { drawOnChartArea: false },
+                            ticks: {
+                                color: '#f59e0b',
                                 font: { family: 'Plus Jakarta Sans', size: 10 },
                                 callback: (val) => 'Rp ' + val + ' M',
                             },

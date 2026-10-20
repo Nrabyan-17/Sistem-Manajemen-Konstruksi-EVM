@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Support\ProjectMockData;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class ProjectDetail extends Component
 {
@@ -57,6 +59,9 @@ class ProjectDetail extends Component
     public $weeklyImportFile = null;
     public array $importPreviewRows = [];
     public string $importError = '';
+
+    // Weekly Report PDF Attachment (manual form)
+    public $weeklyPdfFile = null;
 
     // Modal & Form States: Input RAB
     public bool $showRabModal = false;
@@ -344,6 +349,23 @@ class ProjectDetail extends Component
         ]);
 
         $projectId = $this->project['project_id'];
+
+        // ===== Parse Excel RAB → BOQ Items =====
+        if ($this->editRabImport) {
+            $boqItems = $this->parseRabExcel($this->editRabImport);
+            if (!empty($boqItems)) {
+                ProjectMockData::updateBoqItems($projectId, $boqItems);
+            }
+        }
+
+        // ===== Parse Excel Time-Schedule → Weekly Progress =====
+        if ($this->editSCurveImport) {
+            $weeklyData = $this->parseTimeScheduleExcel($this->editSCurveImport);
+            if (!empty($weeklyData)) {
+                ProjectMockData::updateWeeklyProgress($projectId, $weeklyData);
+            }
+        }
+
         $this->showEditProjectModal = false;
         $this->editRabImport = null;
         $this->editSCurveImport = null;
@@ -372,6 +394,7 @@ class ProjectDetail extends Component
         $this->showWeeklyModal = false;
         $this->resetImportForm();
         $this->inputActualPct = '';
+        $this->weeklyPdfFile = null;
         $this->resetValidation();
     }
 
@@ -467,6 +490,12 @@ class ProjectDetail extends Component
         $actual = (float) $this->inputActualPct;
         $deviasi = round($plan - $actual, 2);
 
+        // Store the uploaded PDF file if provided
+        $pdfPath = null;
+        if ($this->weeklyPdfFile) {
+            $pdfPath = $this->weeklyPdfFile->store('weekly-reports', 'public');
+        }
+
         $newEntry = [
             'week' => $this->inputWeekNumber,
             'start_date' => $startDate->format('Y-m-d'),
@@ -476,9 +505,12 @@ class ProjectDetail extends Component
             'actual_pct' => $actual,
             'cumulative_actual_pct' => round($prevCumulativeActual + $actual, 2),
             'deviasi' => $deviasi,
+            'pdf_path' => $pdfPath,
         ];
 
         $this->weeklyProgress[] = $newEntry;
+        ProjectMockData::updateWeeklyProgress($this->project['project_id'], $this->weeklyProgress);
+        $this->weeklyPdfFile = null;
 
         // Update project EVM metrics
         $this->project['progress'] = $newEntry['cumulative_actual_pct'];
@@ -591,6 +623,12 @@ class ProjectDetail extends Component
             $existingWeeks[$p['week']] = $p;
         }
 
+        // Store the imported PDF file
+        $importPdfPath = null;
+        if ($this->weeklyImportFile) {
+            $importPdfPath = $this->weeklyImportFile->store('weekly-reports', 'public');
+        }
+
         foreach ($this->importPreviewRows as $item) {
             $existingWeeks[$item['week']] = [
                 'week' => (int) $item['week'],
@@ -601,6 +639,7 @@ class ProjectDetail extends Component
                 'actual_pct' => (float) $item['actual_pct'],
                 'cumulative_actual_pct' => 0,
                 'deviasi' => round((float) $item['plan_pct'] - (float) $item['actual_pct'], 2),
+                'pdf_path' => $importPdfPath,
             ];
         }
 
@@ -618,6 +657,7 @@ class ProjectDetail extends Component
         }
 
         $this->weeklyProgress = $recalculated;
+        ProjectMockData::updateWeeklyProgress($this->project['project_id'], $this->weeklyProgress);
 
         $lastEntry = end($this->weeklyProgress);
         if ($lastEntry) {
@@ -871,6 +911,133 @@ class ProjectDetail extends Component
 
         $this->closeAddendumTimeModal();
         $this->dispatch('addendum-time-saved', message: "Addendum Waktu berhasil ditambahkan (+{$days} Hari)! BAST: " . date('d M Y', strtotime($this->effectiveBastDate)));
+    }
+
+    // ===== Excel Parsing Helpers =====
+
+    /**
+     * Parse an RAB Excel file into BOQ item rows.
+     * Expected columns: No, Item/Uraian, Satuan, Volume, Harga Satuan, Subtotal
+     */
+    private function parseRabExcel($file): array
+    {
+        try {
+            $path = $file->getRealPath();
+            $spreadsheet = IOFactory::load($path);
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray(null, true, true, false);
+
+            if (count($rows) < 2) return [];
+
+            $items = [];
+            $no = 1;
+
+            for ($i = 1; $i < count($rows); $i++) {
+                $row = $rows[$i];
+                if (empty(array_filter($row, fn($v) => $v !== null && $v !== ''))) continue;
+
+                $itemName = trim((string)($row[1] ?? $row[0] ?? ''));
+                if (empty($itemName)) continue;
+
+                $satuan = trim((string)($row[2] ?? 'Ls'));
+                $volume = (float)($row[3] ?? 0);
+                $hargaSatuan = (float)($row[4] ?? 0);
+                $subtotal = (float)($row[5] ?? ($volume * $hargaSatuan));
+
+                $items[] = [
+                    'no' => $no++,
+                    'item' => $itemName,
+                    'satuan' => $satuan ?: 'Ls',
+                    'volume' => $volume,
+                    'harga_satuan' => $hargaSatuan,
+                    'subtotal' => $subtotal > 0 ? $subtotal : ($volume * $hargaSatuan),
+                ];
+            }
+
+            return $items;
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Parse a Time-Schedule Excel file into weekly progress rows.
+     * Expected columns: Mg ke | Tgl Awal | Tgl Akhir | Progres Rencana | Kumulatif Rencana
+     *                   (optional: Progres Realisasi | Kumulatif Realisasi)
+     */
+    private function parseTimeScheduleExcel($file): array
+    {
+        try {
+            $path = $file->getRealPath();
+            $spreadsheet = IOFactory::load($path);
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray(null, true, true, false);
+
+            if (count($rows) < 2) return [];
+
+            $items = [];
+
+            for ($i = 1; $i < count($rows); $i++) {
+                $row = $rows[$i];
+                if (empty(array_filter($row, fn($v) => $v !== null && $v !== ''))) continue;
+
+                $weekRaw = trim((string)($row[0] ?? ''));
+                $weekNum = (int) preg_replace('/[^0-9]/', '', $weekRaw);
+                if ($weekNum <= 0) continue;
+
+                $startDate = $this->parseExcelDate($row[1] ?? '', $sheet->getCell([2, $i + 1]));
+                $endDate = $this->parseExcelDate($row[2] ?? '', $sheet->getCell([3, $i + 1]));
+
+                $planPct = $this->parsePercentValue($row[3] ?? 0);
+                $cumPlanPct = $this->parsePercentValue($row[4] ?? 0);
+                $actualPct = $this->parsePercentValue($row[5] ?? 0);
+                $cumActualPct = $this->parsePercentValue($row[6] ?? 0);
+
+                $items[] = [
+                    'week' => $weekNum,
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                    'plan_pct' => $planPct,
+                    'cumulative_plan_pct' => $cumPlanPct,
+                    'actual_pct' => $actualPct,
+                    'cumulative_actual_pct' => $cumActualPct,
+                ];
+            }
+
+            return $items;
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    private function parseExcelDate($value, $cell = null): string
+    {
+        if (empty($value)) return '';
+
+        if (is_numeric($value) && $value > 40000) {
+            try {
+                $dateTime = ExcelDate::excelToDateTimeObject((float)$value);
+                return $dateTime->format('Y-m-d');
+            } catch (\Throwable $e) {}
+        }
+
+        $formats = ['d-M', 'd-M-y', 'd/m/Y', 'd-m-Y', 'Y-m-d', 'd M Y', 'd-M-Y'];
+        foreach ($formats as $fmt) {
+            $dt = \DateTime::createFromFormat($fmt, trim((string)$value));
+            if ($dt !== false) {
+                if (!str_contains($fmt, 'Y') && !str_contains($fmt, 'y')) {
+                    $dt->setDate((int)date('Y'), (int)$dt->format('m'), (int)$dt->format('d'));
+                }
+                return $dt->format('Y-m-d');
+            }
+        }
+
+        return trim((string)$value);
+    }
+
+    private function parsePercentValue($value): float
+    {
+        return round((float) $value, 2);
     }
 
     public function render()

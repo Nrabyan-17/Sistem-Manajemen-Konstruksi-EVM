@@ -341,6 +341,14 @@ class ProjectMockData
 
     public static function weeklyProgressFor(string $projectId): array
     {
-        return self::weeklyProgress()[$projectId] ?? [];
+        return session()->get('project_weekly_overrides', [])[$projectId]
+            ?? (self::weeklyProgress()[$projectId] ?? []);
+    }
+
+    public static function updateWeeklyProgress(string $projectId, array $data): void
+    {
+        $overrides = session()->get('project_weekly_overrides', []);
+        $overrides[$projectId] = array_values($data);
+        session()->put('project_weekly_overrides', $overrides);
     }
 }

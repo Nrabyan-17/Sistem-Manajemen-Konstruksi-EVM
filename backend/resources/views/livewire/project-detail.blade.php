@@ -259,6 +259,7 @@
                                 <th class="p-3.5 text-right">Kum. Realisasi (%)</th>
                                 <th class="p-3.5 text-right">Deviasi (%)</th>
                                 <th class="p-3.5 text-center">Status</th>
+                                <th class="p-3.5 text-center">Dokumen</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -282,6 +283,58 @@
                                         <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-extrabold {{ $dev <= 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200' }}">
                                             {{ $dev <= 0 ? 'ON TRACK' : 'DELAY' }}
                                         </span>
+                                    </td>
+                                    <td class="p-3.5 text-center">
+                                        @if(!empty($wp['pdf_path']))
+                                            <div x-data="{ showPdfPreview: false }" class="relative inline-block">
+                                                <button type="button" @click="showPdfPreview = true" 
+                                                        class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 text-[10px] font-bold transition cursor-pointer" 
+                                                        title="Lihat Dokumen PDF">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                    </svg>
+                                                    <span>PDF</span>
+                                                </button>
+                                                {{-- PDF Preview Modal --}}
+                                                <div x-show="showPdfPreview" x-cloak
+                                                     x-transition:enter="transition ease-out duration-200"
+                                                     x-transition:enter-start="opacity-0"
+                                                     x-transition:enter-end="opacity-100"
+                                                     x-transition:leave="transition ease-in duration-150"
+                                                     x-transition:leave-start="opacity-100"
+                                                     x-transition:leave-end="opacity-0"
+                                                     class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" style="display: none;">
+                                                    <div @click.away="showPdfPreview = false" class="bg-white w-full max-w-4xl rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col" style="max-height: 90vh;">
+                                                        <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between shrink-0">
+                                                            <div class="flex items-center gap-2">
+                                                                <div class="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                                                </div>
+                                                                <div>
+                                                                    <h4 class="text-sm font-bold text-slate-900">Dokumen Laporan W{{ $wp['week'] }}</h4>
+                                                                    <p class="text-[10px] text-slate-400">{{ date('d M Y', strtotime($wp['start_date'])) }} — {{ date('d M Y', strtotime($wp['end_date'])) }}</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-center gap-2">
+                                                                <a href="{{ asset('storage/' . $wp['pdf_path']) }}" target="_blank" 
+                                                                   class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-xs font-semibold transition">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                                                    Buka Tab Baru
+                                                                </a>
+                                                                <button type="button" @click="showPdfPreview = false" class="text-slate-400 hover:text-slate-600 transition p-1">
+                                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-1 min-h-0">
+                                                            <iframe :src="showPdfPreview ? '{{ asset('storage/' . $wp['pdf_path']) }}' : ''" class="w-full border-0" style="height: 75vh;"></iframe>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span class="text-slate-300 text-[10px]">—</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -406,6 +459,7 @@
                                 <th class="p-4 w-28 text-right">Volume</th>
                                 <th class="p-4 text-right">Harga Satuan</th>
                                 <th class="p-4 text-right">Subtotal</th>
+                                <th class="p-4 text-center">Dokumen</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -419,6 +473,18 @@
                                     <td class="p-4 text-right font-semibold text-slate-700">{{ number_format($item['volume'], 0, ',', '.') }}</td>
                                     <td class="p-4 text-right text-slate-600" title="{{ \App\Support\CurrencyHelper::formatFull($item['harga_satuan']) }}">{{ \App\Support\CurrencyHelper::format($item['harga_satuan']) }}</td>
                                     <td class="p-4 text-right font-extrabold text-slate-900" title="{{ \App\Support\CurrencyHelper::formatFull($item['subtotal']) }}">{{ \App\Support\CurrencyHelper::format($item['subtotal']) }}</td>
+                                    <td class="p-4 text-center">
+                                        @if(!empty($item['attachment']))
+                                            <button type="button" @click="$dispatch('open-pdf-preview', { url: '{{ asset('storage/reports/' . $item['attachment']) }}' })" class="inline-flex items-center justify-center p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition" title="Preview PDF">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </button>
+                                        @else
+                                            <span class="text-slate-300">-</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -426,6 +492,7 @@
                             <tr class="bg-blue-50/80 border-t-2 border-blue-200">
                                 <td colspan="5" class="p-4 text-left font-extrabold text-blue-900 uppercase text-xs">Total Rencana Anggaran Biaya (RAB Baseline)</td>
                                 <td class="p-4 text-right font-extrabold text-blue-950 text-sm" title="{{ \App\Support\CurrencyHelper::formatFull($totalRab) }}">{{ \App\Support\CurrencyHelper::format($totalRab) }}</td>
+                                <td></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -466,6 +533,7 @@
                             <th class="p-4">Tanggal Pengajuan</th>
                             <th class="p-4">Alasan &amp; Deskripsi</th>
                             <th class="p-4 text-center">Status Approval</th>
+                            <th class="p-4 text-center">Dokumen</th>
                             <th class="p-4 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -499,6 +567,18 @@
                                     ">
                                         {{ $a['status'] }}
                                     </span>
+                                </td>
+                                <td class="p-4 text-center">
+                                    @if(!empty($a['attachment']))
+                                        <button type="button" @click="$dispatch('open-pdf-preview', { url: '{{ asset('storage/reports/' . $a['attachment']) }}' })" class="inline-flex items-center justify-center p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition" title="Preview PDF">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+                                    @else
+                                        <span class="text-slate-300">-</span>
+                                    @endif
                                 </td>
                                 <td class="p-4 text-center">
                                     @if(($a['status'] ?? '') === 'PENDING')
@@ -744,7 +824,7 @@
          style="display: none;">
         
         <div @click.away="showWeeklyModal = false; $wire.closeWeeklyModal()"
-             class="bg-white w-full max-w-lg rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+             class="bg-white w-full max-w-lg rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col" style="max-height: 92vh;">
             
             {{-- Modal Header --}}
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
@@ -760,7 +840,7 @@
             </div>
 
             {{-- INPUT MANUAL DAN UPLOAD FILE --}}
-                <form wire:submit.prevent="submitWeeklyProgress" class="px-6 py-4 space-y-4 text-xs text-slate-700">
+                <form wire:submit.prevent="submitWeeklyProgress" class="px-6 py-4 space-y-4 text-xs text-slate-700 overflow-y-auto" style="max-height: calc(92vh - 72px);">
                     
                     {{-- Row 1: Minggu ke- & Tanggal / Periode Laporan --}}
                     <div class="grid grid-cols-2 gap-4">
@@ -768,7 +848,7 @@
                             <div class="flex items-center justify-between mb-1.5">
                                 <label class="block font-bold text-slate-800">Minggu ke-</label>
                             </div>
-                            <input type="number" wire:model.live="inputWeekNumber" min="1" required
+                            <input type="number" wire:model.blur="inputWeekNumber" min="1" required
                                    class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm font-bold text-slate-900" />
                             @error('inputWeekNumber') <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span> @enderror
                         </div>
@@ -880,6 +960,29 @@
                             Membaca dan memvalidasi file PDF...
                         </span>
                     </div>
+
+                    {{-- PDF Preview (Live Preview saat file sudah dipilih) --}}
+                    @if($weeklyImportFile && !$importError)
+                        <div class="rounded-2xl border border-slate-200 overflow-hidden bg-slate-50 shadow-xs">
+                            <div class="px-3.5 py-2.5 bg-slate-100/80 border-b border-slate-200 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] font-bold text-slate-800">Preview Dokumen PDF</p>
+                                        <p class="text-[10px] text-slate-400">{{ $weeklyImportFile->getClientOriginalName() }} • {{ number_format($weeklyImportFile->getSize() / 1024, 1) }} KB</p>
+                                    </div>
+                                </div>
+                                <button type="button" wire:click="resetImportForm" class="text-slate-400 hover:text-rose-500 transition p-1 rounded-lg hover:bg-rose-50" title="Hapus file">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </div>
+                            <div class="bg-white">
+                                <iframe src="{{ $weeklyImportFile->temporaryUrl() }}" class="w-full border-0" style="height: 320px;"></iframe>
+                            </div>
+                        </div>
+                    @endif
 
                     {{-- Preview Table If File Selected --}}
                     @if(!empty($importPreviewRows))

@@ -508,25 +508,37 @@
                 <div class="mt-4 pt-4 border-t border-slate-100">
                     <p class="text-xs font-bold text-slate-800 mb-3">Import Data (Opsional)</p>
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer">
-                            <svg viewBox="0 0 24 24" class="w-6 h-6 mx-auto text-slate-400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <label class="relative block border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer overflow-hidden"
+                               :class="{'border-blue-500 bg-blue-50/30': $wire.newRabImport}">
+                            <input type="file" wire:model="newRabImport" accept=".xlsx,.xls,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <svg viewBox="0 0 24 24" class="w-6 h-6 mx-auto transition" :class="$wire.newRabImport ? 'text-blue-500' : 'text-slate-400'" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <path d="M8 3.8V8.5C8 9.05 8.45 9.5 9 9.5H14.5L18 13V18.2C18 18.75 17.55 19.2 17 19.2H7C6.45 19.2 6 18.75 6 18.2V4.8C6 4.25 6.45 3.8 7 3.8H8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
                                 <path d="M14.5 9.5V3.8L18 7.3H14.5V9.5Z" fill="currentColor" opacity="0.2"/>
                                 <path d="M8.5 13.5H15.5M8.5 16.2H13.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
                                 <path d="M9.5 9.5V11.5M12 9.5V11.5M14.5 9.5V11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
                             </svg>
-                            <p class="text-[10px] font-bold text-slate-600 mt-2">Import Excel RAB</p>
+                            @if($newRabImport)
+                                <p class="text-[10px] font-bold text-blue-600 mt-2 break-all">{{ $newRabImport->getClientOriginalName() }}</p>
+                            @else
+                                <p class="text-[10px] font-bold text-slate-600 mt-2">Import Excel RAB</p>
+                            @endif
                             <p class="text-[9px] text-slate-400 mt-0.5">No, Item, Sat, Vol, Hrg Sat, Subtotal</p>
-                        </div>
-                        <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer">
-                            <svg viewBox="0 0 24 24" class="w-6 h-6 mx-auto text-slate-400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        </label>
+                        <label class="relative block border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer overflow-hidden"
+                               :class="{'border-blue-500 bg-blue-50/30': $wire.newSCurveImport}">
+                            <input type="file" wire:model="newSCurveImport" accept=".xlsx,.xls,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <svg viewBox="0 0 24 24" class="w-6 h-6 mx-auto transition" :class="$wire.newSCurveImport ? 'text-blue-500' : 'text-slate-400'" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <path d="M5 15.5L9.5 11L12.5 14L18.5 8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M15.8 8.5H18.5V11.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                                 <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/>
                             </svg>
-                            <p class="text-[10px] font-bold text-slate-600 mt-2">Upload/Import Time-Schedule via Excel</p>
+                            @if($newSCurveImport)
+                                <p class="text-[10px] font-bold text-blue-600 mt-2 break-all">{{ $newSCurveImport->getClientOriginalName() }}</p>
+                            @else
+                                <p class="text-[10px] font-bold text-slate-600 mt-2">Upload Time-Schedule</p>
+                            @endif
                             <p class="text-[9px] text-slate-400 mt-0.5">Mg ke, Tgl Awal, Tgl Akhir, Rencana, Kumulatif</p>
-                        </div>
+                        </label>
                     </div>
                 </div>
 
