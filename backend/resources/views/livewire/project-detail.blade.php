@@ -8,7 +8,27 @@
     addendumModalTab: 'detail',
     addendumTimeModalTab: 'detail',
     toastMessage: '',
-    showToast: false
+    showToast: false,
+    actualProgress: '',
+    hasWeeklyProgress() {
+        return this.actualProgress !== '' && Number.isFinite(Number(this.actualProgress));
+    },
+    weeklyDeviation() {
+        const planInput = this.$refs.weeklyPlan;
+        if (!this.hasWeeklyProgress() || !planInput || !Number.isFinite(Number(planInput.value))) {
+            return null;
+        }
+
+        return Math.round((Number(planInput.value) - Number(this.actualProgress)) * 100) / 100;
+    },
+    weeklySummary() {
+        const deviation = this.weeklyDeviation();
+        if (deviation === null) {
+            return '';
+        }
+
+        return `Target: ${Number(this.$refs.weeklyPlan.value).toFixed(2)}% | Realisasi: ${Number(this.actualProgress).toFixed(2)}%`;
+    }
 }"
 @weekly-progress-saved.window="
     showWeeklyModal = false;
@@ -233,7 +253,7 @@
                     <p class="text-xs text-slate-500 mt-0.5">Data kurva S rencana vs realisasi mingguan dan kumulatif proyek</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button wire:click="openWeeklyModal" @click="showWeeklyModal = true"
+                    <button type="button" @click="actualProgress = ''; showWeeklyModal = true"
                             class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1.5 cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -876,7 +896,7 @@
                                 <label class="block font-bold text-slate-800">Progres Rencana (%)</label>
                             </div>
                             <div>
-                                <input type="number" wire:model="inputPlanPct" readonly step="0.01" min="0" max="100"
+                                <input type="number" wire:model="inputPlanPct" x-ref="weeklyPlan" readonly step="0.01" min="0" max="100"
                                        class="w-full px-3.5 py-2.5 bg-slate-100/80 text-slate-600 font-bold border border-slate-200 rounded-xl cursor-not-allowed select-none focus:outline-none focus:ring-0 transition text-sm" />
                             </div>
                             <p class="text-[10px] text-slate-400 mt-1">Otomatis dari Kurva S Baseline</p>
@@ -887,7 +907,7 @@
                                 <label class="block font-bold text-slate-800">Progres Realisasi (%) <span class="text-rose-500">*</span></label>
                             </div>
                             <div class="relative">
-                                <input type="number" wire:model.live="inputActualPct" step="0.01" min="0" max="100" required placeholder="Contoh: 2.50"
+                                <input type="number" wire:model.blur="inputActualPct" x-on:input="actualProgress = $event.target.value" step="0.01" min="0" max="100" required placeholder="Contoh: 2.50"
                                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm font-bold text-slate-900 pr-8" />
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none font-bold text-slate-400 text-xs">
                                     %
@@ -899,33 +919,29 @@
                     </div>
 
                     {{-- LABEL DEVIASI LIVE PREVIEW --}}
-                    @php
-                        $planVal = is_numeric($inputPlanPct) ? (float) $inputPlanPct : null;
-                        $actualVal = is_numeric($inputActualPct) ? (float) $inputActualPct : null;
-                        $calcDeviasi = ($planVal !== null && $actualVal !== null) ? round($planVal - $actualVal, 2) : null;
-                    @endphp
-
-                    <div class="p-3.5 rounded-xl border {{ $calcDeviasi !== null ? ($calcDeviasi <= 0 ? 'bg-emerald-50/80 border-emerald-200 text-emerald-900' : 'bg-rose-50/80 border-rose-200 text-rose-900') : 'bg-slate-50 border-slate-200 text-slate-600' }} transition-all">
+                    <div class="p-3.5 rounded-xl border transition-all"
+                         :class="weeklyDeviation() === null ? 'bg-slate-50 border-slate-200 text-slate-600' : (weeklyDeviation() <= 0 ? 'bg-emerald-50/80 border-emerald-200 text-emerald-900' : 'bg-rose-50/80 border-rose-200 text-rose-900')">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full {{ $calcDeviasi !== null ? ($calcDeviasi <= 0 ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500 animate-pulse') : 'bg-slate-400' }}"></span>
+                                <span class="w-2.5 h-2.5 rounded-full"
+                                      :class="weeklyDeviation() === null ? 'bg-slate-400' : (weeklyDeviation() <= 0 ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500 animate-pulse')"></span>
                                 <span class="font-bold text-xs text-slate-800">Deviasi Mingguan:</span>
                             </div>
-                            @if($calcDeviasi !== null)
-                                <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full {{ $calcDeviasi <= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' }}">
-                                    {{ $calcDeviasi > 0 ? '+' : '' }}{{ number_format($calcDeviasi, 2) }}%
-                                </span>
-                            @else
-                                <span class="text-xs font-semibold text-slate-400">-- %</span>
-                            @endif
+                            <span x-show="weeklyDeviation() !== null" x-cloak
+                                  class="text-xs font-extrabold px-2.5 py-0.5 rounded-full"
+                                  :class="weeklyDeviation() <= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'"
+                                  x-text="`${weeklyDeviation() > 0 ? '+' : ''}${weeklyDeviation().toFixed(2)}%`">
+                            </span>
+                            <span x-show="weeklyDeviation() === null" x-cloak class="text-xs font-semibold text-slate-400">-- %</span>
                         </div>
                         <div class="mt-1.5 text-[11px] flex items-center justify-between text-slate-500">
-                            @if($calcDeviasi !== null)
-                                <span>Status: <strong class="{{ $calcDeviasi <= 0 ? 'text-emerald-700' : 'text-rose-700' }}">{{ $calcDeviasi <= 0 ? 'Sesuai Target / Lebih Cepat' : 'Terlambat dari Target' }}</strong></span>
-                                <span>{{ $planVal !== null ? 'Target: ' . number_format($planVal, 2) . '% | ' : '' }}Realisasi: {{ number_format($actualVal, 2) }}%</span>
-                            @else
-                                <span class="text-slate-400">Masukkan nilai progres realisasi untuk menghitung deviasi</span>
-                            @endif
+                            <span x-show="weeklyDeviation() !== null" x-cloak>
+                                Status: <strong :class="weeklyDeviation() <= 0 ? 'text-emerald-700' : 'text-rose-700'"
+                                                 x-text="weeklyDeviation() <= 0 ? 'Sesuai Target / Lebih Cepat' : 'Terlambat dari Target'"></strong>
+                            </span>
+                            <span x-show="weeklyDeviation() !== null" x-cloak
+                                  x-text="weeklySummary()"></span>
+                            <span x-show="weeklyDeviation() === null" x-cloak class="text-slate-400">Masukkan nilai progres realisasi untuk menghitung deviasi</span>
                         </div>
                     </div>
 

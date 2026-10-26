@@ -156,6 +156,14 @@ class BoqAndAddendumTest extends TestCase
         $this->assertEquals('2.50', $component->get('inputPlanPct'));
     }
 
+    public function test_opening_weekly_modal_preserves_entered_actual_progress(): void
+    {
+        Livewire::test(ProjectDetail::class, ['projectId' => 'PRJ-001'])
+            ->set('inputActualPct', '2.50')
+            ->call('openWeeklyModal')
+            ->assertSet('inputActualPct', '2.50');
+    }
+
     public function test_weekly_modal_supports_pdf_upload(): void
     {
         $file = \Illuminate\Http\UploadedFile::fake()->create('laporan_mingguan.pdf', 50, 'application/pdf');
@@ -189,4 +197,3 @@ class BoqAndAddendumTest extends TestCase
         $this->assertLessThan($posW1, $posW25, 'Week 25 should appear before Week 1 in the table');
     }
 }
-

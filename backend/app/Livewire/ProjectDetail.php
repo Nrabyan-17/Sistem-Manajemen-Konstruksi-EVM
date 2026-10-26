@@ -386,7 +386,6 @@ class ProjectDetail extends Component
         $lastWeek = end($this->weeklyProgress);
         $this->inputWeekNumber = $lastWeek ? (int) $lastWeek['week'] + 1 : 1;
         $this->updateCalculatedDatesAndPlan();
-        $this->inputActualPct = '';
     }
 
     public function closeWeeklyModal()

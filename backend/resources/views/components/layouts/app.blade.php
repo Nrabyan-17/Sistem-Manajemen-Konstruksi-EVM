@@ -397,12 +397,7 @@
                             }
                          }" 
                          x-init="updateClock(); setInterval(() => updateClock(), 1000)" 
-                         class="hidden xl:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-slate-700 text-xs shrink-0 shadow-2xs">
-                        <div class="p-1 rounded-lg bg-blue-50 text-blue-600 shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
+                         class="hidden xl:flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200/80 text-slate-700 text-sm shrink-0 shadow-2xs">
                         <div class="flex items-center gap-2">
                             <span x-text="dateStr" class="font-bold text-slate-700"></span>
                             <span class="text-slate-300">•</span>
