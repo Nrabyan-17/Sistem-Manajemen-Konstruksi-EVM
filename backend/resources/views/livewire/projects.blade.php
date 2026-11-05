@@ -276,7 +276,7 @@
                                 <th class="p-4">Tgl BAST</th>
                                 <th class="p-4">BCWS %</th>
                                 <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('progress')">BCWP %</th>
-                                <th class="p-4">ACWP</th>
+                                <th class="p-4">ACWP %</th>
                                 <th class="p-4">Deviasi</th>
                                 <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('cpi')">CPI</th>
                                 <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('spi')">SPI</th>
@@ -300,7 +300,7 @@
                                     <td class="p-4 text-slate-500">{{ date('d/m/Y', strtotime($p['bast_date'])) }}</td>
                                     <td class="p-4 font-bold text-blue-600">{{ number_format($p['bcws_pct'] ?? 0, 2) }}%</td>
                                     <td class="p-4 font-bold text-emerald-600">{{ number_format($p['bcwp_pct'] ?? $p['progress'], 2) }}%</td>
-                                    <td class="p-4 font-semibold text-slate-700" title="{{ \App\Support\CurrencyHelper::formatFull($p['acwp'] ?? 0) }}">{{ \App\Support\CurrencyHelper::format($p['acwp'] ?? 0) }}</td>
+                                    <td class="p-4 font-semibold text-slate-700" title="{{ \App\Support\CurrencyHelper::formatFull($p['acwp'] ?? 0) }}">{{ number_format($p['acwp_pct'] ?? 0, 2) }}%</td>
                                     <td class="p-4 font-bold {{ ($p['deviasi'] ?? 0) > 0 ? 'text-rose-600' : 'text-emerald-600' }}">{{ ($p['deviasi'] ?? 0) > 0 ? '+' : '' }}{{ number_format($p['deviasi'] ?? 0, 2) }}%</td>
                                     <td class="p-4 font-bold {{ $p['cpi'] >= 1.0 ? 'text-emerald-600' : 'text-rose-600' }}">{{ number_format($p['cpi'], 2) }}</td>
                                     <td class="p-4 font-bold {{ $p['spi'] >= 1.0 ? 'text-emerald-600' : 'text-rose-600' }}">{{ number_format($p['spi'], 2) }}</td>

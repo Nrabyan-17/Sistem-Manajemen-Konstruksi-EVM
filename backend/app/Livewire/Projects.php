@@ -389,6 +389,7 @@ class Projects extends Component
 
             $bcwsPct = $bac > 0 ? round(($bcws / $bac) * 100, 2) : 0;
             $bcwpPct = (float) $p['progress'];
+            $acwpPct = $bac > 0 ? round(($acwp / $bac) * 100, 2) : 0;
             $deviasi = round($bcwsPct - $bcwpPct, 2);
 
             // Addendum risk percentage
@@ -398,6 +399,7 @@ class Projects extends Component
 
             $p['bcws_pct'] = $bcwsPct;
             $p['bcwp_pct'] = $bcwpPct;
+            $p['acwp_pct'] = $acwpPct;
             $p['acwp'] = $acwp;
             $p['deviasi'] = $deviasi;
             $p['addendum_pct'] = $addendumPct;
