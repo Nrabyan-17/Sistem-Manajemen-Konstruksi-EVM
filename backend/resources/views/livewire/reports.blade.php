@@ -230,14 +230,7 @@
                             {{ \App\Support\CurrencyHelper::format($totalBac) }}
                         </span>
                     </div>
-                    @if($reportType === 'evm')
-                        <div>
-                            <span class="text-[10px] text-slate-400 font-bold block uppercase text-right">Avg CPI / SPI</span>
-                            <span class="text-sm font-extrabold text-right block text-blue-600">
-                                {{ number_format($aggCpi, 2) }} / {{ number_format($aggSpi, 2) }}
-                            </span>
-                        </div>
-                    @elseif($reportType === 'financial')
+                    @if($reportType === 'financial')
                         <div>
                             <span class="text-[10px] text-slate-400 font-bold block uppercase text-right">Total EAC</span>
                             <span class="text-sm font-extrabold text-right block" title="{{ \App\Support\CurrencyHelper::formatFull($totalEac) }}">
