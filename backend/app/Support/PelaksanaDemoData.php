@@ -23,6 +23,7 @@ final class PelaksanaDemoData
         ];
     }
 
+    /** Item percentages are exact decimal strings; volume is presentation data. */
     public static function context(string $projectId = 'DEMO-01'): array
     {
         $project = collect(self::projects())->firstWhere('id', $projectId);
@@ -35,9 +36,9 @@ final class PelaksanaDemoData
             'start' => '2026-06-29', 'end' => '2026-07-05', 'status' => 'DRAFT',
             'baseline' => 'DEMO · RAB Kontrak / TS Kontrak',
             'items' => [
-                ['id' => 'DEMO-I1', 'category' => 'Pekerjaan Persiapan', 'name' => 'Mobilisasi dan persiapan lokasi', 'volume' => 1.0, 'unit' => 'Ls', 'weight' => 10.0, 'target' => 60.0, 'previous' => 20.0],
-                ['id' => 'DEMO-I2', 'category' => 'Pekerjaan Tanah', 'name' => 'Galian dan pemadatan tanah', 'volume' => 450.0, 'unit' => 'm³', 'weight' => 30.0, 'target' => 65.0, 'previous' => 50.0],
-                ['id' => 'DEMO-I3', 'category' => 'Pekerjaan Struktur', 'name' => 'Pengecoran beton pondasi', 'volume' => 180.0, 'unit' => 'm³', 'weight' => 60.0, 'target' => 100.0, 'previous' => 100.0],
+                ['id' => 'DEMO-I1', 'category' => 'Pekerjaan Persiapan', 'name' => 'Mobilisasi dan persiapan lokasi', 'volume' => 1.0, 'unit' => 'Ls', 'weight' => '10', 'target' => '60', 'previous' => '20'],
+                ['id' => 'DEMO-I2', 'category' => 'Pekerjaan Tanah', 'name' => 'Galian dan pemadatan tanah', 'volume' => 450.0, 'unit' => 'm³', 'weight' => '30', 'target' => '65', 'previous' => '50'],
+                ['id' => 'DEMO-I3', 'category' => 'Pekerjaan Struktur', 'name' => 'Pengecoran beton pondasi', 'volume' => 180.0, 'unit' => 'm³', 'weight' => '60', 'target' => '100', 'previous' => '100'],
             ],
         ];
     }
