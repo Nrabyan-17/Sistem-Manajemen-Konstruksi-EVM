@@ -120,6 +120,24 @@ class Reports extends Component
         $this->showToast = false;
     }
 
+    private function getLatestPeriodLabel(string $projectId): string
+    {
+        $weeklyProgress = ProjectMockData::weeklyProgressFor($projectId);
+        $latest = end($weeklyProgress);
+
+        if (!is_array($latest) || !isset($latest['week'])) {
+            return '—';
+        }
+
+        $period = 'Minggu ' . $latest['week'];
+        if (!empty($latest['start_date']) && !empty($latest['end_date'])) {
+            $period .= ' (' . date('d/m/Y', strtotime($latest['start_date']))
+                . ' - ' . date('d/m/Y', strtotime($latest['end_date'])) . ')';
+        }
+
+        return $period;
+    }
+
     public function render()
     {
         $allProjects = ProjectMockData::all();
@@ -168,6 +186,9 @@ class Reports extends Component
             $cpi = (float) ($p['cpi'] ?? 1);
             $spi = (float) ($p['spi'] ?? 1);
             $plannedProgress = $bac > 0 ? min(100, round(($bcws / $bac) * 100, 1)) : 0;
+            $bcwsPct = $bac > 0 ? ($bcws / $bac) * 100 : 0;
+            $bcwpPct = $bac > 0 ? ($bcwp / $bac) * 100 : 0;
+            $acwpPct = $bac > 0 ? ($acwp / $bac) * 100 : 0;
             
             // Evaluasi status
             $costStatus = $cpi >= 1.0 ? 'Under Budget' : 'Over Budget';
@@ -199,6 +220,10 @@ class Reports extends Component
                 'bcwp' => $bcwp,
                 'acwp' => $acwp,
                 'bcws' => $bcws,
+                'bcws_pct' => $bcwsPct,
+                'bcwp_pct' => $bcwpPct,
+                'acwp_pct' => $acwpPct,
+                'period_label' => $this->getLatestPeriodLabel($p['project_id']),
                 'cv' => $cv,
                 'sv' => $sv,
                 'vac' => $vac,

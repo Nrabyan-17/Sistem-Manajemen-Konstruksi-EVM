@@ -113,10 +113,11 @@
                         <th class="p-4">Manager</th>
 
                         @if($reportType === 'evm')
+                            <th class="p-4 text-center">Periode</th>
                             <th class="p-4 text-right">BAC</th>
-                            <th class="p-4 text-right">BCWS</th>
-                            <th class="p-4 text-right">BCWP</th>
-                            <th class="p-4 text-right">ACWP</th>
+                            <th class="p-4 text-right">BCWS (%)</th>
+                            <th class="p-4 text-right">BCWP (%)</th>
+                            <th class="p-4 text-right">ACWP (%)</th>
                             <th class="p-4 text-center">CPI</th>
                             <th class="p-4 text-center">SPI</th>
                         @elseif($reportType === 'financial')
@@ -148,10 +149,11 @@
                             <td class="p-4 text-slate-600 font-semibold">{{ $p['project_manager'] }}</td>
 
                             @if($reportType === 'evm')
+                                <td class="p-4 text-center text-slate-600 font-semibold whitespace-nowrap">{{ $p['period_label'] }}</td>
                                 <td class="p-4 text-right font-extrabold text-slate-900" title="{{ \App\Support\CurrencyHelper::formatFull($p['bac']) }}">{{ \App\Support\CurrencyHelper::format($p['bac']) }}</td>
-                                <td class="p-4 text-right text-blue-600 font-semibold" title="{{ \App\Support\CurrencyHelper::formatFull($p['bcws']) }}">{{ \App\Support\CurrencyHelper::format($p['bcws']) }}</td>
-                                <td class="p-4 text-right text-emerald-600 font-semibold" title="{{ \App\Support\CurrencyHelper::formatFull($p['bcwp']) }}">{{ \App\Support\CurrencyHelper::format($p['bcwp']) }}</td>
-                                <td class="p-4 text-right text-orange-600 font-semibold" title="{{ \App\Support\CurrencyHelper::formatFull($p['acwp']) }}">{{ \App\Support\CurrencyHelper::format($p['acwp']) }}</td>
+                                <td class="p-4 text-right text-blue-600 font-semibold" title="{{ \App\Support\CurrencyHelper::formatFull($p['bcws']) }}">{{ number_format($p['bcws_pct'], 2) }}%</td>
+                                <td class="p-4 text-right text-emerald-600 font-semibold" title="{{ \App\Support\CurrencyHelper::formatFull($p['bcwp']) }}">{{ number_format($p['bcwp_pct'], 2) }}%</td>
+                                <td class="p-4 text-right text-orange-600 font-semibold" title="{{ \App\Support\CurrencyHelper::formatFull($p['acwp']) }}">{{ number_format($p['acwp_pct'], 2) }}%</td>
                                 <td class="p-4 text-center">
                                     <span class="font-extrabold {{ $p['cpi'] >= 1.0 ? 'text-emerald-600' : 'text-rose-600' }}">
                                         {{ number_format($p['cpi'], 2) }}
@@ -206,7 +208,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="py-20 text-center">
+                            <td colspan="{{ $reportType === 'evm' ? 11 : ($reportType === 'financial' ? 9 : 8) }}" class="py-20 text-center">
                                 <div class="w-full flex items-center justify-center text-center">
                                     <p class="text-sm sm:text-base font-medium text-slate-400 text-center">
                                         No projects found matching the selected filters.
