@@ -54,7 +54,6 @@
     {{-- Header --}}
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-            <p class="text-[11px] font-bold tracking-wider text-blue-600 uppercase">Validasi Data</p>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Approval Center</h1>
             <p class="text-slate-500 text-xs mt-0.5">Review and validate submitted data before it affects EVM calculations</p>
         </div>
@@ -588,4 +587,3 @@
     </template>
 
 </div>
-
