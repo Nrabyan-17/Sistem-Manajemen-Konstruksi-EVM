@@ -275,7 +275,7 @@
                                 <th class="p-4">Tgl BAST</th>
                                 <th class="p-4">BCWS %</th>
                                 <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('progress')">BCWP %</th>
-                                <th class="p-4">ACWP %</th>
+                                <th class="p-4 whitespace-nowrap">ACWP %</th>
                                 <th class="p-4">Deviasi</th>
                                 <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('cpi')">CPI</th>
                                 <th class="p-4 cursor-pointer hover:text-slate-700" wire:click="handleSort('spi')">SPI</th>
