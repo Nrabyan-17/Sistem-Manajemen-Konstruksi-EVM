@@ -8,6 +8,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/jpeg" href="/images/logo-bintang-gandari.jpg">
     <title>{{ $title ?? 'EVM Dashboard - PT Bintang Gandari' }}</title>
     
     <!-- Google Fonts: Plus Jakarta Sans -->
