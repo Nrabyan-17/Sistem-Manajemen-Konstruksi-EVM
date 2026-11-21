@@ -234,9 +234,17 @@
 
                         <div class="mt-5 pt-3 border-t border-slate-100 space-y-2">
                             <a href="{{ route('projects.show', $p['project_id']) }}"
-                               class="flex items-center justify-center gap-1.5 w-full text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg transition">
-                                View Project Details
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                               x-data="{ loading: false }"
+                               @click="loading = true"
+                               @pageshow.window="loading = false"
+                               :class="{ 'opacity-80 pointer-events-none cursor-wait': loading }"
+                               class="flex items-center justify-center gap-1.5 w-full text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg transition shadow-sm">
+                                <svg x-show="loading" x-cloak class="w-3.5 h-3.5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>View Project Details</span>
+                                <svg x-show="!loading" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>
                             </a>
@@ -317,8 +325,16 @@
                                     <td class="p-4 text-center">
     <div class="flex items-center justify-center gap-3">
         <a href="{{ route('projects.show', $p['project_id']) }}"
-           class="text-xs font-bold text-blue-600 hover:text-blue-700 transition">
-            View
+           x-data="{ loading: false }"
+           @click="loading = true"
+           @pageshow.window="loading = false"
+           :class="{ 'opacity-70 pointer-events-none cursor-wait': loading }"
+           class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 transition">
+            <svg x-show="loading" x-cloak class="w-3.5 h-3.5 animate-spin text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>View</span>
         </a>
         <button wire:click="showHistory('{{ $p['project_id'] }}')" 
                 class="text-xs font-semibold text-slate-500 hover:text-slate-700 transition">
